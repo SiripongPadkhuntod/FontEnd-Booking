@@ -1,7 +1,8 @@
 import React from 'react';
-import './Login.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope } from '@fortawesome/free-solid-svg-icons';
+// import './Login.css';
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import { faUser, faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { FcGoogle } from "react-icons/fc";
 
 function Login() {
     return (
@@ -9,18 +10,17 @@ function Login() {
         <div className="login-page">
             <div className="BG-left">
                 <img src="rsu_logo.png" alt="Logo" className="rsu_logo" />
+                <FcGoogle />
                 <h1>Hi Sir Have a Nice In This Today.</h1>
-                <p>
-                    Many cloud and thunder. You Should to take a ambella with your body.
-                    With best wishes from DIT.
-                </p>
+                
+                <p> Many cloud and thunder. You Should to take a ambella with your body.With best wishes from DIT.</p>
               
                 <form className="login-form">
                         <div className="input-group">
                             <span className="icon">
-                                <FontAwesomeIcon icon={faEnvelope} /> 
+                            <FcGoogle /> 
                             </span>
-                            <input type="email" placeholder="RSU Mail" />
+                            <input type="email" placeholder="RSU Mail test" />
                         </div>
 
                         <div className="input-group">
@@ -33,8 +33,10 @@ function Login() {
                     <button type="submit" className="login-button">Login Now</button>
                     
                     <div className="social_login">
-                    <img src="google_icon.png" alt="Logo" className="google" />
-                    <img src="facebook_icon.png" alt="Logo" className="facebook" />
+                    {/* <img src="google_icon.png" alt="Logo" className="google" />
+                    <img src="facebook_icon.png" alt="Logo" className="facebook" /> */}
+
+                    
                     </div>
                 </form>
             </div>

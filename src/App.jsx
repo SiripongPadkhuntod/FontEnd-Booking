@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
-import "./App.css";
-import HomePage from "./HomePage"; // หน้าหลังจากล็อกอินสำเร็จ
+import { FcGoogle } from "react-icons/fc";
+import HomePage from "./HomePage";
 
 function App() {
   return (
@@ -47,27 +47,33 @@ function Login() {
   };
 
   return (
-    <div className="container">
-      <div className="login-section">
-        <h1>Hi Sir Have a Nice In This Today.</h1>
-        <form onSubmit={handleLogin}>
+    <div className="container mx-auto flex flex-col md:flex-row items-center min-h-screen p-4">
+      <div className="w-full md:w-1/2 flex flex-col items-center p-6">
+        <h1 className="text-2xl font-bold mb-4">Hi Sir Have a Nice Day.</h1>
+        <FcGoogle className="text-4xl mb-4" />
+        <form onSubmit={handleLogin} className="w-full max-w-sm">
           <input
             type="email"
             placeholder="RSU Mail"
-            className="input-field"
+            className="w-full p-3 border rounded mb-4 focus:outline-none"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
           <input
             type="password"
             placeholder="Password"
-            className="input-field"
+            className="w-full p-3 border rounded mb-4 focus:outline-none"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button type="submit" className="login-btn">Login Now</button>
+          <button type="submit" className="w-full p-3 bg-blue-500 text-white rounded hover:bg-blue-600">Login Now</button>
         </form>
-        {error && <div className="modal">{error}</div>} {/* Modal ข้อความข้อผิดพลาด */}
+        {error && <div className="mt-4 text-red-500">{error}</div>} {/* ข้อความข้อผิดพลาด */}
+      </div>
+
+      <div className="w-full md:w-1/2 hidden md:flex items-center justify-center relative">
+        <img src="https://images.unsplash.com/photo-1557683316-973673baf926?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80" alt="login" className="object-cover h-full w-full" />
+        <div className="absolute inset-0 bg-black opacity-30"></div>
       </div>
     </div>
   );

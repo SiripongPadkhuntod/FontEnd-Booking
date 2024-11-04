@@ -4,6 +4,7 @@ import { CSSTransition, TransitionGroup } from "react-transition-group"; // à¸™à
 import "./Home.css";
 import CoMap from "./Component/Map";
 import CoProfile from "./Component/Profile";
+import CoTest from "./Component/TestModal";
 
 const Home = () => {
   const [activeComponent, setActiveComponent] = useState("Map");
@@ -14,6 +15,8 @@ const Home = () => {
         return <CoMap />;
       case "Profile":
         return <CoProfile />;
+      case "Day":
+        return <CoTest />;
       default:
         return null;
     }
