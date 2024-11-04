@@ -1,8 +1,6 @@
 import React from 'react'
 import styled from 'styled-components';
 
-
-
 function CoMap() {
     return (
         <div className="map-view">

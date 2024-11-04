@@ -1,124 +1,57 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useState } from 'react';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import "../css/ProfilePage.css";
 
-const ProfileContainer = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100%;
-  margin: auto;
-  padding: 20px;
-  background-color: #f5f7ff;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-`;
+function ProfilePage({ nightMode }) {
+  const [isEditing, setIsEditing] = useState(false);
 
-const Sidebar = styled.div`
-  width: 30%;
-  padding: 20px;
-  text-align: center;
-`;
+  const toggleEdit = () => {
+    setIsEditing(!isEditing);
+  };
 
-const MainContent = styled.div`
-  flex: 1;
-  padding: 20px;
-`;
-
-const Avatar = styled.div`
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background-color: #800080;
-  background-size: cover;
-  margin: 0 auto;
-  margin-bottom: 20px;
-`;
-
-// เพิ่ม Styled Components สำหรับข้อความที่ต้องการ
-const NameText = styled.h2`
-  color: #000; /* สีดำ */
-  font-size: 20px;
-  margin-bottom: 20px;
-`;
-
-const SidebarLink = styled.p`
-  color: #000; /* สีดำ */
-  font-size: 16px;
-  cursor: pointer;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const SectionTitle = styled.h3`
-  font-size: 18px;
-  color: #333;
-  margin-bottom: 10px;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  max-width: 400px;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-`;
-
-const Button = styled.button`
-  padding: 10px 20px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  background-color: #e57373;
-  cursor: pointer;
-  &:hover {
-    background-color: #d32f2f;
-  }
-`;
-
-const SaveButton = styled(Button)`
-  background-color: #4caf50;
-  &:hover {
-    background-color: #388e3c;
-  }
-`;
-
-function ProfilePage() {
   return (
-    <ProfileContainer>
-      <Sidebar>
-        <Avatar />
-        <NameText>Firstname Lastname</NameText>
-        <div>
-          <SidebarLink>Personal Details</SidebarLink>
-          <SidebarLink>Personal Calendar Feed</SidebarLink>
+    <TransitionGroup component="div" className={`flex flex-col md:flex-row w-full h-full p-5 transition-all duration-300 ${nightMode ? 'bg-gray-900' : 'bg-gray-100'} rounded-lg shadow-md`}>
+      
+      {/* Profile Section */}
+      <CSSTransition key="profile-section" timeout={500} classNames="fade">
+        <div className={`w-full md:w-1/3 p-5 text-center ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-gray-200 text-black'} transition-all duration-500`}>
+          <div className="w-24 h-24 rounded-full bg-purple-600 mx-auto mb-5 transition-all duration-300"></div>
+          <h2 className={`text-xl mb-5 ${nightMode ? 'text-gray-200' : 'text-black'}`}>Firstname Lastname</h2>
+          <div>
+            <p className={`cursor-pointer mb-2 ${nightMode ? 'text-gray-200 hover:underline' : 'text-black hover:underline'}`}>Personal Details</p>
+            <p className={`cursor-pointer mb-2 ${nightMode ? 'text-gray-200 hover:underline' : 'text-black hover:underline'}`}>Personal Calendar Feed</p>
+          </div>
+          <div className="flex flex-col items-center">
+            <button className={`py-2 px-4 mt-5 rounded-lg bg-yellow-500 text-white hover:bg-red-600 transition-all duration-300`} onClick={toggleEdit}>Edit</button>
+            <button className={`py-2 px-4 mt-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-300`}>Logout</button>
+          </div>
         </div>
-        <Button>Logout</Button>
-      </Sidebar>
+      </CSSTransition>
+      
+      {/* Main Content Section */}
+      <CSSTransition key="main-content-section" timeout={500} classNames="fade">
+        <div className={`flex-1 p-5 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-gray-100 text-black'} transition-all duration-500 ${isEditing ? 'block' : 'hidden md:block'}`}>
+          <h3 className={`text-lg mb-2 ${nightMode ? 'text-gray-300' : 'text-gray-800'}`}>Login</h3>
+          <input type="email" placeholder="example@gmail.com" className={`w-full max-w-md p-2 mb-3 rounded-lg border ${nightMode ? 'bg-gray-700 text-gray-200 border-gray-600' : 'bg-white text-black border-gray-300'}`} />
+          <button className={`py-2 px-4 mt-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300`}>Change</button>
+          <button className={`py-2 px-4 mt-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-300`}>Reset Password</button>
 
-      <MainContent>
-        <SectionTitle>Login</SectionTitle>
-        <Input type="email" placeholder="example@gmail.com" />
-        <Button>Change</Button>
-        <Button>Reset Password</Button>
+          <h3 className={`text-lg mt-5 mb-2 ${nightMode ? 'text-gray-300' : 'text-gray-800'}`}>Service Logins</h3>
 
-        <SectionTitle>Service Logins</SectionTitle>
-        {/* สามารถเพิ่ม icon สำหรับ Google, Facebook, ฯลฯ ตรงนี้ได้ */}
+          <h3 className={`text-lg mt-5 mb-2 ${nightMode ? 'text-gray-300' : 'text-gray-800'}`}>Contact</h3>
+          <input type="text" placeholder="Firstname" className={`w-full max-w-md p-2 mb-3 rounded-lg border ${nightMode ? 'bg-gray-700 text-gray-200 border-gray-600' : 'bg-white text-black border-gray-300'}`} />
+          <input type="text" placeholder="Lastname" className={`w-full max-w-md p-2 mb-3 rounded-lg border ${nightMode ? 'bg-gray-700 text-gray-200 border-gray-600' : 'bg-white text-black border-gray-300'}`} />
 
-        <SectionTitle>Contact</SectionTitle>
-        <Input type="text" placeholder="Firstname" />
-        <Input type="text" placeholder="Lastname" />
+          <h3 className={`text-lg mt-5 mb-2 ${nightMode ? 'text-gray-300' : 'text-gray-800'}`}>Telephone</h3>
+          <input type="text" placeholder="(TH) e.g. 081 234 5678" className={`w-full max-w-md p-2 mb-3 rounded-lg border ${nightMode ? 'bg-gray-700 text-gray-200 border-gray-600' : 'bg-white text-black border-gray-300'}`} />
 
-        <SectionTitle>Telephone</SectionTitle>
-        <Input type="text" placeholder="(TH) e.g. 081 234 5678" />
+          <h3 className={`text-lg mt-5 mb-2 ${nightMode ? 'text-gray-300' : 'text-gray-800'}`}>Organization</h3>
+          <input type="text" placeholder="Optional" className={`w-full max-w-md p-2 mb-3 rounded-lg border ${nightMode ? 'bg-gray-700 text-gray-200 border-gray-600' : 'bg-white text-black border-gray-300'}`} />
 
-        <SectionTitle>Organization</SectionTitle>
-        <Input type="text" placeholder="Optional" />
-
-        <SaveButton>Save all Changes</SaveButton>
-      </MainContent>
-    </ProfileContainer>
+          <button className={`py-2 px-4 mt-5 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-all duration-300`}>Save all Changes</button>
+        </div>
+      </CSSTransition>
+    </TransitionGroup>
   );
 }
 
