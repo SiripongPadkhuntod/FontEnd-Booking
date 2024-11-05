@@ -22,7 +22,7 @@ const Home = () => {
   const renderComponent = () => {
     switch (activeComponent) {
       case "Map":
-        return <CoMap />;
+        return <CoMap nightMode={isNightMode}/>;
       case "Profile":
         return <CoProfile nightMode={isNightMode} />;
       case "Day":

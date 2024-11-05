@@ -15,7 +15,7 @@ function App() {
 }
 
 function Login() {
-  const [email, setEmail] = useState("");
+  const [username, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showAlert, setShowAlert] = useState(false); // state สำหรับการแสดง alert
@@ -25,22 +25,21 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch("http://localhost:8080/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       if (response.ok) {
         // ล็อกอินสำเร็จ เปลี่ยนหน้าไปที่ /home
         navigate("/home");
       } else {
-        // ล็อกอินไม่สำเร็จ แสดงข้อความข้อผิดพลาด
-        setError("ชื่อหรือรหัสผ่านไม่ถูกต้อง");
-        const modal = document.getElementById("my_modal_2");
-        modal.showModal();
+        const errorMessage = await response.text(); // Read the response body
+        let Message = response.status + " " + errorMessage;
+        testModal(Message);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -49,7 +48,7 @@ function Login() {
       setTimeout(() => {
         setShowAlert(false);
       }, 5000);
-    
+
     }
   };
 
@@ -63,7 +62,7 @@ function Login() {
             type="email"
             placeholder="RSU Mail"
             className="w-full p-3 border rounded mb-4 focus:outline-none"
-            value={email}
+            value={username}
             onChange={(e) => setEmail(e.target.value)}
           />
 
@@ -101,7 +100,8 @@ function Login() {
           <span>Error! มีข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์</span>
         </div>
       )}
-
+  
+        {/* Modal แสดงข้อความ Error หลังจาก catch error */}
       <dialog id="my_modal_2" className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Hello!</h3>
@@ -111,8 +111,16 @@ function Login() {
           <button>close</button>
         </form>
       </dialog>
+
     </div>
   );
+}
+
+function testModal(message) {
+  const modal = document.getElementById("my_modal_2");
+  modal.showModal();
+  modal.querySelector("p").textContent = message; // แสดงข้อความที่ได้รับจาก catch error
+  setTimeout(() => { modal.close(); }, 5000); // ปิด modal หลังจาก 5 วินาที
 }
 
 export default App;
