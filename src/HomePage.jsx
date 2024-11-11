@@ -94,6 +94,11 @@ const Home = () => {
           <button className={`${isNightMode ? "text-gray-400" : "text-gray-500"}`}>Term</button>
         </div>
         <div className={`mt-4 text-xs underline ${isNightMode ? "text-gray-400" : "text-gray-500"}`}>Privacy</div>
+        <footer className="footer footer-center bg-base-300 text-base-content p-4">
+  <aside>
+    <p>Copyright © {new Date().getFullYear()} - All right reserved by ACME Industries Ltd</p>
+  </aside>
+</footer>
 
         {/* Night Mode Toggle Button */}
         <button
