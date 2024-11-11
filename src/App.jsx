@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import HomePage from "./HomePage";
@@ -25,7 +25,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:8080/login", {
+      const response = await fetch("https://backend-6ug4.onrender.com/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,10 +34,11 @@ function Login() {
       });
 
       if (response.ok) {
-        // ล็อกอินสำเร็จ เปลี่ยนหน้าไปที่ /home
-        navigate("/home");
+        const { key } = await response.json(); // สมมุติว่า server ส่ง key กลับมาใน response
+        localStorage.setItem("authKey", key); // เก็บ key ไว้ใน localStorage
+        navigate("/home"); // เปลี่ยนไปหน้า home
       } else {
-        const errorMessage = await response.text(); // Read the response body
+        const errorMessage = await response.text(); // อ่านข้อความจากเซิร์ฟเวอร์
         let Message = response.status + " " + errorMessage;
         testModal(Message);
       }
@@ -48,7 +49,6 @@ function Login() {
       setTimeout(() => {
         setShowAlert(false);
       }, 5000);
-
     }
   };
 
@@ -65,7 +65,6 @@ function Login() {
             value={username}
             onChange={(e) => setEmail(e.target.value)}
           />
-
 
           <input
             type="password"
@@ -100,8 +99,8 @@ function Login() {
           <span>Error! มีข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์</span>
         </div>
       )}
-  
-        {/* Modal แสดงข้อความ Error หลังจาก catch error */}
+
+      {/* Modal แสดงข้อความ Error หลังจาก catch error */}
       <dialog id="my_modal_2" className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Hello!</h3>
@@ -111,10 +110,7 @@ function Login() {
           <button>close</button>
         </form>
       </dialog>
-      
-
     </div>
-    
   );
 }
 
