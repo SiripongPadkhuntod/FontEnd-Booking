@@ -13,30 +13,23 @@ const CoMap = ({ nightMode }) => {
     const [offsetY, setOffsetY] = useState(0);
     const [scale, setScale] = useState(1);
 
-    // const 
+    const [selectedTime, setSelectedTime] = useState("09:00 AM");
+    const [bookingTime, setBookingTime] = useState(""); // สถานะเวลาสำหรับ bookingModal
 
-    const tables = [
-        { id: 1, x: 704, y: 294, status: 'ว่าง', initials: '' },
-        { id: 2, x: 300, y: 200, status: 'ปิด', initials: '' },
-        { id: 3, x: 500, y: 250, status: 'มีคนจ้อง', initials: 'SP' },
-    ];
+  // ฟังก์ชันเปลี่ยนเวลา
+  const handleTimeChange = (time) => {
+    setSelectedTime(time);
+  };
 
-    const handleTableClick = (id) => {
-        alert(`Table ${id} booked!`);
-    };
+  // ฟังก์ชันส่งข้อมูลไปที่ bookingModal
+  const handleBook = () => {
+    setBookingTime(selectedTime); // ส่งเวลาที่เลือกไปที่ bookingModal
+    document.getElementById('availabilityModal').close(); // ปิด availabilityModal
+    document.getElementById('bookingModal').showModal(); // เปิด bookingModal
+  };
 
-    const getColorByStatus = (status) => {
-        switch (status) {
-            case 'ว่าง':
-                return 'green';
-            case 'ปิด':
-                return 'gray';
-            case 'มีคนจ้อง':
-                return 'lightgray';
-            default:
-                return 'red';
-        }
-    };
+
+
 
     const handleMouseDown = (e) => {
         setIsDragging(true);
@@ -62,6 +55,10 @@ const CoMap = ({ nightMode }) => {
         }
     };
 
+    const handleBookingClick = (seatId) => {
+        alert(`จองที่นั่งหมายเลข ${seatId}`);
+    };
+
     return (
         <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode ? 'bg-gray-900' : 'bg-white'}`}>
             <div
@@ -77,7 +74,8 @@ const CoMap = ({ nightMode }) => {
                     cursor: isDragging ? 'grabbing' : 'grab',
                 }}
             >
-                <svg xmlns="http://www.w3.org/2000/svg" width="514" height="867" fill="none" viewBox="0 0 514 867">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="514" height="867" fill="none" viewBox="0 0 514 867" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                     <path fill="#DCEAF7" stroke="#366286" stroke-width="5" d="M2.5 2.5h509v714H2.5z" />
                     <path fill="#DCEAF7" stroke="#366286" d="M170.5 713.5h180v5h-180z" />
                     <rect width="141" height="212" x="178.5" y="49.5" fill="#FCFCFC" stroke="#C0BECA" rx="14.5" />
@@ -87,18 +85,60 @@ const CoMap = ({ nightMode }) => {
                     <path fill="#fff" stroke="#C0BECA" d="M288.5 344.5h210v55h-210z" />
                     <path fill="#D9D9D9" stroke="#F36F56" d="M451.5 227.5h47v48h-47z" />
                     <path fill="#D9D9D9" stroke="#CC2129" d="M451.5 289.5h47v48h-47z" />
-                    <path fill="#D9D9D9" stroke="#000" d="M174.5 108.5H145c-8.008 0-14.5-6.492-14.5-14.5V79c0-8.008 6.492-14.5 14.5-14.5h29.5v44Z" />
+
+                    {/* โต็ะ 1 ซ้าย*/}<g>
+                        <path fill="#D9D9D9" stroke="#000" d="M174.5 108.5H145c-8.008 0-14.5-6.492-14.5-14.5V79c0-8.008 6.492-14.5 14.5-14.5h29.5v44Z" />
+                        <circle cx="150" cy="85" r="15" fill="green" onClick={() => document.getElementById('availabilityModal').showModal()} className="cursor-pointer" />
+                    </g>
                     <path fill="#D9D9D9" d="M183 18h132v23H183z" />
-                    <path fill="#D9D9D9" stroke="#000" d="M145 135.5h29.5v44H145c-8.008 0-14.5-6.492-14.5-14.5v-15c0-8.008 6.492-14.5 14.5-14.5Z" />
-                    <path fill="#D9D9D9" stroke="#934E44" d="M381.5 462c0-8.008 6.492-14.5 14.5-14.5h29.5v44H396c-8.008 0-14.5-6.492-14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#D7209A" d="M367.5 150c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#71C3DD" d="M142.5 457c0-8.008-6.492-14.5-14.5-14.5H98.5v44H128c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#3DA3ED" d="M367.5 79c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5V79Z" />
+
+                    {/* โต็ะ2 ซ้าย*/}<g>
+                        <path fill="#D9D9D9" stroke="#000" d="M145 135.5h29.5v44H145c-8.008 0-14.5-6.492-14.5-14.5v-15c0-8.008 6.492-14.5 14.5-14.5Z" />
+                        <circle cx="150" cy="155" r="15" fill="green" onClick={() => document.getElementById('availabilityModal').showModal()} className="cursor-pointer" />
+                    </g>
+
+                    <g>
+                        <path fill="#D9D9D9" stroke="#000" d="M381.5 462c0-8.008 6.492-14.5 14.5-14.5h29.5v44H396c-8.008 0-14.5-6.492-14.5-14.5v-15Z" />
+                        <circle cx="405" cy="470" r="15" fill="green" onClick={() => document.getElementById('availabilityModal').showModal()} className="cursor-pointer" />
+                    </g>
+
+                    {/* โต็ะ2 ขวา*/}<g>
+                        <path fill="#D9D9D9" stroke="#000" d="M367.5 150c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
+                        <circle cx="345" cy="155" r="15" fill="green" onClick={() => document.getElementById('availabilityModal').showModal()} className="cursor-pointer" />
+                    </g>
+
+                    {/* Computer 1*/}<g>
+                        <path fill="#D9D9D9" stroke="#000" d="M142.5 457c0-8.008-6.492-14.5-14.5-14.5H98.5v44H128c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
+                        <circle cx="120" cy="465" r="15" fill="green" onClick={() => document.getElementById('availabilityModal').showModal()} className="cursor-pointer" />
+                    </g>
+
+                    {/* โต็1 ขวา*/}<g>
+                        <path fill="#D9D9D9" stroke="#000" d="M367.5 79c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5V79Z" />
+                        <circle cx="345" cy="85" r="15" fill="green" onClick={() => document.getElementById('availabilityModal').showModal()} className="cursor-pointer" />
+                    </g>
+
                     <path fill="#D9D9D9" stroke="#893976" d="M367.5 218c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#5038ED" d="M367.5 218c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#C0B1DC" d="M142.5 549c0-8.008-6.492-14.5-14.5-14.5H98.5v44H128c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#0F6" d="M130.5 220c0-8.008 6.492-14.5 14.5-14.5h29.5v44H145c-8.008 0-14.5-6.492-14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#DD8EB7" d="M381.5 532c0-8.008 6.492-14.5 14.5-14.5h29.5v44H396c-8.008 0-14.5-6.492-14.5-14.5v-15Z" />
+                    {/* โต็ะ3 ขวา*/}<g>
+                        <path fill="#D9D9D9" stroke="#000" d="M367.5 218c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
+                        <circle cx="345" cy="225" r="15" fill="green" onClick={() => document.getElementById('availabilityModal').showModal()} className="cursor-pointer" />
+                    </g>
+
+                    {/* Computer 2*/}<g>
+                        <path fill="#D9D9D9" stroke="#000" d="M142.5 549c0-8.008-6.492-14.5-14.5-14.5H98.5v44H128c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
+                        <circle cx="120" cy="556" r="15" fill="green" onClick={() => document.getElementById('availabilityModal').showModal()} className="cursor-pointer" />
+                    </g>
+
+                    {/* โต็ะ3 ซ้าย*/}<g>
+                        <path fill="#D9D9D9" stroke="#000" d="M130.5 220c0-8.008 6.492-14.5 14.5-14.5h29.5v44H145c-8.008 0-14.5-6.492-14.5-14.5v-15Z" />
+                        <circle cx="150" cy="225" r="15" fill="green" onClick={() => document.getElementById('availabilityModal').showModal()} className="cursor-pointer" />
+                    </g>
+
+                    <g>
+                        <path fill="#D9D9D9" stroke="#000" d="M381.5 532c0-8.008 6.492-14.5 14.5-14.5h29.5v44H396c-8.008 0-14.5-6.492-14.5-14.5v-15Z" />
+                        <circle cx="405" cy="540" r="15" fill="green" onClick={() => document.getElementById('availabilityModal').showModal()} className="cursor-pointer" />
+                    </g>
+
+
                     <circle cx="55" cy="458" r="13" fill="#D9D9D9" />
                     <g clip-path="url(#a)">
                         <path fill="#374957" d="M64 463.25v-9.75a2.25 2.25 0 0 0-2.25-2.25h-13.5A2.25 2.25 0 0 0 46 453.5v9.75h8.25v.75h-3v1.5h7.5V464h-3v-.75H64Zm-16.5-9.75a.748.748 0 0 1 .75-.75h13.5a.749.749 0 0 1 .75.75v8.25h-15v-8.25Z" />
@@ -137,22 +177,7 @@ const CoMap = ({ nightMode }) => {
 
 
 
-                {tables.map((table) => (
-                    <div
-                        key={table.id}
-                        className="absolute flex items-center justify-center rounded-full cursor-pointer"
-                        style={{
-                            left: `${table.x}px`,
-                            top: `${table.y}px`,
-                            width: '20px',
-                            height: '20px',
-                            backgroundColor: getColorByStatus(table.status),
-                        }}
-                        onClick={() => handleTableClick(table.id)}
-                    >
-                        {table.status === 'มีคนจ้อง' && <span className="text-white font-bold">{table.initials}</span>}
-                    </div>
-                ))}
+
             </div>
 
             {/* Zoom buttons */}
@@ -185,6 +210,109 @@ const CoMap = ({ nightMode }) => {
                     className="p-1 border rounded-md"
                 />
             </div>
+
+
+            {/* Booking Modal */}
+      <dialog id="bookingModal" className="modal">
+        <form method="dialog" className="modal-box rounded-lg w-full max-w-lg p-6 bg-gray-900 text-white">
+          <h3 className="text-2xl font-bold mb-2">NEW BOOKING</h3>
+          <p className="text-gray-500 mb-6">Desk Number ##</p>
+
+          {/* Date & Time */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold mb-1">Date & Time</label>
+            <input type="date" className="input input-bordered w-full mb-3 text-gray-900" />
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <label className="block text-sm font-semibold ">From</label>
+                <select className="select select-bordered w-full text-gray-900">
+                  <option>{bookingTime || "08:00 AM"}</option> {/* เวลาเริ่มต้น */}
+                  {/* เพิ่มตัวเลือกเวลา */}
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-semibold">To</label>
+                <select className="select select-bordered w-full text-gray-900">
+                  <option>17:00</option>
+                  <option>18:00</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <button className="btn btn-primary">Confirm Booking</button>
+            <button
+              className="btn btn-outline"
+              onClick={() => document.getElementById('bookingModal').close()}
+            >
+              Cancel Booking
+            </button>
+          </div>
+        </form>
+      </dialog>
+
+      {/* Availability Modal */}
+      <dialog id="availabilityModal" className="modal">
+        <div className="modal-box rounded-lg w-full max-w-md p-6 bg-gray-900 text-white">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <div className="bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">
+                J3
+              </div>
+              <h3 className="ml-3 text-lg font-semibold">This space is available!</h3>
+            </div>
+            <button
+              onClick={() => document.getElementById('availabilityModal').close()}
+              className="text-gray-500 hover:text-gray-300"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="text-center mb-6">
+            <div className="bg-gray-800 rounded-lg py-6 px-4 mb-2">
+              <p className="text-3xl font-bold">{selectedTime}</p>
+              <p className="text-gray-400">10 Sat 2024</p>
+            </div>
+            <button className="btn btn-success w-24" onClick={handleBook}>
+              BOOK
+            </button>
+          </div>
+
+          <div className="mb-6">
+            <p className="font-semibold mb-2 text-gray-300">Other available time</p>
+            <div className="flex flex-wrap gap-2">
+              {["08:00 AM", "08:30 AM", "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM"].map(
+                (time) => (
+                  <button
+                    key={time}
+                    onClick={() => handleTimeChange(time)}
+                    className={`btn btn-outline btn-sm ${
+                      selectedTime === time ? "bg-gray-500 text-white" : "text-gray-300"
+                    }`}
+                  >
+                    {time}
+                  </button>
+                )
+              )}
+              <button className="btn btn-outline btn-sm text-gray-300">More</button>
+            </div>
+          </div>
+
+          <div className="rounded-lg bg-gray-800 p-4">
+            <p className="font-semibold text-gray-300">Scheduled Booking (0.10 น.น.)</p>
+            <div className="flex items-center justify-between mt-2">
+              <p className="text-sm text-gray-300">
+                <span className="text-red-500 font-bold">🔴</span> 13:00 - 18:00
+              </p>
+              <p className="text-sm font-semibold text-gray-300">Firstname Lastname</p>
+            </div>
+          </div>
+        </div>
+      </dialog>
+
+
         </div>
     );
 };
