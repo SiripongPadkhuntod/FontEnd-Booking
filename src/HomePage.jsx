@@ -5,6 +5,7 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import CoMap from "./Component/Map";
 import CoProfile from "./Component/Profile";
 import CoTest from "./Component/TestModal";
+import CoList from "./Component/List"
 
 // Import icons
 import { HiMiniMap } from "react-icons/hi2";
@@ -22,11 +23,13 @@ const Home = () => {
   const renderComponent = () => {
     switch (activeComponent) {
       case "Map":
-        return <CoMap nightMode={isNightMode}/>;
+        return <CoMap nightMode={isNightMode} />;
       case "Profile":
         return <CoProfile nightMode={isNightMode} />;
       case "Day":
         return <CoTest />;
+      case "List":
+        return <CoList nightMode={isNightMode} />;
       default:
         return null;
     }
@@ -95,10 +98,10 @@ const Home = () => {
         </div>
         <div className={`mt-4 text-xs underline ${isNightMode ? "text-gray-400" : "text-gray-500"}`}>Privacy</div>
         <footer className="footer footer-center bg-base-300 text-base-content p-4">
-  <aside>
-    <p>Copyright © {new Date().getFullYear()} - All right reserved by ACME Industries Ltd</p>
-  </aside>
-</footer>
+          <aside>
+            <p>Copyright © {new Date().getFullYear()} - All right reserved by ACME Industries Ltd</p>
+          </aside>
+        </footer>
 
         {/* Night Mode Toggle Button */}
         <button
