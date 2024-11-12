@@ -82,7 +82,7 @@ Frontend-Booking/
 
 ## ผู้พัฒนา
 
-- ศิริพงษ์ ภักดีกุนทอง
+- Thyme
 
 ## License
 
