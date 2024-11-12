@@ -13,28 +13,8 @@ const CoMap = ({ nightMode }) => {
     const [offsetY, setOffsetY] = useState(0);
     const [scale, setScale] = useState(1);
 
-    const tables = [
-        { id: 1, x: 704, y: 294, status: 'ว่าง', initials: '' },
-        { id: 2, x: 300, y: 200, status: 'ปิด', initials: '' },
-        { id: 3, x: 500, y: 250, status: 'มีคนจ้อง', initials: 'SP' },
-    ];
 
-    const handleTableClick = (id) => {
-        alert(`Table ${id} booked!`);
-    };
 
-    const getColorByStatus = (status) => {
-        switch (status) {
-            case 'ว่าง':
-                return 'green';
-            case 'ปิด':
-                return 'gray';
-            case 'มีคนจ้อง':
-                return 'lightgray';
-            default:
-                return 'red';
-        }
-    };
 
     const handleMouseDown = (e) => {
         setIsDragging(true);
@@ -60,6 +40,10 @@ const CoMap = ({ nightMode }) => {
         }
     };
 
+    const handleBookingClick = (seatId) => {
+        alert(`จองที่นั่งหมายเลข ${seatId}`);
+    };
+
     return (
         <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode ? 'bg-gray-900' : 'bg-white'}`}>
             <div
@@ -75,7 +59,7 @@ const CoMap = ({ nightMode }) => {
                     cursor: isDragging ? 'grabbing' : 'grab',
                 }}
             >
-           
+
                 <svg xmlns="http://www.w3.org/2000/svg" width="514" height="867" fill="none" viewBox="0 0 514 867" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                     <path fill="#DCEAF7" stroke="#366286" stroke-width="5" d="M2.5 2.5h509v714H2.5z" />
                     <path fill="#DCEAF7" stroke="#366286" d="M170.5 713.5h180v5h-180z" />
@@ -86,18 +70,60 @@ const CoMap = ({ nightMode }) => {
                     <path fill="#fff" stroke="#C0BECA" d="M288.5 344.5h210v55h-210z" />
                     <path fill="#D9D9D9" stroke="#F36F56" d="M451.5 227.5h47v48h-47z" />
                     <path fill="#D9D9D9" stroke="#CC2129" d="M451.5 289.5h47v48h-47z" />
-                    <path fill="#D9D9D9" stroke="#000" d="M174.5 108.5H145c-8.008 0-14.5-6.492-14.5-14.5V79c0-8.008 6.492-14.5 14.5-14.5h29.5v44Z" />
+
+                    {/* โต็ะ 1 ซ้าย*/}<g>
+                        <path fill="#D9D9D9" stroke="#000" d="M174.5 108.5H145c-8.008 0-14.5-6.492-14.5-14.5V79c0-8.008 6.492-14.5 14.5-14.5h29.5v44Z" />
+                        <circle cx="150" cy="85" r="15" fill="green" onClick={() => handleBookingClick(1)} className="cursor-pointer" />
+                    </g>
                     <path fill="#D9D9D9" d="M183 18h132v23H183z" />
-                    <path fill="#D9D9D9" stroke="#000" d="M145 135.5h29.5v44H145c-8.008 0-14.5-6.492-14.5-14.5v-15c0-8.008 6.492-14.5 14.5-14.5Z" />
-                    <path fill="#D9D9D9" stroke="#934E44" d="M381.5 462c0-8.008 6.492-14.5 14.5-14.5h29.5v44H396c-8.008 0-14.5-6.492-14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#D7209A" d="M367.5 150c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#71C3DD" d="M142.5 457c0-8.008-6.492-14.5-14.5-14.5H98.5v44H128c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#3DA3ED" d="M367.5 79c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5V79Z" />
+
+                    {/* โต็ะ2 ซ้าย*/}<g>
+                        <path fill="#D9D9D9" stroke="#000" d="M145 135.5h29.5v44H145c-8.008 0-14.5-6.492-14.5-14.5v-15c0-8.008 6.492-14.5 14.5-14.5Z" />
+                        <circle cx="150" cy="155" r="15" fill="green" onClick={() => handleBookingClick(1)} className="cursor-pointer" />
+                    </g>
+
+                    <g>
+                        <path fill="#D9D9D9" stroke="#934E44" d="M381.5 462c0-8.008 6.492-14.5 14.5-14.5h29.5v44H396c-8.008 0-14.5-6.492-14.5-14.5v-15Z" />
+                        <circle cx="405" cy="470" r="15" fill="green" onClick={() => handleBookingClick(1)} className="cursor-pointer" />
+                    </g>
+
+                    {/* โต็ะ2 ขวา*/}<g>
+                        <path fill="#D9D9D9" stroke="#D7209A" d="M367.5 150c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
+                        <circle cx="345" cy="155" r="15" fill="green" onClick={() => handleBookingClick(1)} className="cursor-pointer" />
+                    </g>
+
+                    {/* Computer 1*/}<g>
+                        <path fill="#D9D9D9" stroke="#71C3DD" d="M142.5 457c0-8.008-6.492-14.5-14.5-14.5H98.5v44H128c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
+                        <circle cx="120" cy="465" r="15" fill="green" onClick={() => handleBookingClick(1)} className="cursor-pointer" />
+                    </g>
+
+                    {/* โต็1 ขวา*/}<g>
+                        <path fill="#D9D9D9" stroke="#3DA3ED" d="M367.5 79c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5V79Z" />
+                        <circle cx="345" cy="85" r="15" fill="green" onClick={() => handleBookingClick(1)} className="cursor-pointer" />
+                    </g>
+
                     <path fill="#D9D9D9" stroke="#893976" d="M367.5 218c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#5038ED" d="M367.5 218c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#C0B1DC" d="M142.5 549c0-8.008-6.492-14.5-14.5-14.5H98.5v44H128c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#0F6" d="M130.5 220c0-8.008 6.492-14.5 14.5-14.5h29.5v44H145c-8.008 0-14.5-6.492-14.5-14.5v-15Z" />
-                    <path fill="#D9D9D9" stroke="#DD8EB7" d="M381.5 532c0-8.008 6.492-14.5 14.5-14.5h29.5v44H396c-8.008 0-14.5-6.492-14.5-14.5v-15Z" />
+                    {/* โต็ะ3 ขวา*/}<g>
+                        <path fill="#D9D9D9" stroke="#5038ED" d="M367.5 218c0-8.008-6.492-14.5-14.5-14.5h-29.5v44H353c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
+                        <circle cx="345" cy="225" r="15" fill="green" onClick={() => handleBookingClick(1)} className="cursor-pointer" />
+                    </g>
+
+                    {/* Computer 2*/}<g>
+                        <path fill="#D9D9D9" stroke="#C0B1DC" d="M142.5 549c0-8.008-6.492-14.5-14.5-14.5H98.5v44H128c8.008 0 14.5-6.492 14.5-14.5v-15Z" />
+                        <circle cx="120" cy="556" r="15" fill="green" onClick={() => handleBookingClick(1)} className="cursor-pointer" />
+                    </g>
+
+                    {/* โต็ะ3 ซ้าย*/}<g>
+                        <path fill="#D9D9D9" stroke="#0F6" d="M130.5 220c0-8.008 6.492-14.5 14.5-14.5h29.5v44H145c-8.008 0-14.5-6.492-14.5-14.5v-15Z" />
+                        <circle cx="150" cy="225" r="15" fill="green" onClick={() => handleBookingClick(1)} className="cursor-pointer" />
+                    </g>
+
+                    <g>
+                        <path fill="#D9D9D9" stroke="#DD8EB7" d="M381.5 532c0-8.008 6.492-14.5 14.5-14.5h29.5v44H396c-8.008 0-14.5-6.492-14.5-14.5v-15Z" />
+                        <circle cx="405" cy="540" r="15" fill="green" onClick={() => handleBookingClick(1)} className="cursor-pointer" />
+                    </g>
+
+
                     <circle cx="55" cy="458" r="13" fill="#D9D9D9" />
                     <g clip-path="url(#a)">
                         <path fill="#374957" d="M64 463.25v-9.75a2.25 2.25 0 0 0-2.25-2.25h-13.5A2.25 2.25 0 0 0 46 453.5v9.75h8.25v.75h-3v1.5h7.5V464h-3v-.75H64Zm-16.5-9.75a.748.748 0 0 1 .75-.75h13.5a.749.749 0 0 1 .75.75v8.25h-15v-8.25Z" />
@@ -133,25 +159,10 @@ const CoMap = ({ nightMode }) => {
                         </clipPath>
                     </defs>
                 </svg>
-               
 
 
-                {tables.map((table) => (
-                    <div
-                        key={table.id}
-                        className="absolute flex items-center justify-center rounded-full cursor-pointer"
-                        style={{
-                            left: `${table.x}px`,
-                            top: `${table.y}px`,
-                            width: '20px',
-                            height: '20px',
-                            backgroundColor: getColorByStatus(table.status),
-                        }}
-                        onClick={() => handleTableClick(table.id)}
-                    >
-                        {table.status === 'มีคนจ้อง' && <span className="text-white font-bold">{table.initials}</span>}
-                    </div>
-                ))}
+
+
             </div>
 
             {/* Zoom buttons */}
