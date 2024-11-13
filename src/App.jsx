@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import HomePage from "./HomePage";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/home" element={<HomePage />} /> {/* หน้าหลักหลังล็อกอิน */}
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/home" element={<HomePage />} /> {/* หน้าหลักหลังล็อกอิน */}
+    </Routes>
   );
 }
 
@@ -34,18 +32,17 @@ function Login() {
       });
 
       if (response.ok) {
-        const { key } = await response.json(); // สมมุติว่า server ส่ง key กลับมาใน response
-        localStorage.setItem("authKey", key); // เก็บ key ไว้ใน localStorage
-        navigate("/home"); // เปลี่ยนไปหน้า home
+        const { key } = await response.json();
+        localStorage.setItem("authKey", key);
+        navigate("/home");
       } else {
-        const errorMessage = await response.text(); // อ่านข้อความจากเซิร์ฟเวอร์
-        let Message = response.status + " " + errorMessage;
-        testModal(Message);
+        const errorMessage = await response.text();
+        let message = response.status + " " + errorMessage;
+        testModal(message);
       }
     } catch (error) {
       console.error("Error:", error);
-      setShowAlert(true); // แสดง alert เมื่อเกิดข้อผิดพลาด
-      // ซ่อน alert หลังจาก 5 วินาที
+      setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);
       }, 5000);
@@ -53,15 +50,15 @@ function Login() {
   };
 
   return (
-    <div className="container mx-auto flex flex-col md:flex-row items-center min-h-screen p-4 w-screen">
-      <div className="w-full md:w-1/2 flex flex-col items-center p-6 bg-lime-800 h-screen place-content-center">
-        <h1 className="text-2xl font-bold mb-4">Hi Sir Have a Nice Day.</h1>
-        <FcGoogle className="text-4xl mb-4" />
-        <form onSubmit={handleLogin} className="w-full max-w-sm">
+    <div className="container mx-auto flex flex-col md:flex-row items-center min-h-screen p-4 w-screen bg-gray-50">
+      <div className="w-full md:w-1/2 flex flex-col items-center p-6 bg-white shadow-lg rounded-lg h-screen justify-center">
+        <h1 className="text-3xl font-bold text-gray-700 mb-6">Hi Sir, Have a Nice Day!</h1>
+        <FcGoogle className="text-5xl mb-6" />
+        <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4">
           <input
             type="email"
             placeholder="RSU Mail"
-            className="w-full p-3 border rounded mb-4 focus:outline-none"
+            className="w-full p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500"
             value={username}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -69,25 +66,24 @@ function Login() {
           <input
             type="password"
             placeholder="Password"
-            className="w-full p-3 border rounded mb-4 focus:outline-none"
+            className="w-full p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button type="submit" className="w-full p-3 bg-blue-500 text-white rounded hover:bg-blue-600">
+          <button type="submit" className="w-full p-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
             Login Now
           </button>
         </form>
-        {error && <div className="mt-4 text-red-500">{error}</div>} {/* ข้อความข้อผิดพลาด */}
+        {error && <div className="mt-4 text-red-500">{error}</div>}
       </div>
 
       <div className="w-full md:w-1/2 hidden md:flex items-center justify-center relative">
-        <img src="https://images.unsplash.com/photo-1557683316-973673baf926?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80" alt="login" className="object-cover h-full w-full" />
-        <div className="absolute inset-0 bg-black opacity-30"></div>
+        <img src="https://images.unsplash.com/photo-1557683316-973673baf926?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80" alt="login" className="object-cover h-full w-full rounded-lg shadow-lg" />
+        <div className="absolute inset-0 bg-black opacity-20 rounded-lg"></div>
       </div>
 
-      {/* Custom Alert เมื่อเกิด catch error */}
       {showAlert && (
-        <div role="alert" className="alert alert-error fixed bottom-4 left-4 p-4 rounded-md bg-red-600 text-white flex items-center">
+        <div role="alert" className="alert alert-error fixed bottom-4 left-4 p-4 rounded-md bg-red-600 text-white flex items-center shadow-lg">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
@@ -100,14 +96,13 @@ function Login() {
         </div>
       )}
 
-      {/* Modal แสดงข้อความ Error หลังจาก catch error */}
-      <dialog id="my_modal_2" className="modal">
+      <dialog id="my_modal_2" className="modal bg-white rounded-lg shadow-lg p-6">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Hello!</h3>
           <p className="py-4">Press ESC key or click outside to close</p>
         </div>
         <form method="dialog" className="modal-backdrop">
-          <button>close</button>
+          <button className="text-blue-600 hover:underline">Close</button>
         </form>
       </dialog>
     </div>
@@ -117,8 +112,8 @@ function Login() {
 function testModal(message) {
   const modal = document.getElementById("my_modal_2");
   modal.showModal();
-  modal.querySelector("p").textContent = message; // แสดงข้อความที่ได้รับจาก catch error
-  setTimeout(() => { modal.close(); }, 5000); // ปิด modal หลังจาก 5 วินาที
+  modal.querySelector("p").textContent = message;
+  setTimeout(() => { modal.close(); }, 5000);
 }
 
 export default App;

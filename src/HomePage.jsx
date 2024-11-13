@@ -5,6 +5,7 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import CoMap from "./Component/Map";
 import CoProfile from "./Component/Profile";
 import CoTest from "./Component/TestModal";
+import CoList from "./Component/List";
 
 // Import icons
 import { HiMiniMap } from "react-icons/hi2";
@@ -27,6 +28,8 @@ const Home = () => {
         return <CoProfile nightMode={isNightMode} />;
       case "Day":
         return <CoTest />;
+      case "List":
+        return <CoList />;
       default:
         return null;
     }

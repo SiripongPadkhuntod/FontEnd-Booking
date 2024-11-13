@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 
 const CoMap = ({ nightMode }) => {
-    const [time, setTime] = useState("17:00"); // เปลี่ยนเป็น string สำหรับเวลา
-  const [bookingTime, setBookingTime] = useState(""); // สถานะเวลาสำหรับ bookingModal
+    const [time, setTime] = useState("17:00");
+    const [bookingTime, setBookingTime] = useState("");
     const [date, setDate] = useState(new Date());
     const mapRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
@@ -14,26 +14,59 @@ const CoMap = ({ nightMode }) => {
     const [offsetY, setOffsetY] = useState(0);
     const [scale, setScale] = useState(1);
     let [numbertable, setNumbertable] = useState(0);
-
-    const [selectedTime, setSelectedTime] = useState(0); // ค่าเริ่มต้นสำหรับ slider
-    const [displayTime, setDisplayTime] = useState("08:00"); // แสดงเวลาในรูปแบบ 24 ชั่วโมง
+    const [selectedTime, setSelectedTime] = useState(0);
+    const [displayTime, setDisplayTime] = useState("08:00");
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
     const initialTimes = ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"];
     const moreTimes = ["12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"];
     const [showMore, setShowMore] = useState(false);
 
-    // ฟังก์ชันเปลี่ยนเวลา
+    // เพิ่ม event listener สำหรับตรวจจับขนาดหน้าจอ
+    React.useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+            // ปรับ scale เริ่มต้นสำหรับมือถือ
+            if (window.innerWidth <= 768 && scale === 1) {
+                setScale(0.5);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // เรียกครั้งแรกเพื่อตั้งค่าเริ่มต้น
+
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const handleTimeChange = (e) => {
         const selectedValue = parseInt(e.target.value);
-        setSelectedTime(selectedValue); // อัพเดต state ของเวลา
-
-        // คำนวณเวลาในรูปแบบ 24 ชั่วโมง
-        const hours = Math.floor(selectedValue / 2) + 8; // เริ่มที่ 8 AM
+        setSelectedTime(selectedValue);
+        const hours = Math.floor(selectedValue / 2) + 8;
         const minutes = (selectedValue % 2 === 0) ? "00" : "30";
-        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}`; // แสดงเวลาในรูปแบบ 24 ชั่วโมง
-        setDisplayTime(formattedTime); // แสดงเวลา
+        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}`;
+        setDisplayTime(formattedTime);
     };
 
+    // ปรับการทำงานของ touch events สำหรับมือถือ
+    const handleTouchStart = (e) => {
+        const touch = e.touches[0];
+        setIsDragging(true);
+        setStartX(touch.clientX - offsetX);
+        setStartY(touch.clientY - offsetY);
+    };
+
+    const handleTouchMove = (e) => {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        setOffsetX(touch.clientX - startX);
+        setOffsetY(touch.clientY - startY);
+    };
+
+    const handleTouchEnd = () => {
+        setIsDragging(false);
+    };
+
+    // Mouse events สำหรับ desktop
     const handleMouseDown = (e) => {
         setIsDragging(true);
         setStartX(e.clientX - offsetX);
@@ -58,18 +91,11 @@ const CoMap = ({ nightMode }) => {
         }
     };
 
-    const handleBookingClick = (seatId) => {
-        alert(`จองที่นั่งหมายเลข ${seatId}`);
-    };
-
-    // Convert displayTime to slider value (0-28)
     const getSliderValueFromTime = (time) => {
         const timeParts = time.split(":");
         const hours = parseInt(timeParts[0]);
         const minutes = parseInt(timeParts[1]);
-        // เริ่มต้นที่ 08:00 จะเป็น 0
-        const sliderValue = (hours - 8) * 2 + (minutes === 30 ? 1 : 0); 
-        return sliderValue;
+        return (hours - 8) * 2 + (minutes === 30 ? 1 : 0);
     };
 
     return (
@@ -79,14 +105,19 @@ const CoMap = ({ nightMode }) => {
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
                 onWheel={handleWheelZoom}
                 onMouseLeave={() => setIsDragging(false)}
                 className="w-full h-full bg-center"
                 style={{
                     transform: `translate(${offsetX}px, ${offsetY}px) scale(${scale})`,
                     cursor: isDragging ? 'grabbing' : 'grab',
+                    touchAction: 'none', // ป้องกันการ scroll บนมือถือ
                 }}
             >
+                {/* SVG Map content remains the same */}
                 <svg xmlns="http://www.w3.org/2000/svg" width="931" height="508" fill="none" viewBox="0 0 931 508" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                     
                     <g clipPath="url(#a)">
@@ -196,88 +227,75 @@ const CoMap = ({ nightMode }) => {
                 </svg>
             </div>
 
-            {/* Zoom buttons */}
-            <div className="absolute bottom-4 right-4 flex flex-col items-center">
-                <button onClick={() => setScale(Math.min(scale + 0.1, 3))} className="p-2 bg-gray-200 rounded mb-2">
-                    <FontAwesomeIcon icon={faSearchPlus} />
-                </button>
-                <button onClick={() => setScale(Math.max(scale - 0.1, 0.5))} className="p-2 bg-gray-200 rounded mb-2">
-                    <FontAwesomeIcon icon={faSearchMinus} />
-                </button>
-                <span className="text-sm">Zoom: {Math.round(scale * 100)}%</span>
+            {/* Responsive controls for mobile */}
+            <div className={`absolute top-0 left-0 right-0 ${isMobile ? 'flex flex-col p-2' : 'hidden'}`}>
+                <div className={`w-full p-2 rounded-lg shadow-lg mb-2 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-gray-100 text-black'}`}>
+                    <div className="flex flex-col space-y-2">
+                        <div className="flex items-center justify-between">
+                            <label className="text-sm font-semibold">Time:</label>
+                            <span className="text-sm font-semibold">{displayTime}</span>
+                        </div>
+                        <input
+                            type="range"
+                            min="0"
+                            max="28"
+                            step="1"
+                            value={selectedTime}
+                            onChange={handleTimeChange}
+                            className="w-full"
+                        />
+                        <input
+                            type="date"
+                            value={date.toISOString().slice(0, 10)}
+                            onChange={(e) => setDate(new Date(e.target.value))}
+                            className="w-full p-1 rounded border text-gray-900"
+                        />
+                    </div>
+                </div>
             </div>
 
-            {/* Time and date display */}
-            <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 flex flex-col md:flex-row items-center p-4 rounded-lg shadow-lg ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-gray-100 text-black'}`}>
-                {/* Time Picker */}
+            {/* Desktop controls */}
+            <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 ${isMobile ? 'hidden' : 'flex'} flex-col md:flex-row items-center p-4 rounded-lg shadow-lg ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-gray-100 text-black'}`}>
                 <div className="flex items-center mb-4 md:mb-0 md:mr-6">
-                    <label htmlFor="timePicker" className="font-semibold mr-2">Time:</label>
+                    <label className="font-semibold mr-2">Time:</label>
                     <input
                         type="range"
-                        id="timePicker"
                         min="0"
                         max="28"
                         step="1"
                         value={selectedTime}
                         onChange={handleTimeChange}
-                        className="p-2 border rounded-md text-gray-900 dark:text-gray-200 w-64"
+                        className="w-64"
                     />
                     <span className="ml-2 font-semibold">{displayTime}</span>
                 </div>
-
-                {/* Date Picker */}
                 <div className="flex items-center">
-                    <label htmlFor="datePicker" className="font-semibold mr-2">Date:</label>
+                    <label className="font-semibold mr-2">Date:</label>
                     <input
                         type="date"
-                        id="datePicker"
                         value={date.toISOString().slice(0, 10)}
                         onChange={(e) => setDate(new Date(e.target.value))}
-                        className="p-2 border rounded-md text-gray-900 dark:text-gray-200"
+                        className="p-2 border rounded-md text-gray-900"
                     />
                 </div>
             </div>
 
-            {/* Booking Modal */}
-      <dialog id="bookingModal" className="modal">
-        <form method="dialog" className="modal-box rounded-lg w-full max-w-lg p-6 bg-white">
-          <h3 className="text-2xl font-bold mb-2">NEW BOOKING</h3>
-          <p className="text-gray-500 mb-6">Desk Number ##</p>
-
-          {/* Date & Time */}
-          <div className="mb-4">
-            <label className="block text-sm font-semibold mb-1">Date & Time</label>
-            <input type="date" className="input input-bordered w-full mb-3 text-gray-900" />
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label className="block text-sm font-semibold ">From</label>
-                <select className="select select-bordered w-full text-gray-900">
-                  <option>{bookingTime || "08:00 AM"}</option> {/* เวลาเริ่มต้น */}
-                  {/* เพิ่มตัวเลือกเวลา */}
-                </select>
-              </div>
-              <div className="flex-1">
-                <label className="block text-sm font-semibold">To</label>
-                <select className="select select-bordered w-full text-gray-900">
-                  <option>17:00</option>
-                  <option>18:00</option>
-                </select>
-              </div>
+            {/* Zoom controls - ปรับตำแหน่งสำหรับมือถือ */}
+            <div className={`absolute ${isMobile ? 'bottom-4 right-4' : 'bottom-4 right-4'} flex ${isMobile ? 'flex-row space-x-2' : 'flex-col items-center'}`}>
+                <button 
+                    onClick={() => setScale(Math.min(scale + 0.1, 3))} 
+                    className="p-2 bg-gray-200 rounded"
+                >
+                    <FontAwesomeIcon icon={faSearchPlus} />
+                </button>
+                <button 
+                    onClick={() => setScale(Math.max(scale - 0.1, 0.5))} 
+                    className="p-2 bg-gray-200 rounded"
+                >
+                    <FontAwesomeIcon icon={faSearchMinus} />
+                </button>
+                {!isMobile && <span className="text-sm mt-2">Zoom: {Math.round(scale * 100)}%</span>}
             </div>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <button className="btn btn-primary">Confirm Booking</button>
-            <button
-              className="btn btn-outline"
-              onClick={() => document.getElementById('bookingModal').close()}
-            >
-              Cancel Booking
-            </button>
-          </div>
-        </form>
-      </dialog>
-
 
             {/* Availability Modal */}
             <dialog id="availabilityModal" className="modal">
@@ -355,9 +373,6 @@ const CoMap = ({ nightMode }) => {
                     </div>
                 </div>
             </dialog>
-
-
-            
         </div>
     );
 };
