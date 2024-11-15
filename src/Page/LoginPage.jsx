@@ -7,8 +7,6 @@ function Login() {
     const [username, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const [textalert , setTextalert] = useState("");
-    const [showAlert, setShowAlert] = useState(false); // state สำหรับการแสดง alert
     const navigate = useNavigate();
 
     const handleLoginGoogle = (response) => {
@@ -31,11 +29,11 @@ function Login() {
     
             else if (data.message === 'Invalid email domain') {
                 console.log('Invalid email domain');
-                setTextalert("Invalid email domain");
-                setShowAlert(true);
-                setTimeout(() => {
-                  setShowAlert(false);
-                }, 5000);
+                testModal("Invalid email domain", "กรุณาใช้ RSU Mail เท่านั้น");
+                // setShowAlert(true);
+                // setTimeout(() => {
+                //   setShowAlert(false);
+                // }, 5000);
             }
              else {
               console.log('Login failed with message:', data.message);
@@ -69,11 +67,8 @@ function Login() {
         }
       } catch (error) {
         console.error("Error:", error);
-        setTextalert("Error! มีข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์");
-        setShowAlert(true);
-        setTimeout(() => {
-          setShowAlert(false);
-        }, 5000);
+
+        testModal("มีข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์", "กรุณาลองใหม่อีกครั้ง");
       }
     };
   
@@ -115,19 +110,7 @@ function Login() {
           <div className="absolute inset-0 bg-black opacity-20 rounded-lg"></div>
         </div>
   
-        {showAlert && (
-          <div role="alert" className="alert alert-error fixed bottom-4 left-4 p-4 rounded-md bg-red-600 text-white flex items-center shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span>{textalert}</span>
-          </div>
-        )}
+        
   
           <dialog id="my_modal_2" className="modal">
           <div className="modal-box">
@@ -142,11 +125,11 @@ function Login() {
     );
   }
   
-  function testModal(message) {
+  function testModal(message,submessage) {
     const modal = document.getElementById("my_modal_2");
     modal.showModal();
-    modal.querySelector("p").textContent = message;
-    setTimeout(() => { modal.close(); }, 5000);
+    modal.querySelector("h3").textContent = message;
+    modal.querySelector("p").textContent = submessage;
   }
 
 export default Login
