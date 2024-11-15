@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // ใช้ useNavigate เพื่อเปลี่ยนหน้า
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 function ProfilePage({ nightMode }) {
@@ -7,18 +7,16 @@ function ProfilePage({ nightMode }) {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // ใช้ useNavigate สำหรับเปลี่ยนเส้นทาง
   
   // const { id } = useParams();  // ใช้เพื่อดึง :id จาก URL
   const id = 'siripong.p64@rsu.ac.th'
 
-  // id ถอดค่าจาก authToken ที่เก็บไว้ใน localStorage หลังจากล็อกอิน
-  // const id = localStorage.getItem('authToken');
-
+  const handleLogout = () => {
+    localStorage.removeItem('authToken'); // ลบ Token จาก LocalStorage
+    navigate('/'); // เปลี่ยนเส้นทางไปยังหน้า Login
+  };
   
-
- 
-
-
   const toggleEdit = () => {
     setIsEditing(!isEditing);
   };
@@ -116,7 +114,7 @@ useEffect(() => {
           </div>
           <div className="flex flex-col items-center">
             <button className={`py-2 px-4 mt-5 rounded-lg bg-yellow-500 text-white hover:bg-red-600 transition-all duration-300`} onClick={toggleEdit}>Edit</button>
-            <button className={`py-2 px-4 mt-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-300`}>Logout</button>
+            <button className={`py-2 px-4 mt-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-300`} onClick={handleLogout}>Logout</button>
           </div>
         </div>
       </CSSTransition>
@@ -156,7 +154,7 @@ useEffect(() => {
           <input 
             type="text" 
             placeholder="(TH) e.g. 081 234 5678" 
-            value={userData ? userData.student_id : ''}  // แสดง student_id หากมี
+            value={userData ? userData.phonenumber : ''}  // แสดง student_id หากมี
             className={`w-full max-w-md p-2 mb-3 rounded-lg border ${nightMode ? 'bg-gray-700 text-gray-200 border-gray-600' : 'bg-white text-black border-gray-300'}`} 
             readOnly={!isEditing}
           />
