@@ -50,7 +50,7 @@ function Login() {
       e.preventDefault();
   
       try {
-        const response = await fetch("https://backend-6ug4.onrender.com/login", {
+        const response = await fetch("http://localhost:8080/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -78,7 +78,8 @@ function Login() {
     };
   
     return (
-      <div className="container mx-auto flex flex-col md:flex-row items-center min-h-screen p-4 w-screen bg-gray-50">
+      <div className="container mx-auto flex flex-col md:flex-row items-center h-screen p-4 w-screen bg-gray-50">
+
         <div className="w-full md:w-1/2 flex flex-col items-center p-6 bg-white shadow-lg rounded-lg h-screen justify-center">
           <h1 className="text-3xl font-bold text-gray-700 mb-6">Hi Sir, Have a Nice Day!</h1>
           
@@ -128,13 +129,13 @@ function Login() {
           </div>
         )}
   
-        <dialog id="my_modal_2" className="modal bg-white rounded-lg shadow-lg p-6">
+          <dialog id="my_modal_2" className="modal">
           <div className="modal-box">
             <h3 className="font-bold text-lg">Hello!</h3>
             <p className="py-4">Press ESC key or click outside to close</p>
           </div>
           <form method="dialog" className="modal-backdrop">
-            <button className="text-blue-600 hover:underline">Close</button>
+            <button>close</button>
           </form>
         </dialog>
       </div>
