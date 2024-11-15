@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import "../css/ProfilePage.css";
+
 
 function ProfilePage({ nightMode }) {
   const [isEditing, setIsEditing] = useState(false);
