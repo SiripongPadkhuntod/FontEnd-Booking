@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import { useNavigate } from "react-router-dom";  // ใช้ React Router เพื่อการนำทาง
 
 // Import file components
 import CoMap from "../Component/Map";
@@ -18,12 +19,34 @@ import { MdCalendarMonth } from "react-icons/md";
 const Home = () => {
   const [activeComponent, setActiveComponent] = useState("Map");
   const [isNightMode, setIsNightMode] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // State to control menu visibility
+  const [isMenuOpen, setIsMenuOpen] = useState(false); 
+  const navigate = useNavigate();  // สร้าง instance ของ useNavigate
 
+  // ตรวจสอบโทเค็นและนำทางไปหน้า login ถ้าไม่มี
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      navigate("/");
+    } else {
+      fetch('/verifyToken', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+      .then(response => {
+        if (!response.ok) {
+          navigate("/");
+        }
+      })
+      .catch(error => {
+        console.error('Error verifying token:', error);
+        navigate("/");
+      });
+    }
+  }, [navigate]);
+  
   const renderComponent = () => {
     switch (activeComponent) {
       case "Map":
-        return <CoMap nightMode={isNightMode}/>;
+        return <CoMap nightMode={isNightMode} />;
       case "Profile":
         return <CoProfile nightMode={isNightMode} />;
       case "Day":
@@ -97,11 +120,6 @@ const Home = () => {
           <button className={`${isNightMode ? "text-gray-400" : "text-gray-500"}`}>Term</button>
         </div>
         <div className={`mt-4 text-xs underline ${isNightMode ? "text-gray-400" : "text-gray-500"}`}>Privacy</div>
-        {/* <footer className="footer footer-center bg-base-300 text-base-content p-4">
-          <aside>
-            <p>Copyright © {new Date().getFullYear()} - All right reserved by ACME Industries Ltd</p>
-          </aside>
-        </footer> */}
 
         {/* Night Mode Toggle Button */}
         <button

@@ -9,6 +9,8 @@ function Login() {
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
+    
+
     const handleLoginGoogle = (response) => {
         console.log('Google token:', response.credential); // ตรวจสอบ token
     
@@ -22,7 +24,7 @@ function Login() {
           .then(data => {
             if (data.message === 'Login successful') {
               console.log('Login successful');
-            //   localStorage.setItem("authKey", key);
+              localStorage.setItem('authToken', data.token);  // Store the JWT token
               navigate("/home");
             }
 
@@ -57,9 +59,9 @@ function Login() {
         });
   
         if (response.ok) {
-          const { key } = await response.json();
-          localStorage.setItem("authKey", key);
-          navigate("/home");
+          const data = await response.json();
+          localStorage.setItem('authToken', data.token);  // Store the JWT token
+          navigate("/home");  // Redirect to the home page
         } else {
           const errorMessage = await response.text();
           let message = response.status + " " + errorMessage;
