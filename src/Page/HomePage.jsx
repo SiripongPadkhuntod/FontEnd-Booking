@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 // Import file components
-import CoMap from "./Component/Map";
-import CoProfile from "./Component/Profile";
-import CoTest from "./Component/TestModal";
-import CoList from "./Component/List";
+import CoMap from "../Component/Map";
+import CoProfile from "../Component/Profile";
+import CoTest from "../Component/TestModal";
+import CoList from "../Component/List";
 
 // Import icons
 import { HiMiniMap } from "react-icons/hi2";

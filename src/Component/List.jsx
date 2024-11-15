@@ -3,7 +3,6 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import { th } from 'date-fns/locale';
 import 'react-datepicker/dist/react-datepicker.css';
 
-// ลงทะเบียนภาษาไทย
 registerLocale('th', th);
 
 const Header = ({ activeTab, setActiveTab, searchQuery, setSearchQuery, showSearch, setShowSearch }) => {
@@ -11,10 +10,8 @@ const Header = ({ activeTab, setActiveTab, searchQuery, setSearchQuery, showSear
     const [endDate, setEndDate] = useState(new Date());
     const [isStartDatePickerOpen, setIsStartDatePickerOpen] = useState(false);
     const [isEndDatePickerOpen, setIsEndDatePickerOpen] = useState(false);
-
     const searchRef = useRef(null);
 
-    // ฟังก์ชันสำหรับแปลงวันที่เป็นรูปแบบภาษาไทย
     const formatDateToThai = (date) => {
         const day = date.toLocaleDateString('th-TH', { weekday: 'long' });
         const dayNumber = date.getDate();
@@ -23,7 +20,6 @@ const Header = ({ activeTab, setActiveTab, searchQuery, setSearchQuery, showSear
         return `วัน${day} ที่ ${dayNumber} ${month} ${year}`;
     };
 
-    // ปิดกล่องค้นหาเมื่อคลิกข้างนอก
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -58,13 +54,10 @@ const Header = ({ activeTab, setActiveTab, searchQuery, setSearchQuery, showSear
                     Other
                 </button>
                 {showSearch && (
-                    <div
-                        className="absolute top-full left-0 mt-2 p-2 bg-white border border-gray-300 rounded shadow-lg"
-                        style={{ minWidth: '200px', zIndex: 50 }}
-                    >
+                    <div className="absolute top-full left-0 mt-2 p-2 bg-white border border-gray-300 rounded shadow-lg">
                         <input
                             type="text"
-                            placeholder="ค้นหาผู้จอง..."
+                            placeholder="ค้นหาโต๊ะ..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="p-2 border border-gray-300 rounded w-full"
@@ -74,8 +67,7 @@ const Header = ({ activeTab, setActiveTab, searchQuery, setSearchQuery, showSear
             </div>
 
             <div className="ml-auto flex items-center space-x-2 text-gray-600 font-semibold">
-                {/* ตัวเลือกวันที่ */}
-               <div className="relative">
+                <div className="relative">
                     <button
                         onClick={() => setIsStartDatePickerOpen(!isStartDatePickerOpen)}
                         className="px-4 py-2 bg-gray-100 rounded-md flex items-center"
@@ -84,7 +76,7 @@ const Header = ({ activeTab, setActiveTab, searchQuery, setSearchQuery, showSear
                         <span className="ml-2">▼</span>
                     </button>
                     {isStartDatePickerOpen && (
-                        <div className="absolute top-full mt-2">
+                        <div className="absolute top-full mt-2 z-50">
                             <DatePicker
                                 selected={startDate}
                                 onChange={(date) => {
@@ -107,7 +99,7 @@ const Header = ({ activeTab, setActiveTab, searchQuery, setSearchQuery, showSear
                         <span className="ml-2">▼</span>
                     </button>
                     {isEndDatePickerOpen && (
-                        <div className="absolute top-full mt-2">
+                        <div className="absolute top-full mt-2 z-50">
                             <DatePicker
                                 selected={endDate}
                                 onChange={(date) => {
@@ -125,51 +117,83 @@ const Header = ({ activeTab, setActiveTab, searchQuery, setSearchQuery, showSear
     );
 };
 
-// Component สำหรับ All Booking (หน้า CoList)
-const CoList = ({ searchQuery, data }) => {
-    const filteredData = data.map(day => ({
-        ...day,
-        bookings: day.bookings.filter(booking =>
-            booking.name.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-    })).filter(day => day.bookings.length > 0);
+const CoList = ({ searchQuery, tableData }) => {
+    const getStatusColor = (status) => {
+        switch (status.toLowerCase()) {
+            case 'available':
+                return 'text-green-600';
+            case 'reserved':
+                return 'text-red-600';
+            case 'maintenance':
+                return 'text-yellow-600';
+            default:
+                return 'text-gray-600';
+        }
+    };
+
+    const getStatusText = (status) => {
+        switch (status.toLowerCase()) {
+            case 'available':
+                return 'ว่าง';
+            case 'reserved':
+                return 'จองแล้ว';
+            case 'maintenance':
+                return 'ปิดปรับปรุง';
+            default:
+                return status;
+        }
+    };
 
     return (
         <div className="p-4">
             <h2 className="text-xl font-bold mb-4">Booking List</h2>
             <div className="bg-white shadow-md rounded overflow-hidden">
-                <div className="grid grid-cols-4 bg-purple-400 text-white font-semibold">
-                    <div className="p-2">หมายเลขที่นั่ง</div>
-                    <div className="p-2">เวลา</div>
-                    <div className="p-2">ชื่อผู้จอง</div>
-                    <div className="p-2">หมายเหตุ</div>
+                <div className="grid grid-cols-6 bg-purple-400 text-white font-semibold">
+                    <div className="p-2">หมายเลขโต๊ะ</div>
+                    <div className="p-2">ห้อง</div>
+                    <div className="p-2">ความจุ</div>
+                    <div className="p-2">ตำแหน่ง</div>
+                    <div className="p-2">สถานะ</div>
+                    <div className="p-2">การจัดการ</div>
                 </div>
                 <div className="overflow-y-auto text-black" style={{ maxHeight: '690px' }}>
-                    {(searchQuery ? filteredData : data).map((day, index) => (
-                        <div key={index}>
-                            <div className="bg-red-100 text-red-700 font-semibold p-2">
-                                {day.date}
-                            </div>
-                            {day.bookings.map((booking, idx) => (
-                                <div
-                                    key={idx}
-                                    className="grid grid-cols-4 border-b border-gray-200"
-                                >
-                                    <div className="p-2">{booking.desk}</div>
-                                    <div className="p-2">{booking.time}</div>
-                                    <div className="p-2">{booking.name || " "}</div>
-                                    <div className="p-2">{booking.note || " "}</div>
+                    {tableData
+                        .filter(table => 
+                            table.table_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            table.location.toLowerCase().includes(searchQuery.toLowerCase())
+                        )
+                        .map((table) => (
+                            <div
+                                key={table.table_id}
+                                className="grid grid-cols-6 border-b border-gray-200 hover:bg-gray-50"
+                            >
+                                <div className="p-2">{table.table_number}</div>
+                                <div className="p-2">Room {table.room_id}</div>
+                                <div className="p-2">{table.capacity} ที่นั่ง</div>
+                                <div className="p-2">{table.location}</div>
+                                <div className={`p-2 ${getStatusColor(table.status)}`}>
+                                    {getStatusText(table.status)}
                                 </div>
-                            ))}
-                        </div>
-                    ))}
+                                <div className="p-2">
+                                    <button
+                                        className={`px-3 py-1 rounded ${
+                                            table.status.toLowerCase() === 'available'
+                                                ? 'bg-green-500 text-white hover:bg-green-600'
+                                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                        }`}
+                                        disabled={table.status.toLowerCase() !== 'available'}
+                                    >
+                                        จอง
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
                 </div>
             </div>
         </div>
     );
 };
 
-// Component สำหรับ My Booking (อีกหน้า)
 const MyBooking = () => {
     return (
         <div className="p-4">
@@ -179,47 +203,105 @@ const MyBooking = () => {
     );
 };
 
-// Main component สำหรับจัดการการแสดงผล
 const BookingApp = () => {
-    const [activeTab, setActiveTab] = useState('all'); // จัดการหน้าแสดงผลระหว่าง all และ my
-    const [searchQuery, setSearchQuery] = useState(''); // ข้อความค้นหา
-    const [showSearch, setShowSearch] = useState(false); // แสดง/ซ่อนช่องค้นหา
+    const [activeTab, setActiveTab] = useState('all');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showSearch, setShowSearch] = useState(false);
+    const [tableData, setTableData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const data = [
-        {
-            date: "วันจันทร์ ที่ 1 กันยายน 2567",
-            bookings: [
-                { desk: "Desk 1", time: "09:00 - 18:00 (9 ชม.)", name: "Theerapath (Tle)", note: "จองแล้ว" },
-                { desk: "Desk 2", time: "09:00 - 18:00 (9 ชม.)", name: "Siripong (Stop)", note: "จองแล้ว" },
-                { desk: "Desk 3", time: "09:00 - 18:00 (9 ชม.)", name: "Warodom (Ryu)", note: "จองแล้ว" },
-                { desk: "Room 1", time: "09:00 - 18:00 (9 ชม.)", name: "Sudarat (Mint)", note: "อ่านหนังสือ" },
-                { desk: "Desk 5", time: "09:00 - 18:00 (9 ชม.)", name: "Anutida (Dawan)", note: "จองแล้ว" },
-                { desk: "Desk 6", time: "09:00 - 18:00 (9 ชม.)", name: "Walaiphan (Baimon)", note: "จองแล้ว" },
-                { desk: "Desk 7", time: "09:00 - 18:00 (9 ชม.)", name: "Chayut (Po)", note: "จองแล้ว" },
-                { desk: "Desk 8", time: "09:00 - 18:00 (9 ชม.)", name: "Koon Koon", note: "จองแล้ว" },
-                { desk: "Room 2", time: "09:00 - 18:00 (9 ชม.)", name: "P' Tle", note: "Meeting CS" },
-                { desk: "Desk 10", time: "09:00 - 18:00 (9 ชม.)", name: "P' May", note: "จองแล้ว" },
-                { desk: "Desk 11", time: "09:00 - 18:00 (9 ชม.)", name: "P' Stop", note: "Meeting Final" },
-                { desk: "Desk 12", time: "09:00 - 18:00 (9 ชม.)", name: "P' Tangmo", note: "จองแล้ว" },
-                { desk: "Desk 13", time: "09:00 - 18:00 (9 ชม.)", name: "P' Witoon", note: "จองแล้ว" },
-                { desk: "Desk 14", time: "09:00 - 18:00 (9 ชม.)", name: "P' Q", note: "จองแล้ว" }
-            ]
-        },
-        {
-            date: "วันอังคาร ที่ 2 กันยายน 2567",
-            bookings: [
-                { desk: "Desk 1", time: "09:00 - 18:00 (9 ชม.)", name: "Theerapath (Tle)", note: "จองแล้ว" },
-                { desk: "Desk 5", time: "09:00 - 18:00 (9 ชม.)", name: "Sudarat (Mint)", note: "จองแล้ว" },
-                { desk: "Desk 8", time: "09:00 - 18:00 (9 ชม.)", name: "Chayut (Po)", note: "จองแล้ว" },
-                { desk: "Desk 9", time: "09:00 - 18:00 (9 ชม.)", name: "Anutida (Dawan)", note: "จองแล้ว" },
-                { desk: "Desk 11", time: "09:00 - 18:00 (9 ชม.)", name: "Warodom (Ryu)", note: "จองแล้ว" }
-            ]
-        }
-    ];
+    useEffect(() => {
+        const fetchTables = async () => {
+            try {
+                const response = await fetch('http://localhost:8080/tables', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                });
+
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('API did not return JSON. Please check the server configuration.');
+                }
+
+                if (!response.ok) {
+                    // Try to get error message from response
+                    let errorMessage;
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || `HTTP error! status: ${response.status}`;
+                    } catch (e) {
+                        errorMessage = `HTTP error! status: ${response.status}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const data = await response.json();
+                setTableData(data);
+                setLoading(false);
+            } catch (err) {
+                console.error('Error fetching tables:', err);
+                setError(err.message);
+                setLoading(false);
+            }
+        };
+
+        fetchTables();
+    }, []);
+
+    // Error component
+    const ErrorMessage = ({ message }) => (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center">
+                <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                </div>
+                <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800">
+                        เกิดข้อผิดพลาดในการโหลดข้อมูล
+                    </h3>
+                    <div className="mt-2 text-sm text-red-700">
+                        <p>{message}</p>
+                        <p className="mt-2">
+                            กรุณาลองใหม่อีกครั้งหรือติดต่อผู้ดูแลระบบ
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div className="mt-4">
+                <button
+                    onClick={() => window.location.reload()}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                    โหลดข้อมูลใหม่
+                </button>
+            </div>
+        </div>
+    );
+
+    // Loading component
+    const LoadingSpinner = () => (
+        <div className="flex flex-col items-center justify-center h-screen">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+            <p className="mt-4 text-gray-600">กำลังโหลดข้อมูล...</p>
+        </div>
+    );
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return <ErrorMessage message={error} />;
+    }
 
     return (
         <div className="p-4">
-            {/* แสดง Header component ที่มีปุ่ม All Booking, My Booking, Other และตัวเลือกวันที่ */}
             <Header
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
@@ -228,9 +310,8 @@ const BookingApp = () => {
                 showSearch={showSearch}
                 setShowSearch={setShowSearch}
             />
-            {/* การแสดงผลระหว่างหน้า All Booking และ My Booking */}
             {activeTab === 'all' ? (
-                <CoList searchQuery={searchQuery} data={data} />
+                <CoList searchQuery={searchQuery} tableData={tableData} />
             ) : (
                 <MyBooking />
             )}
