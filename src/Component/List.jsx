@@ -144,7 +144,7 @@ const CoList = ({ searchQuery, data }) => {
                     <div className="p-2">ชื่อผู้จอง</div>
                     <div className="p-2">หมายเหตุ</div>
                 </div>
-                <div className="overflow-y-auto text-black" style={{ maxHeight: '690px' }}>
+                <div className="overflow-y-auto" style={{ maxHeight: '690px' }}>
                     {(searchQuery ? filteredData : data).map((day, index) => (
                         <div key={index}>
                             <div className="bg-red-100 text-red-700 font-semibold p-2">

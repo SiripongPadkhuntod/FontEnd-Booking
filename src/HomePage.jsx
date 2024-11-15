@@ -6,6 +6,7 @@ import CoMap from "./Component/Map";
 import CoProfile from "./Component/Profile";
 import CoTest from "./Component/TestModal";
 import CoList from "./Component/List";
+import CoGrid from "./Component/Grid";
 
 // Import icons
 import { HiMiniMap } from "react-icons/hi2";
@@ -30,6 +31,8 @@ const Home = () => {
         return <CoTest />;
       case "List":
         return <CoList />;
+        case "Grid":
+          return <CoGrid />;
       default:
         return null;
     }
