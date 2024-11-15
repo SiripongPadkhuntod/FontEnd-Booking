@@ -4,7 +4,7 @@ import { FcGoogle } from "react-icons/fc";
 import { GoogleLogin } from '@react-oauth/google';
 
 function Login() {
-    const [username, setEmail] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
@@ -48,12 +48,12 @@ function Login() {
       e.preventDefault();
   
       try {
-        const response = await fetch("http://localhost:8080/login", {
+        const response = await fetch("http://localhost:8080/login/email", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ username, password }),
+          body: JSON.stringify({ email, password }),
         });
   
         if (response.ok) {
@@ -83,7 +83,7 @@ function Login() {
               type="email"
               placeholder="RSU Mail"
               className="w-full p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500"
-              value={username}
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
   
