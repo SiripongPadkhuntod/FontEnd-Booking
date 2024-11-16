@@ -61,7 +61,7 @@ const CoGrid = () => {
   };
 
   return (
-    <div className="w-full h-full overflow-x-auto bg-white p-6">
+    <div className="w-full h-ful p-4">
       <h2 className="text-2xl font-bold mb-4 text-center">Grid View</h2>
 
       {/* Dropdown สำหรับเลือกวันที่ */}
@@ -76,7 +76,7 @@ const CoGrid = () => {
       </div>
 
       {/* Grid แสดงข้อมูล */}
-      <div className="min-w-[1200px]">
+      <div className="min-w-[1200px] p-5 bg-purple-200 rounded-lg">
         <div className="grid grid-cols-11 gap-4">
           <div className="font-semibold text-center">Days</div>
           {desks.map((desk, deskIndex) => (

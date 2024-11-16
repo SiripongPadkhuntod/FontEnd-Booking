@@ -8,6 +8,7 @@ import CoProfile from "../Component/Profile";
 import CoTest from "../Component/TestModal";
 import CoList from "../Component/List";
 import CoGrid from "../Component/Grid";
+import CoMonth from "../Component/Month";
 
 // Import icons
 import { HiMiniMap } from "react-icons/hi2";
@@ -43,7 +44,7 @@ const Home = () => {
   //     });
   //   }
   // }, [navigate]);
-  
+
   const renderComponent = () => {
     switch (activeComponent) {
       case "Map":
@@ -56,6 +57,8 @@ const Home = () => {
         return <CoList />;
       case "Grid":
         return <CoGrid />;
+      case "Month":
+        return <CoMonth />;
       default:
         return null;
     }

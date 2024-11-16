@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { th } from "date-fns/locale";
 import "react-datepicker/dist/react-datepicker.css";
-import ErrorDisplay from './ErrorDisplay';
 
 // ลงทะเบียนภาษาไทย
 registerLocale("th", th);
@@ -77,28 +76,16 @@ const BookingApp = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [showSearch, setShowSearch] = useState(false);
     const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);  // เพิ่ม loading state
-    const [error, setError] = useState(null);      // เพิ่ม error state
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                setLoading(true);  // เริ่มต้น loading
-                setError(null);    // reset error state
                 const response = await fetch("http://localhost:8080/reservationsall");
-                
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                
                 const result = await response.json();
                 const transformedData = transformData(result);
                 setData(transformedData);
             } catch (error) {
                 console.error("Error fetching data:", error);
-                setError(error.message);  // เก็บ error message
-            } finally {
-                setLoading(false);  // สิ้นสุด loading ไม่ว่าจะสำเร็จหรือไม่
             }
         };
 
@@ -130,25 +117,6 @@ const BookingApp = () => {
 
         return Object.values(groupedByDate);
     };
-
-    // เพิ่มเงื่อนไขการแสดงผล Loading และ Error
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-                <span className="ml-3">กำลังโหลดข้อมูล...</span>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <ErrorDisplay
-                error={error}
-                onRetry={() => window.location.reload()}
-            />
-        );
-    }
 
     return (
         <div className="p-4">
