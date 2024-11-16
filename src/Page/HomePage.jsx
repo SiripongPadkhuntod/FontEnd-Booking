@@ -7,6 +7,7 @@ import CoMap from "../Component/Map";
 import CoProfile from "../Component/Profile";
 import CoTest from "../Component/TestModal";
 import CoList from "../Component/List";
+import CoGrid from "../Component/Grid";
 
 // Import icons
 import { HiMiniMap } from "react-icons/hi2";
@@ -19,30 +20,30 @@ import { MdCalendarMonth } from "react-icons/md";
 const Home = () => {
   const [activeComponent, setActiveComponent] = useState("Map");
   const [isNightMode, setIsNightMode] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();  // สร้าง instance ของ useNavigate
 
   // ตรวจสอบโทเค็นและนำทางไปหน้า login ถ้าไม่มี
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      navigate("/");
-    } else {
-      fetch('/verifyToken', {
-        headers: { 'Authorization': `Bearer ${token}` },
-      })
-      .then(response => {
-        if (!response.ok) {
-          navigate("/");
-        }
-      })
-      .catch(error => {
-        console.error('Error verifying token:', error);
-        navigate("/");
-      });
-    }
-  }, [navigate]);
-  
+  // useEffect(() => {
+  //   const token = localStorage.getItem('authToken');
+  //   if (!token) {
+  //     navigate("/");
+  //   } else {
+  //     fetch('/verifyToken', {
+  //       headers: { 'Authorization': `Bearer ${token}` },
+  //     })
+  //     .then(response => {
+  //       if (!response.ok) {
+  //         navigate("/");
+  //       }
+  //     })
+  //     .catch(error => {
+  //       console.error('Error verifying token:', error);
+  //       navigate("/");
+  //     });
+  //   }
+  // }, [navigate]);
+
   const renderComponent = () => {
     switch (activeComponent) {
       case "Map":
@@ -53,6 +54,8 @@ const Home = () => {
         return <CoTest />;
       case "List":
         return <CoList />;
+      case "Grid":
+        return <CoGrid />;
       default:
         return null;
     }
