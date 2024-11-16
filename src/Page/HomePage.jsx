@@ -24,25 +24,25 @@ const Home = () => {
   const navigate = useNavigate();  // สร้าง instance ของ useNavigate
 
   // ตรวจสอบโทเค็นและนำทางไปหน้า login ถ้าไม่มี
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      navigate("/");
-    } else {
-      fetch('/verifyToken', {
-        headers: { 'Authorization': `Bearer ${token}` },
-      })
-      .then(response => {
-        if (!response.ok) {
-          navigate("/");
-        }
-      })
-      .catch(error => {
-        console.error('Error verifying token:', error);
-        navigate("/");
-      });
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   const token = localStorage.getItem('authToken');
+  //   if (!token) {
+  //     navigate("/");
+  //   } else {
+  //     fetch('/verifyToken', {
+  //       headers: { 'Authorization': `Bearer ${token}` },
+  //     })
+  //     .then(response => {
+  //       if (!response.ok) {
+  //         navigate("/");
+  //       }
+  //     })
+  //     .catch(error => {
+  //       console.error('Error verifying token:', error);
+  //       navigate("/");
+  //     });
+  //   }
+  // }, [navigate]);
   
   const renderComponent = () => {
     switch (activeComponent) {
