@@ -23,25 +23,25 @@ const Home = () => {
   const navigate = useNavigate();  // สร้าง instance ของ useNavigate
 
   // ตรวจสอบโทเค็นและนำทางไปหน้า login ถ้าไม่มี
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      navigate("/");
-    } else {
-      fetch('/verifyToken', {
-        headers: { 'Authorization': `Bearer ${token}` },
-      })
-      .then(response => {
-        if (!response.ok) {
-          navigate("/");
-        }
-      })
-      .catch(error => {
-        console.error('Error verifying token:', error);
-        navigate("/");
-      });
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   const token = localStorage.getItem('authToken');
+  //   if (!token) {
+  //     navigate("/");
+  //   } else {
+  //     fetch('/verifyToken', {
+  //       headers: { 'Authorization': `Bearer ${token}` },
+  //     })
+  //     .then(response => {
+  //       if (!response.ok) {
+  //         navigate("/");
+  //       }
+  //     })
+  //     .catch(error => {
+  //       console.error('Error verifying token:', error);
+  //       navigate("/");
+  //     });
+  //   }
+  // }, [navigate]);
   
   const renderComponent = () => {
     switch (activeComponent) {
@@ -63,7 +63,7 @@ const Home = () => {
   };
 
   return (
-    <div className={`flex flex-col md:flex-row h-screen w-screen p-5 ${isNightMode ? "bg-gray-800" : "bg-blue-800"}`}>
+    <div className={`flex flex-col md:flex-row h-screen w-screen p-5 ${isNightMode ? "bg-gray-800" : "bg-blue-800"} `}>
       <div className={`w-full md:w-1/5 flex flex-col items-center p-5 rounded-lg shadow-lg transition-all duration-500 ${isNightMode ? "bg-gray-700 text-gray-200" : "bg-white text-gray-800"}`}>
         {/* Profile Section */}
         <div className="flex items-center mb-8 transition-all duration-300">
