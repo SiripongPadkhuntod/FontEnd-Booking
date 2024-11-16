@@ -134,7 +134,7 @@ const Home = () => {
       </div>
 
       {/* Content with animation */}
-      <div className={`flex-1 ml-0 md:ml-5 rounded-lg flex justify-center items-center shadow-lg transition-all duration-500 ${isNightMode ? "bg-gray-600" : "bg-gray-200"}`}>
+      <div className={`flex-1 ml-0 md:ml-5 rounded-lg flex justify-center items-center shadow-lg transition-all duration-500 ${isNightMode ? "bg-white" : "bg-white"}`}>
         <CSSTransition key={activeComponent} timeout={500} classNames="menu-slide">
           <div className="relative w-full h-full">
             {renderComponent()}
