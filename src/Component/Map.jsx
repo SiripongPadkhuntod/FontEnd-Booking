@@ -206,7 +206,7 @@ const CoMap = ({ nightMode }) => {
             type="date"
             value={date.toISOString().slice(0, 10)}
             onChange={(e) => setDate(new Date(e.target.value))}
-            className="p-2 border rounded-md text-white bg-gray-700"
+            className="p-2 border rounded-md text-white bg-gray-700 "
           />
         </div>
       </div>

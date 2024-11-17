@@ -87,7 +87,7 @@ const Home = () => {
 
         {/* Menu Items with animation */}
         <TransitionGroup className={`w-full mb-5 ${isMenuOpen ? 'block' : 'hidden md:block'}`}>
-          {["Day", "Month", "Grid", "List", "Map", "Profile"].map((item) => (
+          {["Map", "Day", "Month", "Grid", "List",  "Profile"].map((item) => (
             <CSSTransition key={item} timeout={300} classNames="menu-fade">
               <button
                 className={`w-full px-4 py-3 text-left rounded-lg transition-all duration-300 flex items-center justify-start ${activeComponent === item ? "text-red-600" : isNightMode ? "text-gray-400" : "text-gray-600"}`}
