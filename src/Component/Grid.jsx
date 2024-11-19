@@ -80,7 +80,7 @@ const CoGrid = () => {
       </div>
 
       {/* Grid แสดงข้อมูล */}
-      <div className="min-w-[1200px] p-5 bg-white rounded-lg">
+      <div className="min-w-[1200px] p-5 bg-purple-200 rounded-lg">
         <div className="grid grid-cols-11 gap-4">
           <div className="font-semibold text-center">Days</div>
           {desks.map((desk, deskIndex) => (
