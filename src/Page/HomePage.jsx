@@ -65,6 +65,10 @@ const Home = () => {
     setIsNightMode(!isNightMode);
   };
 
+  const generateName = () => {
+    
+  }
+
   return (
     <div className={`flex flex-col md:flex-row h-screen w-screen p-5 ${isNightMode ? "bg-gray-800" : "bg-blue-800"} `}>
       <div className={`w-full md:w-1/5 flex flex-col items-center p-5 rounded-lg shadow-lg transition-all duration-500 ${isNightMode ? "bg-gray-700 text-gray-200" : "bg-white text-gray-800"}`}>

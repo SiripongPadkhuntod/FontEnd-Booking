@@ -6,6 +6,10 @@ const CoGrid = () => {
   // ข้อมูลตัวอย่าง
   const bookings = [
     { desk: "A01", name: "John Doe", time: "10:00 AM", note: "Team meeting", date: new Date("2024-11-16") },
+    { desk: "A01", name: "John Doe", time: "11:00 AM", note: "Team meeting", date: new Date("2024-11-16") },
+    { desk: "A01", name: "John Doe", time: "12:00 AM", note: "Team meeting", date: new Date("2024-11-16") },
+    { desk: "A01", name: "John Doe", time: "13:00 AM", note: "Team meeting", date: new Date("2024-11-16") },
+    { desk: "A01", name: "John Doe", time: "14:00 AM", note: "Team meeting", date: new Date("2024-11-16") },
     { desk: "A01", name: "Jane Smith", time: "1:00 PM", note: "Project review", date: new Date("2024-11-15") },
     { desk: "A02", name: "Alice Brown", time: "3:00 PM", note: "Client call", date: new Date("2024-12-15") },
     { desk: "A02", name: "Bob Wilson", time: "2:00 PM", note: "Daily standup", date: new Date("2024-11-15") },
@@ -67,10 +71,10 @@ const CoGrid = () => {
       {/* Dropdown สำหรับเลือกวันที่ */}
       <div className="mb-4">
         <label className="mr-2">เลือกวันที่:</label>
-        <input 
-          type="date" 
-          value={selectedDate} 
-          onChange={(e) => setSelectedDate(e.target.value)} 
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
           className="p-2 border rounded"
         />
       </div>
@@ -108,8 +112,14 @@ const CoGrid = () => {
                     </div>
                     {bookingsForDeskAndDate.length > 0 && (
                       <div
-                        className="absolute hidden group-hover:block bg-white border shadow-lg rounded-lg p-3 z-50 left-0 w-48"
-                        style={{ top: "calc(100% + 5px)" }}
+                        className="absolute hidden group-hover:block bg-white border shadow-lg rounded-lg p-3 z-50 w-48"
+                        style={{
+                          top: "50%",
+                          left: "calc(100% + 5px)",
+                          transform: "translateY(-50%)",
+                          maxHeight: "200px", // กำหนดความสูงสูงสุด
+                          overflowY: "auto", // เพิ่ม Scrollbar เมื่อเนื้อหาเกินความสูง
+                        }}
                       >
                         {bookingsForDeskAndDate.map((booking, index) => (
                           <div key={index} className="mb-2 text-gray-800">
@@ -120,6 +130,9 @@ const CoGrid = () => {
                         ))}
                       </div>
                     )}
+
+
+
                   </div>
                 );
               })}
