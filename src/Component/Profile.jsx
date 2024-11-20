@@ -111,7 +111,7 @@ function ProfilePage({ nightMode , useremail }) {
   return (
     <TransitionGroup
       component="div"
-      className={`flex flex-col md:flex-row w-full h-full transition-all duration-300 gap-5 ${nightMode ? 'bg-gray-900' : 'bg-gray-100'
+      className={`flex flex-col md:flex-row w-full h-full transition-all duration-300 gap-5 ${nightMode ? 'bg-gray-900' : 'bg-orange-500'
         } rounded-lg shadow-md`}
     >
       {/* Profile Section */}

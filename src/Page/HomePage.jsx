@@ -24,47 +24,47 @@ const Home = () => {
   const [activeComponent, setActiveComponent] = useState("Map");
   const [isNightMode, setIsNightMode] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [first_name, setFirstname] = useState("");
-  const [last_name, setLastname] = useState("");
+  const [first_name, setFirstname] = useState("System");
+  const [last_name, setLastname] = useState("Admin");
   const [img, setImg] = useState("");
   const [email, setEmail] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      console.error("Token not found");
-      navigate("/");
-      return;
-    }
+  // useEffect(() => {
+  //   const token = localStorage.getItem('authToken');
+  //   if (!token) {
+  //     console.error("Token not found");
+  //     navigate("/");
+  //     return;
+  //   }
 
-    fetch("http://localhost:8080/verifyToken", {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer " + token
-      }
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      if (data?.user?.email) {
-        setEmail(data.user.email);
-        setFirstname(data.first_name);
-        setLastname(data.last_name);
-        setImg(data.img);
-      }
-    })
-    .catch(error => {
-      console.error("Error:", error.message);
-      navigate("/");
-    });
+  //   fetch("http://localhost:8080/verifyToken", {
+  //     method: "POST",
+  //     headers: {
+  //       "Authorization": "Bearer " + token
+  //     }
+  //   })
+  //   .then(response => {
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! status: ${response.status}`);
+  //     }
+  //     return response.json();
+  //   })
+  //   .then(data => {
+  //     if (data?.user?.email) {
+  //       setEmail(data.user.email);
+  //       setFirstname(data.first_name);
+  //       setLastname(data.last_name);
+  //       setImg(data.img);
+  //     }
+  //   })
+  //   .catch(error => {
+  //     console.error("Error:", error.message);
+  //     navigate("/");
+  //   });
 
-    fetchUserData();
-  }, [navigate, email]);
+  //   fetchUserData();
+  // }, [navigate, email]);
 
   const fetchUserData = async () => {
     if (!email) return;
@@ -118,7 +118,7 @@ const Home = () => {
         </button>
         
         <div className="flex items-center space-x-3">
-          <div className="text-sm font-bold">{first_name} {last_name}</div>
+          <div className="text-sm font-bold">{first_name} {last_name}  </div>
           <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-sm">
             {first_name?.[0]}{last_name?.[0]}
           </div>
