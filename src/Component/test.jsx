@@ -1,178 +1,126 @@
-import React, { useState } from "react";
+{/* Availability Modal */}
+<dialog id="availabilityModal" className="modal">
+<div className="modal-box rounded-lg w-full max-w-md p-6 bg-gray-900 text-white">
+  <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center">
+      <div className="bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">
+        {numbertable} {/* Assuming numbertable is your dynamic table number */}
+      </div>
+      <h3 className="ml-3 text-lg font-semibold">This space is available!</h3>
+    </div>
+    <button
+      onClick={() => document.getElementById('availabilityModal').close()}
+      className="text-gray-500 hover:text-gray-300"
+    >
+      ✕
+    </button>
+  </div>
 
-const CoMonth = () => {
-    const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().split('T')[0].slice(0, 7));
+  <div className="text-center mb-6">
+    <div className="bg-gray-800 rounded-lg py-6 px-4 mb-2">
+      <p className="text-3xl font-bold">{timeModal}</p>
+      <p className="text-gray-400">
+        {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+      </p>
+    </div>
+    <button className="btn btn-success w-24" onClick={handleBook}>
+      BOOK
+    </button>
+  </div>
 
-    // ข้อมูลตัวอย่าง
-    const bookings = [
-        { name: "John", time: "9:00-19:00", note: "Meeting", date: new Date("2024-03-01") },
-        { name: "Tle", time: "12:00-19:00", note: "Meeting", date: new Date("2024-03-01") },
-        { name: "David", time: "10:00-17:00", note: "Project work", date: new Date("2024-03-02") },
-        { name: "Alice", time: "8:00-18:00", note: "Team Review", date: new Date("2024-03-03") },
-        { name: "James", time: "10:00-15:00", note: "Client call", date: new Date("2024-03-03") },
-        { name: "James", time: "10:00-15:00", note: "Client call", date: new Date("2024-03-03") },
-        { name: "James", time: "10:00-15:00", note: "Client call", date: new Date("2024-03-03") },
-    ];
+  <div className="mb-6">
+    <p className="font-semibold mb-2 text-gray-300">Other available time</p>
+    <div className="flex flex-wrap gap-2">
+      {/* ให้เอาเวลาจากเวลาที่เลือกมาแสดงแค่ 6 ช่อง ที่เหลื่อให้เป็น more */}
+      {allTimes.slice(selectedTime, selectedTime + 7).map((time) => (
+        <button
+          key={time}
+          onClick={() => setTimeModal(time)}
+          className={`btn btn-outline btn-sm ${timeModal === time ? "bg-gray-500 text-white" : "text-gray-300"
+            }`}
+        >
+          {time}
+        </button>
+      ))}
+      {/* ปุ่ม more ให้เป็น dropdown */}
+      <div className="dropdown dropdown-right ">
+        <div tabIndex={0} role="button" className="btn btn btn-outline btn-sm text-gray-300">MORE</div>
+        <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+          {allTimes.slice(selectedTime + 7, selectedTime + 14).map((time) => (
+            <li key={time} onClick={() => setTimeModal(time)} className="menu-item">
+              <a>{time}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
 
-    // ฟังก์ชันสำหรับดึงจำนวนวันในเดือน
-    const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
+  <div className="rounded-lg bg-gray-800 p-4">
+    <p className="font-semibold text-gray-300">Scheduled Booking (0.10 น.น.)</p>
+    <div className="flex items-center justify-between mt-2">
+      <p className="text-sm text-gray-300">
+        <span className="text-red-500 font-bold">:red_circle:</span> 13:00 - 18:00
+      </p>
+      <p className="text-sm font-semibold text-gray-300">Firstname Lastname</p>
+    </div>
+  </div>
+</div>
+</dialog>
 
-    // ฟังก์ชันแปลงวันในสัปดาห์เป็นภาษาไทย
-    const getDayInThai = (date) => {
-        const days = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
-        return days[date.getDay()];
-    };
 
-    // ฟังก์ชันแปลงเดือนเป็นภาษาไทย
-    const getMonthInThai = (monthIndex) => {
-        const months = [
-            "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-            "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-        ];
-        return months[monthIndex];
-    };
+{/* Booking Modal */}
+<dialog id="bookingModal" className="modal">
+<form method="dialog" className="modal-box rounded-lg w-full max-w-md p-6 bg-gray-900 text-white">
+  <h3 className="text-2xl font-bold mb-2">NEW BOOKING</h3>
+  <p className="text-gray-500 mb-6">Desk Number ##</p>
 
-    // ฟังก์ชันหาวันที่ 1 ของเดือนและวันที่ของสัปดาห์ที่เดือนนั้นเริ่ม
-    const getFirstDayOfMonth = (year, month) => {
-        const firstDay = new Date(year, month, 1);
-        return firstDay.getDay();
-    };
+  {/* Date & Time */}
+  <div className="mb-4">
+    <label className="block text-sm font-semibold mb-1">Date & Time</label>
+    <input
+      type="date"
+      className="input input-bordered w-full mb-3 text-white"
+      value={date.toISOString().slice(0, 10)}
+    />
+    <div className="flex gap-2">
+      <div className="flex-1">
+        <label className="block text-sm font-semibold">From</label>
+        {/* "From" Time Select with the current time pre-selected */}
+        <select
+          className="select select-bordered w-full text-white"
+          value={timeModal} // Bind to the selected time
+          onChange={(e) => setTimeModal(e.target.value)} // Handle time change
+        >
+          {allTimes.map((time, index) => (
+            <option key={index} value={time}>
+              {time}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="flex-1">
+        <label className="block text-sm font-semibold">To</label>
+        {/* "To" Time Select based on the selected "From" time */}
+        <select className="select select-bordered w-full text-white" value={timeModal + 1}>
+          {allTimes.slice(allTimes.indexOf(timeModal) + 1).map((time) => (
+            <option key={time} value={time}>
+              {time}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  </div>
 
-    // ฟังก์ชันค้นหาการจองสำหรับวันที่ที่ระบุ
-    const getBookingsForDate = (year, month, day) => {
-        const date = new Date(year, month, day);
-        return bookings.filter(booking =>
-            booking.date.getFullYear() === date.getFullYear() &&
-            booking.date.getMonth() === date.getMonth() &&
-            booking.date.getDate() === date.getDate()
-        );
-    };
-
-    // ฟังก์ชันเรียงลำดับการจองตามวันที่
-    const getSortedBookingsForMonth = () => {
-        const selectedYear = parseInt(selectedMonth.split("-")[0], 10);
-        const selectedMonthIndex = parseInt(selectedMonth.split("-")[1], 10) - 1;
-
-        // จัดกลุ่มการจองตามวันที่
-        const groupedBookings = bookings
-            .filter(booking =>
-                booking.date.getFullYear() === selectedYear &&
-                booking.date.getMonth() === selectedMonthIndex
-            )
-            .reduce((acc, booking) => {
-                const dateKey = booking.date.toISOString().split("T")[0]; // วันที่ในรูปแบบ 'yyyy-mm-dd'
-                if (!acc[dateKey]) {
-                    acc[dateKey] = [];
-                }
-                acc[dateKey].push(booking);
-                return acc;
-            }, {});
-
-        // แปลงกลุ่มการจองเป็นอาเรย์และเรียงตามวันที่
-        return Object.keys(groupedBookings)
-            .sort((a, b) => new Date(a) - new Date(b))
-            .map(dateKey => ({
-                date: new Date(dateKey),
-                bookings: groupedBookings[dateKey],
-            }));
-    };
-
-    // คำนวณจำนวนวันที่ในเดือนที่เลือก
-    const selectedYear = parseInt(selectedMonth.split("-")[0], 10);
-    const selectedMonthIndex = parseInt(selectedMonth.split("-")[1], 10) - 1;
-    const daysInMonth = getDaysInMonth(selectedYear, selectedMonthIndex);
-    const firstDayOfMonth = getFirstDayOfMonth(selectedYear, selectedMonthIndex);
-
-    return (
-        <div className="p-4">
-            <h2 className="text-2xl font-bold mb-4 text-center">Monthly Desk Booking</h2>
-
-            <div className="lg:flex lg:space-x-4 space-y-4 lg:space-y-0">
-                {/* ส่วนปฏิทิน */}
-                <div className="lg:w-2/3">
-                    {/* เลือกเดือน */}
-                    <div className="mb-4">
-                        <label className="mr-2">เลือกเดือน:</label>
-                        <input
-                            type="month"
-                            value={selectedMonth}
-                            onChange={(e) => setSelectedMonth(e.target.value)}
-                            className="p-2 border rounded"
-                        />
-                    </div>
-
-                    {/* Grid แสดงข้อมูล */}
-                    <div className="w-full h-full">
-                        <div className="p-6 bg-white rounded-lg">
-                            <div className="grid grid-cols-7 gap-2 p-2 w-50 h-50">
-                                {["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"].map((day, idx) => (
-                                    <div key={idx} className="font-semibold text-left">{day}</div>
-                                ))}
-                                {/* แสดงวันที่ */}
-                                {Array.from({ length: Math.ceil(daysInMonth / 7) }, (_, weekIndex) => (
-                                    <React.Fragment key={weekIndex}>
-                                        {Array.from({ length: 7 }, (_, dayIndex) => {
-                                            const day = weekIndex * 7 + dayIndex + 1;
-                                            if (day <= daysInMonth) {
-                                                const dayBookings = getBookingsForDate(selectedYear, selectedMonthIndex, day);
-                                                return (
-                                                    <div key={day} className="text-left p-2 h-20 w-30 border border-purple-300 rounded">
-                                                        <div className="font-medium">{day}</div>
-                                                        {dayBookings.length > 0 && (
-                                                            <div className="text-sm">
-                                                                {dayBookings.slice(0, 2).map((booking, index) => (
-                                                                    <div key={index} className="flex items-center space-x-2">
-                                                                        <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-                                                                        <div className="font-medium">{booking.name}</div>
-                                                                    </div>
-                                                                ))}
-                                                                {dayBookings.length > 2 && (
-                                                                    <div className="text-blue-500 font-medium">More</div>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            }
-                                            return null;
-                                        })}
-                                    </React.Fragment>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                {/* ส่วนแสดงรายละเอียดการจอง */}
-                <div className="lg:w-1/3 bg-gray-400 rounded-lg p-5 text-sm mt-2 max-h-[800px] overflow-y-auto">
-                    <h3 className="text-xl font-semibold mb-4">
-                        การจองประจำเดือน {getMonthInThai(selectedMonthIndex)} {selectedYear}
-                    </h3>
-                    <div className="space-y-4">
-                        {getSortedBookingsForMonth().map((bookingGroup, index) => (
-                            <div key={index} className="bg-gray-200 p-4 rounded-lg shadow-sm">
-                                <div className="font-medium text-2xl">
-                                    วันที่ {bookingGroup.date.getDate()} {getMonthInThai(bookingGroup.date.getMonth())}
-                                </div>
-                                <div className="text-sm mt-2">
-                                    {bookingGroup.bookings.map((booking, idx) => (
-                                        <div key={idx} className="text-sm mt-2 bg-red-950 p-4 rounded-lg">
-                                            <div className="flex justify-between w-full">
-                                                <div className="font-medium text-white text-xl">{booking.name}</div>
-                                                <div className="font-medium text-white text-xl">{booking.time}</div>
-                                            </div>
-                                            <div className="text-white">หมายเหตุ: {booking.note}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default CoMonth;
+  <div className="flex justify-end gap-2">
+    <button className="btn btn-primary">Confirm Booking</button>
+    <button
+      className="btn btn-outline"
+      onClick={() => cancelBooking()}
+    >
+      Cancel Booking
+    </button>
+  </div>
+</form>
+</dialog>

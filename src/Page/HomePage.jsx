@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
-import { useNavigate } from "react-router-dom";  // ใช้ React Router เพื่อการนำทาง
+import { useNavigate } from "react-router-dom";
 
-// Import file components
+// Import components
 import CoMap from "../Component/Map";
 import CoProfile from "../Component/Profile";
 import CoTest from "../Component/TestModal";
@@ -17,136 +17,204 @@ import { IoGrid } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { CiBoxList } from "react-icons/ci";
 import { MdCalendarMonth } from "react-icons/md";
+import { IoMdClose } from "react-icons/io";
+import { RiMenu3Fill } from "react-icons/ri";
 
 const Home = () => {
   const [activeComponent, setActiveComponent] = useState("Map");
   const [isNightMode, setIsNightMode] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const navigate = useNavigate();  // สร้าง instance ของ useNavigate
+  const [first_name, setFirstname] = useState("");
+  const [last_name, setLastname] = useState("");
+  const [img, setImg] = useState("");
+  const [email, setEmail] = useState(null);
+  const navigate = useNavigate();
 
-  // ตรวจสอบโทเค็นและนำทางไปหน้า login ถ้าไม่มี
-  // useEffect(() => {
-  //   const token = localStorage.getItem('authToken');
-  //   if (!token) {
-  //     navigate("/");
-  //   } else {
-  //     fetch('/verifyToken', {
-  //       headers: { 'Authorization': `Bearer ${token}` },
-  //     })
-  //     .then(response => {
-  //       if (!response.ok) {
-  //         navigate("/");
-  //       }
-  //     })
-  //     .catch(error => {
-  //       console.error('Error verifying token:', error);
-  //       navigate("/");
-  //     });
-  //   }
-  // }, [navigate]);
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error("Token not found");
+      navigate("/");
+      return;
+    }
 
-  const renderComponent = () => {
-    switch (activeComponent) {
-      case "Map":
-        return <CoMap nightMode={isNightMode} />;
-      case "Profile":
-        return <CoProfile nightMode={isNightMode} />;
-      case "Day":
-        return <CoTest />;
-      case "List":
-        return <CoList />;
-      case "Grid":
-        return <CoGrid />;
-      case "Month":
-        return <CoMonth />;
-      default:
-        return null;
+    fetch("http://localhost:8080/verifyToken", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data?.user?.email) {
+        setEmail(data.user.email);
+        setFirstname(data.first_name);
+        setLastname(data.last_name);
+        setImg(data.img);
+      }
+    })
+    .catch(error => {
+      console.error("Error:", error.message);
+      navigate("/");
+    });
+
+    fetchUserData();
+  }, [navigate, email]);
+
+  const fetchUserData = async () => {
+    if (!email) return;
+    
+    try {
+      const response = await fetch(`http://localhost:8080/users/email/${email}`);
+      if (!response.ok) throw new Error('Failed to fetch user data');
+
+      if (response.headers.get('Content-Type')?.includes('application/json')) {
+        const data = await response.json();
+        setFirstname(data.first_name);
+        setLastname(data.last_name);
+        setImg(data.img);
+      }
+    } catch (err) {
+      console.error(err.message);
     }
   };
 
-  const toggleNightMode = () => {
-    setIsNightMode(!isNightMode);
+  const renderComponent = () => {
+    switch (activeComponent) {
+      case "Map": return <CoMap nightMode={isNightMode} />;
+      case "Profile": return <CoProfile nightMode={isNightMode} useremail={email} />;
+      case "Day": return <CoTest />;
+      case "List": return <CoList />;
+      case "Grid": return <CoGrid />;
+      case "Month": return <CoMonth />;
+      default: return null;
+    }
   };
 
-  const generateName = () => {
-    
-  }
+  // Menu items configuration
+  const menuItems = [
+    { id: "Map", icon: HiMiniMap, label: "Map" },
+    { id: "Day", icon: HiSun, label: "Day" },
+    { id: "Month", icon: MdCalendarMonth, label: "Month" },
+    { id: "Grid", icon: IoGrid, label: "Grid" },
+    { id: "List", icon: CiBoxList, label: "List" },
+    { id: "Profile", icon: CgProfile, label: "Profile" }
+  ];
 
   return (
-    <div className={`flex flex-col md:flex-row h-screen w-screen p-5 ${isNightMode ? "bg-gray-800" : "bg-blue-800"} `}>
-      <div className={`w-full md:w-1/5 flex flex-col items-center p-5 rounded-lg shadow-lg transition-all duration-500 ${isNightMode ? "bg-gray-700 text-gray-200" : "bg-white text-gray-800"}`}>
-        {/* Profile Section */}
-        <div className="flex items-center mb-8 transition-all duration-300">
-          <div className="w-12 h-12 rounded-full bg-gray-400 flex items-center justify-center text-2xl">SP</div>
-          <div className={`text-sm font-bold text-left ml-2`}>
-            Firstname<br />Lastname
-          </div>
-        </div>
-        <hr className={`w-full ${isNightMode ? "border-gray-600" : "border-gray-300"} mb-4`} />
-
-        {/* Toggle Menu Button for Mobile */}
+    <div className={`h-screen w-screen ${isNightMode ? "bg-gray-800" : "bg-blue-800"}`}>
+      {/* Mobile Header */}
+      <div className="md:hidden w-full px-4 py-3 flex items-center justify-between bg-white shadow-lg">
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="mb-4 w-full px-4 py-2 rounded-lg transition-all duration-300 text-left bg-gray-200 hover:bg-gray-300 md:hidden"
+          className="p-2 rounded-lg hover:bg-gray-100"
         >
-          {isMenuOpen ? "Hide Menu" : "Show Menu"}
+          {isMenuOpen ? <IoMdClose size={24} /> : <RiMenu3Fill size={24} />}
         </button>
-
-        {/* Menu Items with animation */}
-        <TransitionGroup className={`w-full mb-5 ${isMenuOpen ? 'block' : 'hidden md:block'}`}>
-          {["Map", "Day", "Month", "Grid", "List",  "Profile"].map((item) => (
-            <CSSTransition key={item} timeout={300} classNames="menu-fade">
-              <button
-                className={`w-full px-4 py-3 text-left rounded-lg transition-all duration-300 flex items-center justify-start ${activeComponent === item ? "text-red-600" : isNightMode ? "text-gray-400" : "text-gray-600"}`}
-                onClick={() => {
-                  setActiveComponent(item);
-                  setIsMenuOpen(false); // Close menu on selection
-                }}
-                style={{ backgroundColor: activeComponent === item ? (isNightMode ? "#4a2f2f" : "#ffe5e5") : "transparent" }}
-              >
-                <span className="flex items-center">
-                  <div className={`w-8 h-8 rounded-md flex items-center justify-center ${activeComponent === item ? (isNightMode ? "bg-red-800 border border-red-600" : "bg-red-100 border border-red-600") : ""}`}>
-                    {item === "Day" && <HiSun className={`${activeComponent === item ? "text-red-600" : isNightMode ? "text-gray-400" : "text-gray-600"}`} />}
-                    {item === "Month" && <MdCalendarMonth className={`${activeComponent === item ? "text-red-600" : isNightMode ? "text-gray-400" : "text-gray-600"}`} />}
-                    {item === "Grid" && <IoGrid className={`${activeComponent === item ? "text-red-600" : isNightMode ? "text-gray-400" : "text-gray-600"}`} />}
-                    {item === "List" && <CiBoxList className={`${activeComponent === item ? "text-red-600" : isNightMode ? "text-gray-400" : "text-gray-600"}`} />}
-                    {item === "Map" && <HiMiniMap className={`${activeComponent === item ? "text-red-600" : isNightMode ? "text-gray-400" : "text-gray-600"}`} />}
-                    {item === "Profile" && <CgProfile className={`${activeComponent === item ? "text-red-600" : isNightMode ? "text-gray-400" : "text-gray-600"}`} />}
-                  </div>
-                  <span className={`ml-2 font-medium ${activeComponent === item ? "text-red-600" : isNightMode ? "text-gray-400" : "text-gray-600"}`}>
-                    {item}
-                  </span>
-                </span>
-              </button>
-            </CSSTransition>
-          ))}
-        </TransitionGroup>
-
-        {/* Footer with smooth transition */}
-        <div className={`mt-auto w-full flex justify-around text-xs transition-all duration-300 ${isNightMode ? "text-gray-400" : "text-gray-500"} mt-4`}>
-          <button className={`px-3 py-1 rounded ${isNightMode ? "bg-red-700 text-gray-200" : "bg-red-600 text-white"}`}>RSU LAB</button>
-          <button className={`${isNightMode ? "text-gray-400" : "text-gray-500"}`}>User Mode</button>
-          <button className={`${isNightMode ? "text-gray-400" : "text-gray-500"}`}>Contact</button>
-          <button className={`${isNightMode ? "text-gray-400" : "text-gray-500"}`}>Term</button>
+        
+        <div className="flex items-center space-x-3">
+          <div className="text-sm font-bold">{first_name} {last_name}</div>
+          <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-sm">
+            {first_name?.[0]}{last_name?.[0]}
+          </div>
         </div>
-        <div className={`mt-4 text-xs underline ${isNightMode ? "text-gray-400" : "text-gray-500"}`}>Privacy</div>
-
-        {/* Night Mode Toggle Button */}
-        <button
-          onClick={toggleNightMode}
-          className={`mt-4 p-2 rounded-full transition-all duration-300 ${isNightMode ? "bg-yellow-500" : "bg-gray-300"}`}
-        >
-          {isNightMode ? <HiSun className="text-white" /> : <HiMoon className="text-gray-800" />}
-        </button>
       </div>
 
-      {/* Content with animation */}
-      <div className={`flex-1 ml-0 md:ml-5 rounded-lg flex justify-center items-center shadow-lg transition-all duration-500 ${isNightMode ? "bg-white" : "bg-white"}`}>
-        <CSSTransition key={activeComponent} timeout={500} classNames="menu-slide">
-          <div className="relative w-full h-full">
-            {renderComponent()}
+      <div className="flex flex-col md:flex-row h-[calc(100vh-56px)] md:h-screen md:p-10">
+        {/* Sidebar */}
+        <div className={`
+          fixed md:relative w-full md:w-1/5 h-full z-50 transform transition-transform duration-300 ease-in-out
+          ${isMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          ${isNightMode ? "bg-gray-700 text-gray-200" : "bg-white text-gray-800"}
+        `}>
+          <div className="p-5">
+            {/* Desktop Profile Section - Hidden on Mobile */}
+            <div className="hidden md:flex items-center mb-8">
+              <div className="w-12 h-12 rounded-full bg-gray-400 flex items-center justify-center text-2xl">
+                {first_name?.[0]}{last_name?.[0]}
+              </div>
+              <div className="text-sm font-bold text-left ml-2">
+                {first_name}<br />{last_name}
+              </div>
+            </div>
+
+            <hr className={`w-full ${isNightMode ? "border-gray-600" : "border-gray-300"} mb-4 hidden md:block`} />
+
+            {/* Menu Items */}
+            <div className="space-y-2">
+              {menuItems.map((item) => (
+                <button
+                  key={item.id}
+                  className={`w-full px-4 py-3 text-left rounded-lg transition-all duration-300 flex items-center
+                    ${activeComponent === item.id ? 
+                      `${isNightMode ? "bg-red-800 text-red-600" : "bg-red-100 text-red-600"}` : 
+                      `${isNightMode ? "text-gray-400" : "text-gray-600"}`
+                    }`
+                  }
+                  onClick={() => {
+                    setActiveComponent(item.id);
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <div className={`w-8 h-8 rounded-md flex items-center justify-center
+                    ${activeComponent === item.id ? "border border-red-600" : ""}`
+                  }>
+                    <item.icon className={activeComponent === item.id ? "text-red-600" : ""} />
+                  </div>
+                  <span className={`ml-2 font-medium ${activeComponent === item.id ? "text-red-600" : ""}`}>
+                    {item.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Footer - Hidden on Mobile */}
+            <div className={`mt-auto hidden md:flex flex-col items-center space-y-4 pt-8
+              ${isNightMode ? "text-gray-400" : "text-gray-500"}`
+            }>
+              <div className="flex space-x-4 text-xs">
+                <button className={`px-3 py-1 rounded ${isNightMode ? "bg-red-700 text-gray-200" : "bg-red-600 text-white"}`}>
+                  RSU LAB
+                </button>
+                <button>User Mode</button>
+                <button>Contact</button>
+                <button>Term</button>
+              </div>
+              <div className="text-xs underline">Privacy</div>
+              
+              {/* Night Mode Toggle */}
+              <button
+                onClick={() => setIsNightMode(!isNightMode)}
+                className={`p-2 rounded-full transition-all duration-300 ${isNightMode ? "bg-yellow-500" : "bg-gray-300"}`}
+              >
+                {isNightMode ? <HiSun className="text-white" /> : <HiMoon className="text-gray-800" />}
+              </button>
+            </div>
           </div>
-        </CSSTransition>
+        </div>
+
+        {/* Main Content */}
+        <div className={`flex-1 md:ml-5 h-full rounded-lg transition-all duration-500 ${isNightMode ? "bg-white" : "bg-white"}`}>
+          <CSSTransition key={activeComponent} timeout={500} classNames="menu-slide">
+            <div className="relative w-full h-full">
+              {renderComponent()}
+            </div>
+          </CSSTransition>
+        </div>
+
+        {/* Mobile Night Mode Toggle - Fixed at bottom right */}
+        <button
+          onClick={() => setIsNightMode(!isNightMode)}
+          className={`md:hidden fixed bottom-4 right-4 p-3 rounded-full shadow-lg z-50 transition-all duration-300 
+            ${isNightMode ? "bg-yellow-500" : "bg-gray-300"}`
+        }>
+          {isNightMode ? <HiSun className="text-white" /> : <HiMoon className="text-gray-800" />}
+        </button>
       </div>
     </div>
   );

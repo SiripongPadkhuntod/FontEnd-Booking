@@ -32,6 +32,38 @@ const CoMap = ({ nightMode }) => {
 
   const [showMore, setShowMore] = useState(false);
 
+   // การเริ่มต้นการลาก
+   const handleDragStart = (e) => {
+    e.preventDefault();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    setIsDragging(true);
+    setStartX(clientX - offsetX);
+    setStartY(clientY - offsetY);
+  };
+
+  const handleDragMove = (e) => {
+    if (!isDragging) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    setOffsetX(clientX - startX);
+    setOffsetY(clientY - startY);
+  };
+
+  // การหยุดการลาก
+  const handleDragEnd = () => setIsDragging(false);
+
+  // การซูมเข้า/ออก
+  // const handleWheelZoom = (e) => {
+  //   e.preventDefault();
+  //   const zoomIntensity = 0.1;
+  //   if (e.deltaY > 0) {
+  //     setScale(Math.max(scale - zoomIntensity, 0.5));
+  //   } else {
+  //     setScale(Math.min(scale + zoomIntensity, 3));
+  //   }
+  // };
+
   const handleBook = () => {
     setBookingTime(selectedTime); // ส่งเวลาที่เลือกไปที่ bookingModal
     document.getElementById('availabilityModal').close(); // ปิด availabilityModal
@@ -126,9 +158,9 @@ const CoMap = ({ nightMode }) => {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={isMobile ? handleDragStart : undefined}
+        onTouchMove={isMobile ? handleDragMove : undefined}
+        onTouchEnd={isMobile ? handleDragEnd : undefined}
         onWheel={handleWheelZoom}
         onMouseLeave={() => setIsDragging(false)}
         className="w-full h-full bg-center"
@@ -150,6 +182,7 @@ const CoMap = ({ nightMode }) => {
           setDisplayTime={setDisplayTime}
           setSelectedTime={setSelectedTime}
           handleTimeChange={handleTimeChange}
+          
           // initialTimes={initialTimes}
           // moreTimes={moreTimes}
           showMore={showMore}

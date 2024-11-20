@@ -119,7 +119,7 @@ const BookingApp = () => {
     };
 
     return (
-        <div className="p-4">
+        <div className="">
             <Header
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}

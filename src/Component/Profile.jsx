@@ -9,14 +9,13 @@ import { FaEdit } from "react-icons/fa";
 import { RiImageEditFill } from "react-icons/ri";
 
 
-function ProfilePage({ nightMode }) {
+function ProfilePage({ nightMode , useremail }) {
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showDetails, setShowDetails] = useState(true); // Default to show Details section
   const [showCalendar, setShowCalendar] = useState(false); // Default to hide Calendar section
-
 
   const [userData2, setUserData2] = useState({
     email: 'example@gmail.com',
@@ -36,7 +35,7 @@ function ProfilePage({ nightMode }) {
   const navigate = useNavigate(); // ใช้ useNavigate สำหรับเปลี่ยนเส้นทาง
 
   // const { id } = useParams();  // ใช้เพื่อดึง :id จาก URL
-  const id = 'siripong.p64@rsu.ac.th'
+  const id = useremail;
 
   const handleLogout = () => {
     localStorage.removeItem('authToken'); // ลบ Token จาก LocalStorage
@@ -53,37 +52,43 @@ function ProfilePage({ nightMode }) {
     setUserData2(userData);
   };
 
+  const fetchUserData = async () => {
+    try {
+      // ระบุ URL ที่สมบูรณ์
+      const response = await fetch(`http://localhost:8080/users/email/${useremail}`);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        // ระบุ URL ที่สมบูรณ์
-        const response = await fetch(`http://localhost:8080/users/email/${id}`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data');
-        }
-
-        const contentType = response.headers.get('Content-Type');
-        // ตรวจสอบว่า Content-Type เป็น application/json หรือไม่
-        if (contentType && contentType.includes('application/json')) {
-          const data = await response.json();
-          setUserData(data);
-          setUserData2(data);
-        } else {
-          const errorText = await response.text();
-          throw new Error('Response is not JSON: ' + errorText);
-        }
-
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data');
       }
-    };
 
-    fetchUserData();
-  }, [id]);
+      const contentType = response.headers.get('Content-Type');
+      // ตรวจสอบว่า Content-Type เป็น application/json หรือไม่
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        setUserData(data);
+        setUserData2(data);
+      } else {
+        const errorText = await response.text();
+        throw new Error('Response is not JSON: ' + errorText);
+      }
+
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+
+  
+
+
+
+
+  useEffect(() => { 
+
+    fetchUserData()
+}, []);
 
   if (loading) {
     return (
@@ -106,7 +111,7 @@ function ProfilePage({ nightMode }) {
   return (
     <TransitionGroup
       component="div"
-      className={`flex flex-col md:flex-row w-full h-full p-5 transition-all duration-300 gap-5 ${nightMode ? 'bg-gray-900' : 'bg-gray-100'
+      className={`flex flex-col md:flex-row w-full h-full transition-all duration-300 gap-5 ${nightMode ? 'bg-gray-900' : 'bg-gray-100'
         } rounded-lg shadow-md`}
     >
       {/* Profile Section */}
@@ -320,7 +325,7 @@ function ProfilePage({ nightMode }) {
                 type="text"
                 name="student_ID"
                 placeholder="Student ID"
-                value={userData2.student_ID || ''}
+                value={userData2.student_id || ''}
                 onChange={handleInputChange}
                 className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none"
                 readOnly={!isEditing}
@@ -329,7 +334,7 @@ function ProfilePage({ nightMode }) {
                 type="text"
                 name="major"
                 placeholder="Major"
-                value={userData2.major || ''}
+                value={userData2.department || ''}
                 onChange={handleInputChange}
                 className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none"
                 readOnly={!isEditing}
@@ -341,6 +346,7 @@ function ProfilePage({ nightMode }) {
               <button
                 className="py-2 px-4 mt-6 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-all duration-300"
                 type="submit"
+                // onClick={}
               >
                 Save all Changes
               </button>

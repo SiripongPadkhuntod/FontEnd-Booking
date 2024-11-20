@@ -13,6 +13,12 @@ const CoMonth = () => {
     { name: "Emma White", time: "9:00 AM", note: "Brainstorming", date: new Date("2024-02-29") },
     { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
     { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
+    { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
+    { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
+    { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
+    { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
+    { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
+    { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
   ];
 
   // ฟังก์ชันต่างๆ คงเดิม
@@ -128,39 +134,39 @@ const CoMonth = () => {
   };
 
   return (
-    <div className="container mx-auto px-4">
-      <h2 className="text-2xl font-bold mb-4 text-center">Monthly Desk Booking</h2>
+    <div className=" p-5 bg-yellow-500 h-full rounded-lg">
+      <h2 className="text-2xl font-bold mb-4 text-center ">Monthly Desk Booking</h2>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3 bg-red-400 ">
         {/* ส่วนปฏิทิน */}
         <div className="lg:col-span-2">
           {/* เลือกเดือน */}
-          <div className="mb-4 flex justify-between items-center">
+          <div className="mb-4 flex justify-between items-center gap-4">
             <button
               onClick={handlePrevMonth}
-              className="p-2 border rounded bg-gray-300 hover:bg-gray-400 transition"
+              className="p-3 border rounded-full bg-blue-500 text-white hover:bg-blue-600 transition duration-200 shadow-md h-12 w-12 flex justify-center items-center"
             >
-              &lt; {/* ปุ่มย้อนกลับ */}
+              &lt;
             </button>
-            <div className="flex items-center">
-              <label className="mr-2">เลือกเดือน:</label>
+            <div className="flex items-center gap-2">
+              <label className="font-medium text-gray-700 text-xl font-bold">เลือกเดือน:</label>
               <input
                 type="month"
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                className="p-2 border rounded"
+                className="p-2 border rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 transition"
               />
             </div>
             <button
               onClick={handleNextMonth}
-              className="p-2 border rounded bg-gray-300 hover:bg-gray-400 transition"
+              className="p-3 border rounded-full bg-blue-500 text-white hover:bg-blue-600 transition duration-200 shadow-md h-12 w-12 flex justify-center items-center"
             >
-              &gt; {/* ปุ่มไปข้างหน้า */}
+              &gt;
             </button>
           </div>
 
           {/* Grid calendar */}
-          <div className="bg-purple-200 rounded-lg p-4 h-[calc(100vh-12rem)]">
+          <div className="bg-purple-200 rounded-lg p-4 ">
             <div className="grid grid-cols-7 gap-2">
               {/* หัวตาราง */}
               {["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"].map((day, idx) => (
@@ -200,7 +206,7 @@ const CoMonth = () => {
         </div>
 
         {/* ส่วนแสดงรายละเอียดการจอง */}
-        <div className="bg-white rounded-lg p-4 shadow-lg h-[calc(100vh-8rem)] overflow-y-auto">
+        <div className="bg-slate-600 rounded-lg p-4 shadow-lg  overflow-y-auto h-full">
           <h3 className="text-xl font-semibold mb-4">
             การจองประจำเดือน {getMonthInThai(selectedMonthIndex)} {selectedYear}
           </h3>
