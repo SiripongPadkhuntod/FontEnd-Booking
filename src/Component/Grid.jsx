@@ -1,76 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { format } from "date-fns";
 
 const CoGrid = () => {
   const desks = ["A01", "A02", "A03", "A04", "A05", "A06", "B01", "B02", "C01", "C02"];
+  const days = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
 
-  // ข้อมูลตัวอย่าง
-  const bookings = [
-    { desk: "A01", name: "John Doe", time: "10:00 AM", note: "Team meeting", date: new Date("2024-11-16") },
-    { desk: "A01", name: "John Doe", time: "11:00 AM", note: "Team meeting", date: new Date("2024-11-16") },
-    { desk: "A01", name: "John Doe", time: "12:00 AM", note: "Team meeting", date: new Date("2024-11-16") },
-    { desk: "A01", name: "John Doe", time: "13:00 AM", note: "Team meeting", date: new Date("2024-11-16") },
-    { desk: "A01", name: "John Doe", time: "14:00 AM", note: "Team meeting", date: new Date("2024-11-16") },
-    { desk: "A01", name: "Jane Smith", time: "1:00 PM", note: "Project review", date: new Date("2024-11-15") },
-    { desk: "A02", name: "Alice Brown", time: "3:00 PM", note: "Client call", date: new Date("2024-12-15") },
-    { desk: "A02", name: "Bob Wilson", time: "2:00 PM", note: "Daily standup", date: new Date("2024-11-15") },
-    { desk: "A02", name: "Bob Wilson", time: "2:00 PM", note: "Daily standup", date: new Date("2024-11-15") },
-    { desk: "A02", name: "Bob Wilson", time: "2:00 PM", note: "Daily standup", date: new Date("2024-11-15") },
-    { desk: "A02", name: "Bob Wilson", time: "2:00 PM", note: "Daily standup", date: new Date("2024-11-15") },
-    { desk: "A02", name: "Carol White", time: "4:00 PM", note: "Planning", date: new Date("2024-11-14") },
-    { desk: "A02", name: "David Black", time: "5:00 PM", note: "Review", date: new Date("2024-11-14") },
-  ];
+  const [bookings, setBookings] = useState([
+    { id: 1, desk: "A01", name: "John Doe", time: "10:00", note: "Team meeting", date: "2024-11-16" },
+    { id: 2, desk: "A02", name: "Alice Brown", time: "14:30", note: "Client call", date: "2024-11-15" },
+    { id: 3, desk: "A01", name: "Bob Smith", time: "09:00", note: "Interview", date: "2024-11-16" },
+    { id: 4, desk: "A03", name: "Charlie Green", time: "11:30", note: "Lunch meeting", date: "2024-11-16" },
+    { id: 5, desk: "A02", name: "David White", time: "16:00", note: "Training", date: "2024-11-15" },
+    { id: 6, desk: "A01", name: "Eve Black", time: "13:00", note: "Presentation", date: "2024-11-16" },
+    { id: 7, desk: "A04", name: "Frank Grey", time: "15:30", note: "Discussion", date: "2024-11-16" },
+    { id: 8, desk: "A05", name: "Grace Silver", time: "17:00", note: "Meeting", date: "2024-11-16" },
+    { id: 9, desk: "A06", name: "Heidi Gold", time: "18:30", note: "Conference", date: "2024-11-16" },
+    { id: 10, desk: "B01", name: "Ivy Orange", time: "19:00", note: "Seminar", date: "2024-11-16" },
+    { id: 11, desk: "B02", name: "Jack Blue", time: "20:30", note: "Workshop", date: "2024-11-16" },
+    { id: 12, desk: "C01", name: "Kelly Red", time: "21:00", note: "Webinar", date: "2024-11-16" },
+    { id: 13, desk: "C02", name: "Liam Pink", time: "22:30", note: "Meeting", date: "2024-11-16" },
+  ]);
 
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [hoveredBooking, setHoveredBooking] = useState(null);
 
-  // ฟังก์ชันเพื่อแปลงวันที่เป็นรูปแบบที่ต้องการ
-  const formatDate = (date) => {
-    return date.toISOString().split('T')[0];  // แปลงเป็น 'YYYY-MM-DD'
-  };
+  const filteredBookings = useMemo(() => 
+    bookings.filter(booking => 
+      booking.date === selectedDate
+    ), [bookings, selectedDate]
+  );
 
-  // ฟังก์ชันแปลงวันที่เป็นวันในสัปดาห์
-  const getDayInThai = (date) => {
-    const days = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
-    return days[date.getDay()];
-  };
+  const renderBookingNames = (deskBookings) => {
+    if (deskBookings.length === 0) return <div className="text-gray-400 text-sm">ว่าง</div>;
 
-  // กรองข้อมูลที่ตรงกับวันที่ที่เลือก
-  const filteredBookings = bookings.filter((booking) => {
-    return selectedDate ? formatDate(booking.date) === selectedDate : true;
-  });
-
-  // ฟังก์ชันแสดงรายชื่อและ +more ถ้ามีการจองเกิน 2 คน
-  const renderBookingNames = (bookings) => {
-    if (bookings.length <= 2) {
-      return bookings.map((booking, index) => (
-        <div key={index} className="flex items-center truncate" style={{ fontSize: "0.85rem" }}>
-          <span className="w-2 h-2 rounded-full mr-2 flex-shrink-0" style={{ backgroundColor: "#00f" }}></span>
-          <span className="truncate">{booking.name.split(" ")[0]}</span>
-        </div>
-      ));
-    } else {
-      return (
-        <>
-          {bookings.slice(0, 2).map((booking, index) => (
-            <div key={index} className="flex items-center truncate" style={{ fontSize: "0.85rem" }}>
-              <span className="w-2 h-2 rounded-full mr-2 flex-shrink-0" style={{ backgroundColor: "#00f" }}></span>
-              <span className="truncate">{booking.name.split(" ")[0]}</span>
-            </div>
-          ))}
-          <div className="text-sm text-gray-500 mt-1">
-            +{bookings.length - 2} more...
+    return (
+      <div className="space-y-1">
+        {deskBookings.slice(0, 2).map(booking => (
+          <div 
+            key={booking.id} 
+            className="flex items-center text-xs truncate"
+            onMouseEnter={() => setHoveredBooking(booking)}
+            onMouseLeave={() => setHoveredBooking(null)}
+          >
+            <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+            {booking.name.split(' ')[0]}
           </div>
-        </>
-      );
-    }
+        ))}
+        {deskBookings.length > 2 && (
+          <div className="text-xs text-gray-500">
+            +{deskBookings.length - 2} more
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
-    <div className="w-full h-ful p-4">
-      <h2 className="text-2xl font-bold mb-4 text-center">Grid View</h2>
+    <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4 text-center">Desk Booking Grid</h2>
 
-      {/* Dropdown สำหรับเลือกวันที่ */}
-      <div className="mb-4">
-        <label className="mr-2">เลือกวันที่:</label>
+      <div className="mb-4 flex justify-center items-center">
+        <label className="mr-2">Select Date:</label>
         <input
           type="date"
           value={selectedDate}
@@ -79,60 +69,42 @@ const CoGrid = () => {
         />
       </div>
 
-      {/* Grid แสดงข้อมูล */}
-      <div className="min-w-[1200px] p-5 bg-purple-200 rounded-lg">
-        <div className="grid grid-cols-11 gap-4">
+      <div className="bg-purple-100 rounded-lg p-5 overflow-x-auto">
+        <div className="grid grid-cols-11 gap-2 min-w-[1200px] relative">
           <div className="font-semibold text-center">Days</div>
-          {desks.map((desk, deskIndex) => (
-            <div key={deskIndex} className="font-semibold text-center">
-              {desk}
-            </div>
+          {desks.map(desk => (
+            <div key={desk} className="font-semibold text-center">{desk}</div>
           ))}
 
-          {["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"].map((day, dayIndex) => (
-            <React.Fragment key={dayIndex}>
-              <div className="font-medium text-center place-content-center">{day}</div>
-              {desks.map((desk, deskIndex) => {
-                // กรองข้อมูลตามวันที่และ desk
-                const bookingsForDeskAndDate = filteredBookings.filter(
-                  (booking) => booking.desk === desk && getDayInThai(booking.date) === day
+          {days.map((day, dayIndex) => (
+            <React.Fragment key={day}>
+              <div className="font-medium text-center">{day}</div>
+              {desks.map(desk => {
+                const deskBookings = filteredBookings.filter(
+                  booking => booking.desk === desk
                 );
 
                 return (
-                  <div
-                    key={`${dayIndex}-${deskIndex}`}
-                    className="bg-white w-full h-20 p-3 rounded-lg shadow-sm border relative group"
+                  <div 
+                    key={`${day}-${desk}`} 
+                    className="bg-white rounded-lg shadow-sm border p-2 h-20 relative group"
                   >
-                    <div className="flex flex-col space-y-1 h-full">
-                      {bookingsForDeskAndDate.length > 0 ? (
-                        renderBookingNames(bookingsForDeskAndDate)
-                      ) : (
-                        <div className="text-gray-400">ว่าง</div>
-                      )}
-                    </div>
-                    {bookingsForDeskAndDate.length > 0 && (
-                      <div
-                        className="absolute hidden group-hover:block bg-white border shadow-lg rounded-lg p-3 z-50 w-48"
-                        style={{
-                          top: "50%",
-                          left: "calc(100% + 5px)",
-                          transform: "translateY(-50%)",
-                          maxHeight: "200px", // กำหนดความสูงสูงสุด
-                          overflowY: "auto", // เพิ่ม Scrollbar เมื่อเนื้อหาเกินความสูง
-                        }}
+                    {renderBookingNames(deskBookings)}
+
+                    {/* Tooltip แบบใหม่ */}
+                    {deskBookings.length > 0 && (
+                      <div 
+                        className="absolute hidden group-hover:block z-10 bg-white border rounded-lg shadow-lg p-3 w-48 
+                                   left-full top-1/2 transform -translate-y-1/2 ml-2"
                       >
-                        {bookingsForDeskAndDate.map((booking, index) => (
-                          <div key={index} className="mb-2 text-gray-800">
-                            <div className="font-semibold truncate">{booking.name}</div>
-                            <div className="text-sm">{booking.time}</div>
-                            <div className="text-sm truncate">{booking.note}</div>
+                        {deskBookings.map(booking => (
+                          <div key={booking.id} className="mb-2 last:mb-0">
+                            <div className="font-semibold text-sm">{booking.name}</div>
+                            <div className="text-xs text-gray-600">{booking.time} - {booking.note}</div>
                           </div>
                         ))}
                       </div>
                     )}
-
-
-
                   </div>
                 );
               })}

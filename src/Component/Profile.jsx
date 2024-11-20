@@ -4,6 +4,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import ErrorDisplay from './ErrorDisplay';
 // import { set } from 'react-datepicker/dist/date_utils';
 import { TbPencilCancel } from "react-icons/tb";
+import Skeleton from 'react-loading-skeleton'; // นำเข้า Skeleton
 
 import { FaEdit } from "react-icons/fa";
 import { RiImageEditFill } from "react-icons/ri";
@@ -92,10 +93,18 @@ function ProfilePage({ nightMode , useremail }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-        <span className="ml-3">กำลังโหลดข้อมูล...</span>
+      // <div className="flex items-center justify-center min-h-screen">
+      //   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      //   <span className="ml-3">กำลังโหลดข้อมูล...</span>
+      // </div>
+
+      <div className="flex items-center justify-center ">
+        {/* ใช้ Skeleton สำหรับ loading */}
+        <Skeleton count={5} height={30} width="80%" />
       </div>
+
+      
+
     );
   }
 

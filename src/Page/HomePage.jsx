@@ -30,45 +30,45 @@ const Home = () => {
   const [email, setEmail] = useState(null);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem('authToken');
-  //   if (!token) {
-  //     console.error("Token not found");
-  //     navigate("/");
-  //     return;
-  //   }
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error("Token not found");
+      navigate("/");
+      return;
+    }
 
-  //   fetch("http://localhost:8080/verifyToken", {
-  //     method: "POST",
-  //     headers: {
-  //       "Authorization": "Bearer " + token
-  //     }
-  //   })
-  //   .then(response => {
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! status: ${response.status}`);
-  //     }
-  //     return response.json();
-  //   })
-  //   .then(data => {
-  //     if (data?.user?.email) {
-  //       setEmail(data.user.email);
-  //       setFirstname(data.first_name);
-  //       setLastname(data.last_name);
-  //       setImg(data.img);
-  //     }
-  //   })
-  //   .catch(error => {
-  //     console.error("Error:", error.message);
-  //     navigate("/");
-  //   });
+    fetch("http://localhost:8080/verifyToken", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data?.user?.email) {
+          setEmail(data.user.email);
+          setFirstname(data.first_name);
+          setLastname(data.last_name);
+          setImg(data.img);
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error.message);
+        navigate("/");
+      });
 
-  //   fetchUserData();
-  // }, [navigate, email]);
+    fetchUserData();
+  }, [navigate, email]);
 
   const fetchUserData = async () => {
     if (!email) return;
-    
+
     try {
       const response = await fetch(`http://localhost:8080/users/email/${email}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
@@ -116,7 +116,7 @@ const Home = () => {
         >
           {isMenuOpen ? <IoMdClose size={24} /> : <RiMenu3Fill size={24} />}
         </button>
-        
+
         <div className="flex items-center space-x-3">
           <div className="text-sm font-bold">{first_name} {last_name}  </div>
           <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-sm">
@@ -151,8 +151,8 @@ const Home = () => {
                 <button
                   key={item.id}
                   className={`w-full px-4 py-3 text-left rounded-lg transition-all duration-300 flex items-center
-                    ${activeComponent === item.id ? 
-                      `${isNightMode ? "bg-red-800 text-red-600" : "bg-red-100 text-red-600"}` : 
+                    ${activeComponent === item.id ?
+                      `${isNightMode ? "bg-red-800 text-red-600" : "bg-red-100 text-red-600"}` :
                       `${isNightMode ? "text-gray-400" : "text-gray-600"}`
                     }`
                   }
@@ -177,16 +177,35 @@ const Home = () => {
             <div className={`mt-auto hidden md:flex flex-col items-center space-y-4 pt-8
               ${isNightMode ? "text-gray-400" : "text-gray-500"}`
             }>
-              <div className="flex space-x-4 text-xs">
+              {/* <div className="flex space-x-4 text-xs">
                 <button className={`px-3 py-1 rounded ${isNightMode ? "bg-red-700 text-gray-200" : "bg-red-600 text-white"}`}>
                   RSU LAB
                 </button>
                 <button>User Mode</button>
                 <button>Contact</button>
                 <button>Term</button>
-              </div>
-              <div className="text-xs underline">Privacy</div>
+              </div> */}
+
+
+
+              <div class="inline-flex rounded-md shadow-sm">
+                <a href="#" aria-current="page" class="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                  Profile
+                </a>
+                <a href="#" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                  Settings
+                </a>
+                <a href="#" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                  Settings
+                </a>
+                <a href="#" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                  Messages
+                </a>
               
+              </div>
+
+              <div className="text-xs underline">Privacy</div>
+
               {/* Night Mode Toggle */}
               <button
                 onClick={() => setIsNightMode(!isNightMode)}
@@ -212,7 +231,7 @@ const Home = () => {
           onClick={() => setIsNightMode(!isNightMode)}
           className={`md:hidden fixed bottom-4 right-4 p-3 rounded-full shadow-lg z-50 transition-all duration-300 
             ${isNightMode ? "bg-yellow-500" : "bg-gray-300"}`
-        }>
+          }>
           {isNightMode ? <HiSun className="text-white" /> : <HiMoon className="text-gray-800" />}
         </button>
       </div>

@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import MapSVG from './MapSVG';
 
+import { GrCaretPrevious, GrCaretNext } from 'react-icons/gr'; // import ไอคอน
+
 
 const CoMap = ({ nightMode }) => {
   const [time, setTime] = useState("08:00");
@@ -32,8 +34,8 @@ const CoMap = ({ nightMode }) => {
 
   const [showMore, setShowMore] = useState(false);
 
-   // การเริ่มต้นการลาก
-   const handleDragStart = (e) => {
+  // การเริ่มต้นการลาก
+  const handleDragStart = (e) => {
     e.preventDefault();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -182,7 +184,7 @@ const CoMap = ({ nightMode }) => {
           setDisplayTime={setDisplayTime}
           setSelectedTime={setSelectedTime}
           handleTimeChange={handleTimeChange}
-          
+
           // initialTimes={initialTimes}
           // moreTimes={moreTimes}
           showMore={showMore}
@@ -192,9 +194,10 @@ const CoMap = ({ nightMode }) => {
       </div>
 
       {/* Responsive controls for mobile */}
-      <div className={`absolute top-0 left-0 right-0 ${isMobile ? 'flex flex-col p-2' : 'hidden'}`}>
-        <div className={`w-full p-2 rounded-lg shadow-lg mb-2 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-gray-100 text-black'}`}>
-          <div className="flex flex-col space-y-2">
+      <div className={`absolute top-0 left-0 right-0 ${isMobile ? 'flex flex-col p-4 space-y-4' : 'hidden'}`}>
+        <div className={`w-full p-4 rounded-lg shadow-lg ${nightMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-100 text-black'}`}>
+          <div className="flex flex-col space-y-4">
+            {/* Time Selector */}
             <div className="flex items-center justify-between">
               <label className="text-sm font-semibold">Time:</label>
               <span className="text-sm font-semibold">{displayTime}</span>
@@ -205,22 +208,39 @@ const CoMap = ({ nightMode }) => {
               max="28"
               step="1"
               value={selectedTime}
-              onChange={(handleTimeChange)}
+              onChange={handleTimeChange}
               className="w-full"
             />
-            <input
-              type="date"
-              value={date.toISOString().slice(0, 10)}
-              onChange={(e) => setDate(new Date(e.target.value))}
-              className="w-full p-1 rounded border text-white bg-gray-700"
-            />
+
+            {/* Date Selector */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setDate(new Date(date.setDate(date.getDate() - 1)))}
+                className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+              >
+                <GrCaretPrevious size={20} />
+              </button>
+              <input
+                type="date"
+                value={date.toISOString().slice(0, 10)}
+                onChange={(e) => setDate(new Date(e.target.value))}
+                className="w-full p-2 rounded border bg-gray-700 text-white"
+              />
+              <button
+                onClick={() => setDate(new Date(date.setDate(date.getDate() + 1)))}
+                className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+              >
+                <GrCaretNext size={20} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Desktop controls */}
-      <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 ${isMobile ? 'hidden' : 'flex'} flex-col md:flex-row items-center p-4 rounded-lg shadow-lg ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-gray-100 text-black'}`}>
-        <div className="flex items-center mb-4 md:mb-0 md:mr-6">
+      <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 ${isMobile ? 'hidden' : 'flex'} flex-col md:flex-row items-center p-6 space-x-6 rounded-lg shadow-lg ${nightMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-100 text-black'}`}>
+        {/* Time Selector */}
+        <div className="flex items-center">
           <label className="font-semibold mr-2">Time:</label>
           <input
             type="range"
@@ -228,21 +248,36 @@ const CoMap = ({ nightMode }) => {
             max="28"
             step="1"
             value={selectedTime}
-            onChange={(handleTimeChange)}
+            onChange={handleTimeChange}
             className="w-64"
           />
           <span className="ml-2 font-semibold">{displayTime}</span>
         </div>
-        <div className="flex items-center">
-          <label className="font-semibold mr-2">Date:</label>
+
+        {/* Date Selector */}
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={() => setDate(new Date(date.setDate(date.getDate() - 1)))}
+            className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+          >
+            <GrCaretPrevious size={20} />
+          </button>
           <input
             type="date"
             value={date.toISOString().slice(0, 10)}
             onChange={(e) => setDate(new Date(e.target.value))}
-            className="p-2 border rounded-md text-white bg-gray-700 "
+            className="p-2 rounded-md border bg-gray-700 text-white"
           />
+          <button
+            onClick={() => setDate(new Date(date.setDate(date.getDate() + 1)))}
+            className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+          >
+            <GrCaretNext size={20} />
+          </button>
         </div>
       </div>
+
+
 
       {/* Zoom controls - ปรับตำแหน่งสำหรับมือถือ */}
       <div className={`absolute ${isMobile ? 'bottom-4 right-4' : 'bottom-4 right-4'} flex ${isMobile ? 'flex-row space-x-2' : 'flex-col items-center'}`}>

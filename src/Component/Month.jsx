@@ -9,8 +9,17 @@ const CoMonth = () => {
     { name: "Alice Brown", time: "3:00 PM", note: "Client call", date: new Date("2024-11-15") },
     { name: "Alice Brown", time: "3:00 PM", note: "Client call", date: new Date("2024-11-15") },
     { name: "Alice Brown", time: "3:00 PM", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", time: "3:00 PM", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", time: "3:00 PM", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", time: "3:00 PM", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", time: "3:00 PM", note: "Client call", date: new Date("2024-11-15") },
     { name: "David Black", time: "5:00 PM", note: "Review", date: new Date("2024-11-20") },
     { name: "Emma White", time: "9:00 AM", note: "Brainstorming", date: new Date("2024-02-29") },
+    { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
+    { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
+    { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
+    { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
+    { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
     { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
     { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
     { name: "James Green", time: "1:00 PM", note: "Project Update", date: new Date("2024-03-01") },
@@ -134,12 +143,12 @@ const CoMonth = () => {
   };
 
   return (
-    <div className=" p-5 bg-yellow-500 h-full rounded-lg">
-      <h2 className="text-2xl font-bold mb-4 text-center ">Monthly Desk Booking</h2>
-
-      <div className="grid gap-4 lg:grid-cols-3 bg-red-400 ">
+    <div className="p-5 bg-yellow-500 h-full rounded-lg">
+      <h2 className="text-2xl font-bold mb-4 text-center text-white">Monthly Desk Booking</h2>
+  
+      <div className="grid gap-4 lg:grid-cols-3 grid-cols-1 bg-red-400 max-h-screen overflow-x-auto">
         {/* ส่วนปฏิทิน */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 overflow-y-auto max-h-screen">
           {/* เลือกเดือน */}
           <div className="mb-4 flex justify-between items-center gap-4">
             <button
@@ -154,7 +163,7 @@ const CoMonth = () => {
                 type="month"
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                className="p-2 border rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 transition"
+                className="p-2 border rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 transition w-full sm:w-auto"
               />
             </div>
             <button
@@ -164,24 +173,22 @@ const CoMonth = () => {
               &gt;
             </button>
           </div>
-
+  
           {/* Grid calendar */}
-          <div className="bg-purple-200 rounded-lg p-4 ">
-            <div className="grid grid-cols-7 gap-2">
+          <div className="bg-purple-200 rounded-lg p-4">
+            <div className="grid grid-cols-7 gap-2 text-center">
               {/* หัวตาราง */}
               {["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"].map((day, idx) => (
-                <div key={idx} className="font-semibold text-center p-2">
-                  {day}
-                </div>
+                <div key={idx} className="font-semibold p-2">{day}</div>
               ))}
-
+  
               {/* วันที่จากเดือนก่อนหน้า */}
               {previousMonthDates.map((date, index) => (
                 <div key={`prev-${index}`} className="bg-white rounded-lg h-24 p-2 text-gray-400">
                   <div className="font-medium">{date}</div>
                 </div>
               ))}
-
+  
               {/* วันที่ในเดือนปัจจุบัน */}
               {Array.from({ length: daysInMonth }).map((_, index) => {
                 const dayBookings = getBookingsForDate(selectedYear, selectedMonthIndex, index + 1);
@@ -194,7 +201,7 @@ const CoMonth = () => {
                   </div>
                 );
               })}
-
+  
               {/* วันที่จากเดือนถัดไป */}
               {nextMonthDates.map((date, index) => (
                 <div key={`next-${index}`} className="bg-white rounded-lg h-24 p-2 text-gray-400">
@@ -204,13 +211,13 @@ const CoMonth = () => {
             </div>
           </div>
         </div>
-
+  
         {/* ส่วนแสดงรายละเอียดการจอง */}
-        <div className="bg-slate-600 rounded-lg p-4 shadow-lg  overflow-y-auto h-full">
-          <h3 className="text-xl font-semibold mb-4">
+        <div className="bg-slate-600 rounded-lg p-4 shadow-lg overflow-y-auto h-full max-h-screen">
+          <h3 className="text-xl font-semibold mb-4 text-white">
             การจองประจำเดือน {getMonthInThai(selectedMonthIndex)} {selectedYear}
           </h3>
-
+  
           <div className="space-y-4">
             {getGroupedBookingsForMonth().map((group, groupIndex) => (
               <div key={groupIndex} className="bg-gray-50 p-4 rounded-lg">
@@ -239,6 +246,7 @@ const CoMonth = () => {
       </div>
     </div>
   );
+  
 };
 
 export default CoMonth;
