@@ -1,5 +1,4 @@
-import React, { useState, useMemo } from "react";
-import { format } from "date-fns";
+import React, { useState } from "react";
 
 const CoGrid = () => {
   const desks = ["A01", "A02", "A03", "A04", "A05", "A06", "B01", "B02", "C01", "C02"];
@@ -125,10 +124,11 @@ const CoGrid = () => {
                           transform: "translateY(-50%)",
                         }}
                       >
-                        {deskBookings.map(booking => (
-                          <div key={booking.id} className="mb-2 last:mb-0">
-                            <div className="font-semibold text-sm">{booking.name}</div>
-                            <div className="text-xs text-gray-600">{booking.time} - {booking.note}</div>
+                        {bookingsForDeskAndDate.map((booking, index) => (
+                          <div key={index} className="mb-2 text-gray-800">
+                            <div className="font-semibold truncate">{booking.name}</div>
+                            <div className="text-sm">{booking.time}</div>
+                            <div className="text-sm truncate">{booking.note}</div>
                           </div>
                         ))}
                       </div>
