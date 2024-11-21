@@ -28,6 +28,7 @@ const Home = () => {
   const [last_name, setLastname] = useState("Admin");
   const [img, setImg] = useState("");
   const [email, setEmail] = useState(null);
+  const [role, setRole] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,9 +54,7 @@ const Home = () => {
       .then(data => {
         if (data?.user?.email) {
           setEmail(data.user.email);
-          setFirstname(data.first_name);
-          setLastname(data.last_name);
-          setImg(data.img);
+          setRole(data.role);
         }
       })
       .catch(error => {
@@ -77,7 +76,7 @@ const Home = () => {
         const data = await response.json();
         setFirstname(data.first_name);
         setLastname(data.last_name);
-        setImg(data.img);
+        setImg(data.photo);
       }
     } catch (err) {
       console.error(err.message);
@@ -135,8 +134,25 @@ const Home = () => {
           <div className="p-5">
             {/* Desktop Profile Section - Hidden on Mobile */}
             <div className="hidden md:flex items-center mb-8">
-              <div className="w-12 h-12 rounded-full bg-gray-400 flex items-center justify-center text-2xl">
-                {first_name?.[0]}{last_name?.[0]}
+              <div className="w-12 h-12 rounded-full bg-gray-400 flex items-center justify-center text-2xl overflow-hidden">
+                {img ? (
+                  <div className="avatar">
+                    <div className="ring-primary ring-offset-base-100  rounded-full ring ring-offset-2">
+                      <img
+                        src={img}
+                        alt="profile"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null; // ป้องกัน loop error
+                          e.target.style.display = "none"; // ซ่อน <img>
+                          e.target.parentNode.textContent = `${first_name?.[0] || ''}${last_name?.[0] || ''}`; // แสดงตัวย่อ
+                        }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  `${first_name?.[0] || ''}${last_name?.[0] || ''}`
+                )}
               </div>
               <div className="text-sm font-bold text-left ml-2">
                 {first_name}<br />{last_name}
@@ -174,35 +190,35 @@ const Home = () => {
             </div>
 
             {/* Footer - Hidden on Mobile */}
-            <div className={`mt-auto hidden md:flex flex-col items-center space-y-4 pt-8
-              ${isNightMode ? "text-gray-400" : "text-gray-500"}`
+            <div className={`mt-auto hidden md:flex flex-col items-center space-y-4 pt-8 
+              ${isNightMode ? "text-gray-400" : "text-gray-500"}` 
             }>
-              {/* <div className="flex space-x-4 text-xs">
+              <div className="flex space-x-4 text-xs">
                 <button className={`px-3 py-1 rounded ${isNightMode ? "bg-red-700 text-gray-200" : "bg-red-600 text-white"}`}>
                   RSU LAB
                 </button>
                 <button>User Mode</button>
                 <button>Contact</button>
                 <button>Term</button>
-              </div> */}
+              </div>
 
 
 
-              <div class="inline-flex rounded-md shadow-sm">
+              {/* <div class="inline-flex rounded-md shadow-sm">
                 <a href="#" aria-current="page" class="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-                  Profile
+                RSU LAB
                 </a>
                 <a href="#" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-                  Settings
+                User Mode
                 </a>
                 <a href="#" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-                  Settings
+                Contact
                 </a>
                 <a href="#" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-                  Messages
+                Term
                 </a>
-              
-              </div>
+
+              </div> */}
 
               <div className="text-xs underline">Privacy</div>
 
