@@ -18,6 +18,7 @@ const CircleButton = ({ cx, cy, tableNumber, onClick }) => {
     );
 };
 
+
 function MapSVG() {
     const setNumbertable = (tableNumber) => {
         // Function to handle table selection, replace with your logic
@@ -25,6 +26,7 @@ function MapSVG() {
         return tableNumber;
     };
 
+    
     return (
         <div>
             <svg xmlns="http://www.w3.org/2000/svg" width="931" height="508" fill="none" viewBox="0 0 931 508" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">

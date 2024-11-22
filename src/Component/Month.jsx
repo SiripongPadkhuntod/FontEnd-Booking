@@ -115,6 +115,7 @@ const CoMonth = () => {
   const nextMonthDateCount = (7 - ((daysInMonth + previousMonthDateCount) % 7)) % 7;
   const nextMonthDates = Array.from({ length: nextMonthDateCount }, (_, i) => i + 1);
 
+
   // ฟังก์ชันสำหรับการเปลี่ยนเดือน
   const handlePrevMonth = () => {
     const prevMonthDate = new Date(selectedMonth);
@@ -137,7 +138,7 @@ const CoMonth = () => {
   return (
     <div className="p-4 bg-yellow-500 min-h-full ">
       <h2 className="text-xl font-bold mb-4 text-center text-white">Monthly Desk Booking</h2>
-  
+
       {/* เลือกเดือน */}
       <div className="mb-4 flex justify-between items-center gap-2">
         <button
@@ -161,7 +162,7 @@ const CoMonth = () => {
           &gt;
         </button>
       </div>
-  
+
       {/* ลเอาท์สำหรับมือถือ */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* ส่วนปฏิทิน */}
@@ -172,18 +173,22 @@ const CoMonth = () => {
               {["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"].map((day, idx) => (
                 <div key={idx} className="font-semibold text-xs p-1">{day}</div>
               ))}
-  
+
               {previousMonthDates.map((date, index) => (
-                <div key={`prev-${index}`} className={`bg-white rounded-lg h-24 p-1 text-gray-400 text-xs ${isMobile ? 'bg-gray-900' : 'bg-white'}`}>
+                <div
+                  key={`prev-${index}`}
+                  className={`bg-white rounded-lg ${isMobile ? 'h-10' : 'h-24'} p-1 text-gray-400 text-xs ${isMobile ? 'bg-gray-900' : 'bg-white'}`}
+                >
                   <div className="font-medium">{date}</div>
                 </div>
               ))}
-  
+
+
               {Array.from({ length: daysInMonth }).map((_, index) => {
                 const dayBookings = getBookingsForDate(selectedYear, selectedMonthIndex, index + 1);
                 return (
-                  <div 
-                    key={`current-${index}`} 
+                  <div
+                    key={`current-${index}`}
                     className="bg-white rounded-lg h-24 p-1 cursor-pointer hover:bg-blue-100"
                     onClick={() => handleDateClick(selectedYear, selectedMonthIndex, index + 1)}
                   >
@@ -194,7 +199,7 @@ const CoMonth = () => {
                   </div>
                 );
               })}
-  
+
               {nextMonthDates.map((date, index) => (
                 <div key={`next-${index}`} className="bg-white rounded-lg h-24 p-1 text-gray-400 text-xs">
                   <div className="font-medium">{date}</div>
@@ -203,13 +208,13 @@ const CoMonth = () => {
             </div>
           </div>
         </div>
-  
+
         {/* ส่วนแสดงรายละเอียดการจอง */}
         <div className="bg-slate-600 rounded-lg p-4 shadow-lg overflow-y-auto max-h-[700px] min-h-[700px]">
           <h3 className="text-lg font-semibold mb-4 text-white">
             การจองประจำเดือน {getMonthInThai(selectedMonthIndex)} {selectedYear}
           </h3>
-  
+
           <div className="space-y-4">
             {getGroupedBookingsForMonth().map((group, groupIndex) => (
               <div key={groupIndex} className="bg-gray-50 p-4 rounded-lg">
@@ -236,29 +241,29 @@ const CoMonth = () => {
           </div>
         </div>
       </div>
-  
+
       {/* โหมดแสดงรายละเอียดสำหรับมือถือ */}
       {showDetailView && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-4 w-11/12 max-h-[80%] overflow-y-auto">
+          <div className="bg-white rounded-lg p-4 w-10/12 max-h-[80%] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">
                 รายละเอียดการจอง
               </h3>
-              <button 
+              <button
                 onClick={() => setShowDetailView(false)}
                 className="text-red-500"
               >
                 ปิด
               </button>
             </div>
-            
+
             {selectedDateBookings.length === 0 ? (
               <div className="text-center text-gray-500">ไม่มีการจอง</div>
             ) : (
               selectedDateBookings.map((booking, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="border-b border-gray-200 pb-2 mb-2 last:border-b-0"
                 >
                   <div className="flex justify-between">
