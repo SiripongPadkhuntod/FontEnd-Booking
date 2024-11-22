@@ -14,7 +14,7 @@ const CircleButton = ({ cx, cy, tableNumber, onClick, disabled }) => {
             stroke="#000"
             onClick={() => {
                 if (disabled) {
-                    alert('ไม่ว่างจ้า')
+                    document.getElementById('bookingModal2').showModal(); onClick(tableNumber);
                 } else {
                     document.getElementById('availabilityModal').showModal(); onClick(tableNumber);
                 }

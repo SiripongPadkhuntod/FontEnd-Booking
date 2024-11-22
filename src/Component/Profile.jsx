@@ -10,7 +10,7 @@ import { FaEdit } from "react-icons/fa";
 import { RiImageEditFill } from "react-icons/ri";
 
 
-function ProfilePage({ nightMode , useremail }) {
+function ProfilePage({ nightMode, useremail }) {
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -80,15 +80,15 @@ function ProfilePage({ nightMode , useremail }) {
   };
 
 
-  
 
 
 
 
-  useEffect(() => { 
+
+  useEffect(() => {
 
     fetchUserData()
-}, []);
+  }, []);
 
   if (loading) {
     return (
@@ -102,7 +102,7 @@ function ProfilePage({ nightMode , useremail }) {
         <Skeleton count={5} height={30} width="80%" />
       </div>
 
-      
+
 
     );
   }
@@ -119,7 +119,7 @@ function ProfilePage({ nightMode , useremail }) {
   return (
     <TransitionGroup
       component="div"
-      className={`flex flex-col md:flex-row w-full h-full transition-all duration-300 gap-5 ${nightMode ? 'bg-gray-900' : 'bg-orange-500'
+      className={`flex flex-col md:flex-row w-full h-full transition-all duration-300 gap-5 ${nightMode ? 'bg-gray-900' : 'bg-gray-100'
         } rounded-lg shadow-md`}
     >
       {/* Profile Section */}
@@ -140,7 +140,7 @@ function ProfilePage({ nightMode , useremail }) {
             {/* Edit Button */}
             <button
               className="absolute bottom-0 right-0 mb-2 mr-2 w-10 h-10 bg-blue-500 text-white rounded-full flex justify-center items-center hover:bg-blue-700 transition-all"
-               type="file"
+              type="file"
               onClick={() => {
                 // Handle image upload logic here
               }}
@@ -174,8 +174,8 @@ function ProfilePage({ nightMode , useremail }) {
               {userData?.first_name} {userData?.last_name || 'Firstname Lastname'}
             </h2>
             <div className="flex justify-start gap-1 mt-3">
-              <div className="badge badge-primary">Student</div>
-              <div className="badge badge-secondary">User</div>
+              <div className="badge badge-primary">{userData.role}</div>
+              <div className="badge badge-secondary">{userData.status}</div>
             </div>
           </div>
 
@@ -235,7 +235,7 @@ function ProfilePage({ nightMode , useremail }) {
       {/* Details Section */}
       <CSSTransition key="details-section" timeout={500} classNames="fade">
         <div
-          className={`flex-1 p-10 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showDetails ? '' : 'hidden'}`}
+          className={`flex-1 p-10 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'} transition-all duration-500 shadow-lg rounded-lg ${showDetails ? '' : 'hidden'}`}
         >
           <form>
             {/* ปุ่ม Edit */}
@@ -266,24 +266,28 @@ function ProfilePage({ nightMode , useremail }) {
 
 
             {/* Login Section */}
+
             <h3 className="text-lg font-semibold mb-4 border-b pb-2">
               Login Information
             </h3>
-            <input
-              type="email"
-              name="email"
-              value={userData2.email || ''}
-              onChange={handleInputChange}
-              className="w-full max-w-lg p-3 mb-4 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none"
-              readOnly={!isEditing}
-            />
-            {/* add reset password */}
-            <button
-              className="py-2 px-4 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300"
-              type="button"
-            >
-              Reset Password
-            </button>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+              <input
+                type="email"
+                name="email"
+                value={userData2.email || ''}
+                onChange={handleInputChange}
+                className="w-full max-w-lg p-3 mb-4 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none text-gray-200"
+                readOnly={!isEditing}
+              />
+              {/* add reset password */}
+              <button
+                className="py-2 px-4 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 w-full sm:w-fit max-w-md p-3 mb-4"
+                type="button"
+              >
+                Reset Password
+              </button>
+            </div>
+
 
 
 
@@ -297,7 +301,7 @@ function ProfilePage({ nightMode , useremail }) {
                 placeholder="Firstname"
                 value={userData2.first_name || ''}
                 onChange={handleInputChange}
-                className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none max-w-xs"
+                className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none max-w-xs text-gray-200"
                 readOnly={!isEditing}
               />
               <input
@@ -306,7 +310,7 @@ function ProfilePage({ nightMode , useremail }) {
                 placeholder="Lastname"
                 value={userData2.last_name || ''}
                 onChange={handleInputChange}
-                className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none max-w-xs"
+                className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none max-w-xs text-gray-200"
                 readOnly={!isEditing}
               />
             </div>
@@ -321,7 +325,7 @@ function ProfilePage({ nightMode , useremail }) {
               placeholder="(TH) e.g. 081 234 5678"
               value={userData2.phonenumber || ''}
               onChange={handleInputChange}
-              className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none max-w-xs"
+              className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none max-w-xs text-gray-200"
               readOnly={!isEditing}
             />
 
@@ -336,7 +340,7 @@ function ProfilePage({ nightMode , useremail }) {
                 placeholder="Student ID"
                 value={userData2.student_id || ''}
                 onChange={handleInputChange}
-                className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none"
+                className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none text-gray-200"
                 readOnly={!isEditing}
               />
               <input
@@ -345,7 +349,7 @@ function ProfilePage({ nightMode , useremail }) {
                 placeholder="Major"
                 value={userData2.department || ''}
                 onChange={handleInputChange}
-                className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none"
+                className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none text-gray-200"
                 readOnly={!isEditing}
               />
             </div>
@@ -355,7 +359,7 @@ function ProfilePage({ nightMode , useremail }) {
               <button
                 className="py-2 px-4 mt-6 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-all duration-300"
                 type="submit"
-                // onClick={}
+              // onClick={}
               >
                 Save all Changes
               </button>
@@ -372,8 +376,10 @@ function ProfilePage({ nightMode , useremail }) {
           <h3 className="text-xl font-semibold mb-4">Personal Calendar Feed</h3>
           <div className="text-center text-gray-500">
             {/* เพิ่มที่นี่เพื่อแสดงข้อมูล Personal Calendar */}
-            <p>นี่คือพื้นที่สำหรับ Personal Calendar Feed</p>
-            <p>คุณสามารถเพิ่มหรือแก้ไขข้อมูลได้ที่นี่</p>
+            <p>กำลังพัฒนา ^_^</p>
+            <p>Coming soon...</p>
+
+
           </div>
         </div>
       </CSSTransition>

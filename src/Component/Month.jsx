@@ -11,7 +11,7 @@ export const bookings = [
   { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
   { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
   { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },-
+  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") }, -
   { name: "David Black", Fromtime: "17:00", Totime: "18:00", table: "A1", note: "Review", date: new Date("2024-11-20") },
   { name: "Emma White", Fromtime: "09:00", Totime: "18:00", table: "A1", note: "Brainstorming", date: new Date("2024-02-29") },
   { name: "James Green", Fromtime: "13:00", Totime: "18:00", table: "A1", note: "Project Update", date: new Date("2024-03-01") },
@@ -22,36 +22,87 @@ const CoMonth = () => {
   const [selectedDateBookings, setSelectedDateBookings] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [activeView, setActiveView] = useState('calendar'); // 'calendar' or 'bookings'
+  
 
+  // ข้อมูลตัวอย่าง
+  const bookings = [
+    { name: "John Doe", Fromtime: "10:00 AM", Totime: "6:00 PM", table: "A1", note: "Team meeting", date: new Date("2024-11-16") },
+    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "David Black", Fromtime: "5:00 PM", Totime: "6:00 PM", table: "A1", note: "Review", date: new Date("2024-11-20") },
+    { name: "Emma White", Fromtime: "9:00 AM", Totime: "6:00 PM", table: "A1", note: "Brainstorming", date: new Date("2024-02-29") },
+    { name: "James Green", Fromtime: "1:00 PM", Totime: "6:00 PM", table: "A1", note: "Project Update", date: new Date("2024-03-01") },
+  ];
 
-
-  const fetchBookings = async () => {
+  const fetchData = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/bookings`);
-      if (!response.ok) throw new Error('Failed to fetch bookings');
+      console.log(selectedMonth);
+      const response = await fetch(`http://localhost:8080/reservations/${selectedMonth}`);
 
-      if (response.status === 204) {
-        setBookings([]);
-      } else {
-        const data = await response.json();
-        let formdata = data.map((booking) => {
-          return {
-            name: booking.name,
-            Fromtime: booking.Fromtime,
-            note: booking.note,
-            date: new Date(booking.date)
-          };
-        });
-        setBookings(formdata);
+      // Check if the response is okay (status code 200)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    }
-    catch (err) {
-      console.error(err.message);
+
+      // Try to parse the response as JSON
+      const text = await response.text(); // Get the raw text response first
+      let result;
+      
+
+      try {
+        result = JSON.parse(text); // Attempt to parse the text as JSON
+        bookings = transformData(result);
+
+
+      } catch (jsonError) {
+        console.error("Error parsing JSON:", jsonError);
+        console.error("Response text:", text);
+        throw new Error("Invalid JSON response");
+      }
+
+      console.log(result);
+      // const transformedData = transformData(result);
+      // setData(transformedData);
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   };
 
+  const transformData = (apiData) => {
+    const groupedByDate = apiData.reduce((acc, item) => {
+      const date = new Date(item.reservation_date).toLocaleDateString("th-TH", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
 
+      if (!acc[date]) {
+        acc[date] = { date, bookings: [] };
+      }
 
+      acc[date].bookings.push({
+        desk: item.table_number,
+        time: new Date(item.reservation_date).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+        name: `${item.first_name} ${item.last_name}`,
+        stdID: item.student_id,
+        note: item.note,
+      });
+
+      return acc;
+    }, {});
+
+    return Object.values(groupedByDate);
+  };
 
 
 
@@ -154,7 +205,6 @@ const CoMonth = () => {
   const nextMonthDateCount = (7 - ((daysInMonth + previousMonthDateCount) % 7)) % 7;
   const nextMonthDates = Array.from({ length: nextMonthDateCount }, (_, i) => i + 1);
 
-
   // ฟังก์ชันสำหรับการเปลี่ยนเดือน
   const handlePrevMonth = () => {
     const prevMonthDate = new Date(selectedMonth);
@@ -174,8 +224,15 @@ const CoMonth = () => {
     setShowDetailView(true);
   };
 
+  const handleselectMonth = (e) => {
+    setSelectedMonth(e.target.value);
+    fetchData();
+  };
+
   // Responsive check
   useEffect(() => {
+    fetchData();
+
     const checkMobileView = () => {
       setIsMobile(window.innerWidth <= 768);
     };
@@ -209,7 +266,7 @@ const CoMonth = () => {
             <input
               type="month"
               value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
+              onChange={(e) => handleselectMonth(e)}
               className="p-2 border rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 transition w-full"
             />
             <button
@@ -372,7 +429,7 @@ const CoMonth = () => {
             <input
               type="month"
               value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
+              onChange={(e) => handleselectMonth(e)}
               className="p-2 border rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 transition w-full"
             />
           </div>
