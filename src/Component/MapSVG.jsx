@@ -1,65 +1,65 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { bookings } from './Month';
+const CircleButton = ({ cx, cy, tableNumber, onClick, disabled }) => {
 
-// Mock booking data
-const bookingData = {
-    "A1": [
-      { from: "08:00", to: "10:30" },
-      { from: "14:00", to: "16:00" }
-    ],
-    "A2": [
-      { from: "11:00", to: "13:00" },
-      { from: "17:00", to: "19:30" }
-    ],
-    "A3": [
-      { from: "09:30", to: "12:00" },
-      { from: "20:00", to: "22:00" }
-    ],
-    "B1": [
-      { from: "13:00", to: "15:30" }
-    ],
-    "C1": [
-      { from: "16:30", to: "18:30" }
-    ]
-  };
+    const handleMouseEnter = (e) => { if (!disabled) e.target.setAttribute("fill", "#2E8B57") };
+    const handleMouseLeave = (e) => { if (!disabled) e.target.setAttribute("fill", "#40AD0E") };
 
-const CircleButton = ({ cx, cy, tableNumber, time, onClick }) => {
-  // Check if the table is booked at the current time
-  const isBooked = bookingData[tableNumber]?.some(booking => 
-    time >= booking.from && time <= booking.to
-  );
-
-  const handleMouseEnter = (e) => e.target.setAttribute("fill", isBooked ? "#808080" : "#2E8B57");
-  const handleMouseLeave = (e) => e.target.setAttribute("fill", isBooked ? "#808080" : "#40AD0E");
-
-  return (
-    <circle
-      cx={cx}
-      cy={cy}
-      r="14.5"
-      fill={isBooked ? "#808080" : "#40AD0E"}
-      stroke="#000"
-      onClick={() => { 
-        if (!isBooked) {
-          document.getElementById('availabilityModal').showModal(); 
-          onClick(tableNumber); 
-        }
-      }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      style={{ cursor: isBooked ? 'not-allowed' : 'pointer' }}
-    />
-  );
+    return (
+        <circle
+            cx={cx}
+            cy={cy}
+            r="14.5"
+            fill={disabled ? "#aaa" : "#40AD0E"}
+            stroke="#000"
+            onClick={() => {
+                if (disabled) {
+                    alert('ไม่ว่างจ้า')
+                } else {
+                    document.getElementById('availabilityModal').showModal(); onClick(tableNumber);
+                }
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+        />
+    );
 };
 
+function timeToMinutes(timeString) {
+    if (!timeString) return;
+    const [hours, minutes] = timeString.split(":").map(Number);
+    return hours * 60 + minutes;
+}
 
-function MapSVG() {
+function isBetweenTimes(time, startTime, endTime) {
+    const timeInMinutes = timeToMinutes(time);
+    const startInMinutes = timeToMinutes(startTime);
+    const endInMinutes = timeToMinutes(endTime);
+
+    // เช็คว่าเวลาที่กำหนดอยู่ระหว่างช่วงเริ่มต้นและสิ้นสุดหรือไม่
+    return timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes;
+}
+
+function MapSVG({ time }) {
+
+    const [booking, setBooking] = useState(new Set());
+    useEffect(() => {
+        const timeMap = bookings.map(item => ({ disabled: isBetweenTimes(time, item.Fromtime, item.Totime), table: item.table }))
+        const bookingTableSet = new Set(timeMap.filter(item => item.disabled).map(item => item.table))
+        setBooking(bookingTableSet)
+    }, [time])
     const setNumbertable = (tableNumber) => {
+        // const currentBooking = [...booking];
+        // currentBooking.push(tableNumber)
+        // setBooking(Array.from(new Set(currentBooking)))
         // Function to handle table selection, replace with your logic
         console.log('Selected table:', tableNumber);
         return tableNumber;
     };
 
-    
+    const hasBooking = (tableName) => {
+        return booking.has(tableName)
+    }
     return (
         <div>
             <svg xmlns="http://www.w3.org/2000/svg" width="931" height="508" fill="none" viewBox="0 0 931 508" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -110,16 +110,16 @@ function MapSVG() {
 
                 {/* Reusable Circle Buttons */}
                 <g className="cursor-pointer">
-                    <CircleButton cx={228} cy={355} tableNumber="A6" onClick={setNumbertable} />
-                    <CircleButton cx={226} cy={164} tableNumber="A3" onClick={setNumbertable} />
-                    <CircleButton cx={464} cy={387} tableNumber="B1" onClick={setNumbertable} />
-                    <CircleButton cx={556} cy={387} tableNumber="B2" onClick={setNumbertable} />
-                    <CircleButton cx={539} cy={104} tableNumber="C1" onClick={setNumbertable} />
-                    <CircleButton cx={157} cy={354} tableNumber="A5" onClick={setNumbertable} />
-                    <CircleButton cx={157} cy={164} tableNumber="A2" onClick={setNumbertable} />
-                    <CircleButton cx={86} cy={354} tableNumber="A4" onClick={setNumbertable} />
-                    <CircleButton cx={88} cy={164} tableNumber="A1" onClick={setNumbertable} />
-                    <CircleButton cx={469} cy={104} tableNumber="C2" onClick={setNumbertable} />
+                    <CircleButton cx={228} cy={355} tableNumber="A6" onClick={setNumbertable} disabled={hasBooking('A6')} />
+                    <CircleButton cx={226} cy={164} tableNumber="A3" onClick={setNumbertable} disabled={hasBooking('A3')} />
+                    <CircleButton cx={464} cy={387} tableNumber="B1" onClick={setNumbertable} disabled={hasBooking('B1')} />
+                    <CircleButton cx={556} cy={387} tableNumber="B2" onClick={setNumbertable} disabled={hasBooking('B2')} />
+                    <CircleButton cx={539} cy={104} tableNumber="C1" onClick={setNumbertable} disabled={hasBooking('C1')} />
+                    <CircleButton cx={157} cy={354} tableNumber="A5" onClick={setNumbertable} disabled={hasBooking('A5')} />
+                    <CircleButton cx={157} cy={164} tableNumber="A2" onClick={setNumbertable} disabled={hasBooking('A2')} />
+                    <CircleButton cx={86} cy={354} tableNumber="A4" onClick={setNumbertable} disabled={hasBooking('A4')} />
+                    <CircleButton cx={88} cy={164} tableNumber="A1" onClick={setNumbertable} disabled={hasBooking('A1')} />
+                    <CircleButton cx={469} cy={104} tableNumber="C2" onClick={setNumbertable} disabled={hasBooking('C2')} />
                 </g>
 
                 {/* Defining clip paths */}
@@ -135,3 +135,5 @@ function MapSVG() {
 }
 
 export default MapSVG;
+
+

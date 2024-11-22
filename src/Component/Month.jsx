@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from "react";
-
+// ข้อมูลตัวอย่าง
+export const bookings = [
+  { name: "John Doe", Fromtime: "10:00", Totime: "18:00", table: "A1", note: "Team meeting", date: new Date("2024-11-16") },
+  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
+  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A2", note: "Client call", date: new Date("2024-11-15") },
+  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
+  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },-
+  { name: "David Black", Fromtime: "17:00", Totime: "18:00", table: "A1", note: "Review", date: new Date("2024-11-20") },
+  { name: "Emma White", Fromtime: "09:00", Totime: "18:00", table: "A1", note: "Brainstorming", date: new Date("2024-02-29") },
+  { name: "James Green", Fromtime: "13:00", Totime: "18:00", table: "A1", note: "Project Update", date: new Date("2024-03-01") },
+];
 const CoMonth = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().split('T')[0].slice(0, 7));
   const [showDetailView, setShowDetailView] = useState(false);
@@ -7,23 +23,7 @@ const CoMonth = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [activeView, setActiveView] = useState('calendar'); // 'calendar' or 'bookings'
 
-  // ข้อมูลตัวอย่าง
-  const bookings = [
-    { name: "John Doe", Fromtime: "10:00 AM", Totime: "6:00 PM", table: "A1", note: "Team meeting", date: new Date("2024-11-16") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "David Black", Fromtime: "5:00 PM", Totime: "6:00 PM", table: "A1", note: "Review", date: new Date("2024-11-20") },
-    { name: "Emma White", Fromtime: "9:00 AM", Totime: "6:00 PM", table: "A1", note: "Brainstorming", date: new Date("2024-02-29") },
-    { name: "James Green", Fromtime: "1:00 PM", Totime: "6:00 PM", table: "A1", note: "Project Update", date: new Date("2024-03-01") },
-  ];
+
 
   const fetchBookings = async () => {
     try {
@@ -450,14 +450,14 @@ const CoMonth = () => {
                           </div>
                         )} */}
                         {/* {booking.table && ( */}
-                          <div className="flex justify-between text-xs text-gray-600 mt-1 truncate">
-                              <div className="text-xs text-gray-600 mt-1 truncate">
+                        <div className="flex justify-between text-xs text-gray-600 mt-1 truncate">
+                          <div className="text-xs text-gray-600 mt-1 truncate">
                             <span className="font-medium">หมายเหตุ: </span>{booking.note}
                           </div>
                           <div className="text-xs text-gray-600 mt-1 truncate">
                             {/* <span className="font-medium"></span>{booking.table} */}
                           </div>
-                          </div>
+                        </div>
                         {/* )} */}
 
 
