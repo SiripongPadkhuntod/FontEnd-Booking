@@ -1,126 +1,128 @@
-{/* Availability Modal */}
-<dialog id="availabilityModal" className="modal">
-<div className="modal-box rounded-lg w-full max-w-md p-6 bg-gray-900 text-white">
-  <div className="flex items-center justify-between mb-4">
-    <div className="flex items-center">
-      <div className="bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">
-        {numbertable} {/* Assuming numbertable is your dynamic table number */}
-      </div>
-      <h3 className="ml-3 text-lg font-semibold">This space is available!</h3>
+// CoMap.jsx
+import React, { useState, useRef, useEffect } from 'react';
+// ... existing imports ...
+
+// Sample booking data
+const bookingData = [
+  {
+    name: "John Doe",
+    startTime: "16:30",
+    endTime: "18:00", 
+    date: "2024-11-22",
+    tableNumber: "A1"
+  }
+];
+
+const CoMap = ({ nightMode }) => {
+  // ... existing state definitions ...
+  const [bookings, setBookings] = useState(bookingData);
+
+  // Add bookings to props passed to MapSVG
+  return (
+    <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode ? 'bg-gray-900' : 'bg-white'}`}>
+      {/* ... existing JSX ... */}
+      <MapSVG 
+        time={time}
+        bookingTime={bookingTime}
+        date={date}
+        numbertable={numbertable}
+        setNumbertable={setNumbertable}
+        nightMode={nightMode}
+        setBookingTime={setBookingTime}
+        setDisplayTime={setDisplayTime}
+        setSelectedTime={setSelectedTime}
+        handleTimeChange={handleTimeChange}
+        showMore={showMore}
+        setShowMore={setShowMore}
+        getSliderValueFromTime={getSliderValueFromTime}
+        bookings={bookings} // Pass bookings data
+        selectedTime={timeModal} // Pass selected time
+      />
+      {/* ... rest of existing JSX ... */}
+
+      {/* Update Availability Modal to show bookings */}
+      <dialog id="availabilityModal" className="modal">
+        <div className="modal-box rounded-lg w-full max-w-md p-6 bg-gray-900 text-white">
+          {/* ... existing modal content ... */}
+          
+          <div className="rounded-lg bg-gray-800 p-4">
+            <p className="font-semibold text-gray-300">Scheduled Booking</p>
+            {bookings.map((booking, index) => (
+              <div key={index} className="flex items-center justify-between mt-2">
+                <p className="text-sm text-gray-300">
+                  <span className="text-red-500 font-bold">🔴</span> {booking.startTime} - {booking.endTime}
+                </p>
+                <p className="text-sm font-semibold text-gray-300">{booking.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </dialog>
+      {/* ... rest of existing code ... */}
     </div>
-    <button
-      onClick={() => document.getElementById('availabilityModal').close()}
-      className="text-gray-500 hover:text-gray-300"
-    >
-      ✕
-    </button>
-  </div>
+  );
+};
 
-  <div className="text-center mb-6">
-    <div className="bg-gray-800 rounded-lg py-6 px-4 mb-2">
-      <p className="text-3xl font-bold">{timeModal}</p>
-      <p className="text-gray-400">
-        {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
-      </p>
-    </div>
-    <button className="btn btn-success w-24" onClick={handleBook}>
-      BOOK
-    </button>
-  </div>
+// MapSVG.jsx
+const CircleButton = ({ cx, cy, tableNumber, onClick, isBooked }) => {
+  const baseColor = isBooked ? "#808080" : "#40AD0E"; // Gray if booked, green if available
+  const hoverColor = isBooked ? "#696969" : "#2E8B57"; // Darker shades for hover
+  
+  const handleMouseEnter = (e) => e.target.setAttribute("fill", hoverColor);
+  const handleMouseLeave = (e) => e.target.setAttribute("fill", baseColor);
 
-  <div className="mb-6">
-    <p className="font-semibold mb-2 text-gray-300">Other available time</p>
-    <div className="flex flex-wrap gap-2">
-      {/* ให้เอาเวลาจากเวลาที่เลือกมาแสดงแค่ 6 ช่อง ที่เหลื่อให้เป็น more */}
-      {allTimes.slice(selectedTime, selectedTime + 7).map((time) => (
-        <button
-          key={time}
-          onClick={() => setTimeModal(time)}
-          className={`btn btn-outline btn-sm ${timeModal === time ? "bg-gray-500 text-white" : "text-gray-300"
-            }`}
-        >
-          {time}
-        </button>
-      ))}
-      {/* ปุ่ม more ให้เป็น dropdown */}
-      <div className="dropdown dropdown-right ">
-        <div tabIndex={0} role="button" className="btn btn btn-outline btn-sm text-gray-300">MORE</div>
-        <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-          {allTimes.slice(selectedTime + 7, selectedTime + 14).map((time) => (
-            <li key={time} onClick={() => setTimeModal(time)} className="menu-item">
-              <a>{time}</a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div className="rounded-lg bg-gray-800 p-4">
-    <p className="font-semibold text-gray-300">Scheduled Booking (0.10 น.น.)</p>
-    <div className="flex items-center justify-between mt-2">
-      <p className="text-sm text-gray-300">
-        <span className="text-red-500 font-bold">:red_circle:</span> 13:00 - 18:00
-      </p>
-      <p className="text-sm font-semibold text-gray-300">Firstname Lastname</p>
-    </div>
-  </div>
-</div>
-</dialog>
-
-
-{/* Booking Modal */}
-<dialog id="bookingModal" className="modal">
-<form method="dialog" className="modal-box rounded-lg w-full max-w-md p-6 bg-gray-900 text-white">
-  <h3 className="text-2xl font-bold mb-2">NEW BOOKING</h3>
-  <p className="text-gray-500 mb-6">Desk Number ##</p>
-
-  {/* Date & Time */}
-  <div className="mb-4">
-    <label className="block text-sm font-semibold mb-1">Date & Time</label>
-    <input
-      type="date"
-      className="input input-bordered w-full mb-3 text-white"
-      value={date.toISOString().slice(0, 10)}
+  return (
+    <circle
+      cx={cx}
+      cy={cy}
+      r="14.5"
+      fill={baseColor}
+      stroke="#000"
+      onClick={() => {
+        if (!isBooked) {
+          document.getElementById('availabilityModal').showModal();
+          onClick(tableNumber);
+        }
+      }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={{ cursor: isBooked ? 'not-allowed' : 'pointer' }}
     />
-    <div className="flex gap-2">
-      <div className="flex-1">
-        <label className="block text-sm font-semibold">From</label>
-        {/* "From" Time Select with the current time pre-selected */}
-        <select
-          className="select select-bordered w-full text-white"
-          value={timeModal} // Bind to the selected time
-          onChange={(e) => setTimeModal(e.target.value)} // Handle time change
-        >
-          {allTimes.map((time, index) => (
-            <option key={index} value={time}>
-              {time}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="flex-1">
-        <label className="block text-sm font-semibold">To</label>
-        {/* "To" Time Select based on the selected "From" time */}
-        <select className="select select-bordered w-full text-white" value={timeModal + 1}>
-          {allTimes.slice(allTimes.indexOf(timeModal) + 1).map((time) => (
-            <option key={time} value={time}>
-              {time}
-            </option>
-          ))}
-        </select>
-      </div>
-    </div>
-  </div>
+  );
+};
 
-  <div className="flex justify-end gap-2">
-    <button className="btn btn-primary">Confirm Booking</button>
-    <button
-      className="btn btn-outline"
-      onClick={() => cancelBooking()}
-    >
-      Cancel Booking
-    </button>
-  </div>
-</form>
-</dialog>
+function MapSVG({ selectedTime, bookings, ...props }) {
+  const isTableBooked = (tableNumber) => {
+    return bookings.some(booking => 
+      booking.tableNumber === tableNumber && 
+      booking.startTime <= selectedTime && 
+      booking.endTime > selectedTime
+    );
+  };
+
+  return (
+    <div>
+      <svg xmlns="http://www.w3.org/2000/svg" width="931" height="508" fill="none" viewBox="0 0 931 508" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        {/* ... existing SVG paths ... */}
+        
+        {/* Updated Circle Buttons */}
+        <g className="cursor-pointer">
+          <CircleButton cx={228} cy={355} tableNumber="A6" onClick={props.setNumbertable} isBooked={isTableBooked("A6")} />
+          <CircleButton cx={226} cy={164} tableNumber="A3" onClick={props.setNumbertable} isBooked={isTableBooked("A3")} />
+          <CircleButton cx={464} cy={387} tableNumber="B1" onClick={props.setNumbertable} isBooked={isTableBooked("B1")} />
+          <CircleButton cx={556} cy={387} tableNumber="B2" onClick={props.setNumbertable} isBooked={isTableBooked("B2")} />
+          <CircleButton cx={539} cy={104} tableNumber="C1" onClick={props.setNumbertable} isBooked={isTableBooked("C1")} />
+          <CircleButton cx={157} cy={354} tableNumber="A5" onClick={props.setNumbertable} isBooked={isTableBooked("A5")} />
+          <CircleButton cx={157} cy={164} tableNumber="A2" onClick={props.setNumbertable} isBooked={isTableBooked("A2")} />
+          <CircleButton cx={86} cy={354} tableNumber="A4" onClick={props.setNumbertable} isBooked={isTableBooked("A4")} />
+          <CircleButton cx={88} cy={164} tableNumber="A1" onClick={props.setNumbertable} isBooked={isTableBooked("A1")} />
+          <CircleButton cx={469} cy={104} tableNumber="C2" onClick={props.setNumbertable} isBooked={isTableBooked("C2")} />
+        </g>
+
+        {/* ... existing defs ... */}
+      </svg>
+    </div>
+  );
+}
+
+export default MapSVG;

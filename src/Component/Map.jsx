@@ -30,24 +30,14 @@ const CoMap = ({ nightMode }) => {
     "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30",
     "20:00", "20:30", "21:00", "21:30", "22:00"
   ];
-  const sampleData = [
-    {
-      name: "John Smit",
-      timeSlot: {
-        start: "10:00",
-        end: "18:00",
-        period: "PM"
-      },
-      date: "21/11/2024"
-    }
-  ];
+
 
   const getSelectedTimeIndex = (selectedTime) => {
     const [hours, minutes] = selectedTime.split(':').map(Number);
     const selectedTimeIndex = (hours - 8) * 2 + (minutes === 30 ? 1 : 0);
     return selectedTimeIndex;
   };
-  
+
   const [showMore, setShowMore] = useState(false);
 
   // การเริ่มต้นการลาก
@@ -110,6 +100,8 @@ const CoMap = ({ nightMode }) => {
     const minutes = (selectedValue % 2 === 0) ? "00" : "30";
     const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}`;
     setDisplayTime(formattedTime);
+    // add this line
+    setTime(formattedTime)
     setTimeModal(formattedTime);
   };
 
