@@ -72,7 +72,6 @@ function ProfilePage({ nightMode , useremail }) {
         const errorText = await response.text();
         throw new Error('Response is not JSON: ' + errorText);
       }
-
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -141,6 +140,7 @@ function ProfilePage({ nightMode , useremail }) {
             {/* Edit Button */}
             <button
               className="absolute bottom-0 right-0 mb-2 mr-2 w-10 h-10 bg-blue-500 text-white rounded-full flex justify-center items-center hover:bg-blue-700 transition-all"
+               type="file"
               onClick={() => {
                 // Handle image upload logic here
               }}
