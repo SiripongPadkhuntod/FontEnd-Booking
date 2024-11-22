@@ -1,21 +1,54 @@
 import React from 'react';
 
-const CircleButton = ({ cx, cy, tableNumber, onClick }) => {
-    const handleMouseEnter = (e) => e.target.setAttribute("fill", "#2E8B57");
-    const handleMouseLeave = (e) => e.target.setAttribute("fill", "#40AD0E");
+// Mock booking data
+const bookingData = {
+    "A1": [
+      { from: "08:00", to: "10:30" },
+      { from: "14:00", to: "16:00" }
+    ],
+    "A2": [
+      { from: "11:00", to: "13:00" },
+      { from: "17:00", to: "19:30" }
+    ],
+    "A3": [
+      { from: "09:30", to: "12:00" },
+      { from: "20:00", to: "22:00" }
+    ],
+    "B1": [
+      { from: "13:00", to: "15:30" }
+    ],
+    "C1": [
+      { from: "16:30", to: "18:30" }
+    ]
+  };
 
-    return (
-        <circle
-            cx={cx}
-            cy={cy}
-            r="14.5"
-            fill="#40AD0E"
-            stroke="#000"
-            onClick={() => { document.getElementById('availabilityModal').showModal(); onClick(tableNumber); }}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-        />
-    );
+const CircleButton = ({ cx, cy, tableNumber, time, onClick }) => {
+  // Check if the table is booked at the current time
+  const isBooked = bookingData[tableNumber]?.some(booking => 
+    time >= booking.from && time <= booking.to
+  );
+
+  const handleMouseEnter = (e) => e.target.setAttribute("fill", isBooked ? "#808080" : "#2E8B57");
+  const handleMouseLeave = (e) => e.target.setAttribute("fill", isBooked ? "#808080" : "#40AD0E");
+
+  return (
+    <circle
+      cx={cx}
+      cy={cy}
+      r="14.5"
+      fill={isBooked ? "#808080" : "#40AD0E"}
+      stroke="#000"
+      onClick={() => { 
+        if (!isBooked) {
+          document.getElementById('availabilityModal').showModal(); 
+          onClick(tableNumber); 
+        }
+      }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={{ cursor: isBooked ? 'not-allowed' : 'pointer' }}
+    />
+  );
 };
 
 function MapSVG() {
