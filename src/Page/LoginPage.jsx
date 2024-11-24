@@ -152,7 +152,7 @@ function Login() {
           </label>
 
         
-          <button type="submit" className="w-full p-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
+          <button type="submit" className="btn glass w-full p-3 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-700">
             Login Now
           </button>
         </form>
@@ -166,10 +166,11 @@ function Login() {
       </div>
 
 
-      <div className="w-full h-full md:w-1/2 hidden md:flex items-center justify-center relative">
-        <img src="https://images.unsplash.com/photo-1557683316-973673baf926?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80" alt="login" className="object-cover h-full w-full rounded-lg shadow-lg" />
-        <div className="absolute inset-0 bg-black opacity-20 rounded-lg"></div>
+      <div className="w-screen h-screen md:w-1/2 hidden md:flex items-center justify-center relative">
+        <img src="https://images.unsplash.com/photo-1557683316-973673baf926?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80" alt="login" className="object-cover h-screen w-screen  " />
+        <div className="absolute inset-0 bg-black opacity-20 "></div>
       </div>
+
       <dialog id="my_modal_2" className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Hello!</h3>
