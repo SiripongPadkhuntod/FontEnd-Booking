@@ -125,10 +125,11 @@ function ProfilePage({ nightMode, useremail }) {
       {/* Profile Section */}
       <CSSTransition key="profile-section" timeout={500} classNames="fade">
         <div
-          className={`w-full md:w-1/3 p-5 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}
+          className={`w-full md:w-1/3 p-10 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}
     transition-all duration-500 shadow-lg rounded-lg flex flex-col`}
         >
-          <h1 className="cursor-pointer text-blue-500 hover:underline text-2xl font-bold mb-5 text-left">
+          <h1 className="cursor-pointer text-blue-500 hover:underline text-2xl font-bold mb-5 text-left 
+drop-shadow-lg">
             My Profile
           </h1>
 

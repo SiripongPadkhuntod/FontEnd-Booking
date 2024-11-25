@@ -88,7 +88,7 @@ const Home = () => {
       case "Map": return <CoMap nightMode={isNightMode} />;
       case "Profile": return <CoProfile nightMode={isNightMode} useremail={email} />;
       case "Day": return <CoTest />;
-      case "List": return <CoList />;
+      case "List": return <CoList fullname={first_name+" "+last_name} />;
       case "Grid": return <CoGrid />;
       case "Month": return <CoMonth />;
       default: return null;

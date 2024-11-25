@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 // ข้อมูลตัวอย่าง
-export const bookings = [
+export let bookings = [
   { name: "John Doe", Fromtime: "10:00", Totime: "18:00", table: "A1", note: "Team meeting", date: new Date("2024-11-16") },
   { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
   { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
@@ -16,93 +16,76 @@ export const bookings = [
   { name: "Emma White", Fromtime: "09:00", Totime: "18:00", table: "A1", note: "Brainstorming", date: new Date("2024-02-29") },
   { name: "James Green", Fromtime: "13:00", Totime: "18:00", table: "A1", note: "Project Update", date: new Date("2024-03-01") },
 ];
+
+import { CSSTransition } from 'react-transition-group';
+
+
+
 const CoMonth = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().split('T')[0].slice(0, 7));
   const [showDetailView, setShowDetailView] = useState(false);
   const [selectedDateBookings, setSelectedDateBookings] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [activeView, setActiveView] = useState('calendar'); // 'calendar' or 'bookings'
+  const [bookings, setBookings] = useState([]);
   
 
   // ข้อมูลตัวอย่าง
-  const bookings = [
-    { name: "John Doe", Fromtime: "10:00 AM", Totime: "6:00 PM", table: "A1", note: "Team meeting", date: new Date("2024-11-16") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "3:00 PM", Totime: "6:00 PM", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "David Black", Fromtime: "5:00 PM", Totime: "6:00 PM", table: "A1", note: "Review", date: new Date("2024-11-20") },
-    { name: "Emma White", Fromtime: "9:00 AM", Totime: "6:00 PM", table: "A1", note: "Brainstorming", date: new Date("2024-02-29") },
-    { name: "James Green", Fromtime: "1:00 PM", Totime: "6:00 PM", table: "A1", note: "Project Update", date: new Date("2024-03-01") },
-  ];
+  
 
-  const fetchData = async () => {
+  const fetchData = async (test) => {
     try {
-      console.log(selectedMonth);
-      const response = await fetch(`http://localhost:8080/reservations/${selectedMonth}`);
+      console.log(test);
+      const response = await fetch(`http://localhost:8080/reservations/${test}`);
 
-      // Check if the response is okay (status code 200)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Try to parse the response as JSON
-      const text = await response.text(); // Get the raw text response first
-      let result;
+      const text = await response.text();
       
-
       try {
-        result = JSON.parse(text); // Attempt to parse the text as JSON
-        bookings = transformData(result);
-
-
+        const result = JSON.parse(text);
+        const transformedData = transformData(result);
+        setBookings(transformedData);
       } catch (jsonError) {
         console.error("Error parsing JSON:", jsonError);
         console.error("Response text:", text);
         throw new Error("Invalid JSON response");
       }
-
-      console.log(result);
-      // const transformedData = transformData(result);
-      // setData(transformedData);
-
     } catch (error) {
       console.error("Error fetching data:", error);
+      // Set default data in case of error
+      setBookings([
+        { name: "John Doe", Fromtime: "10:00", Totime: "18:00", table: "A1", note: "Team meeting", date: new Date("2024-11-16") },
+        { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+        // ... other default bookings
+      ]);
     }
   };
 
   const transformData = (apiData) => {
-    const groupedByDate = apiData.reduce((acc, item) => {
-      const date = new Date(item.reservation_date).toLocaleDateString("th-TH", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
 
-      if (!acc[date]) {
-        acc[date] = { date, bookings: [] };
-      }
+    // Log ข้อมูลที่ได้จาก API
+    console.log(apiData);
 
-      acc[date].bookings.push({
-        desk: item.table_number,
-        time: new Date(item.reservation_date).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
-        name: `${item.first_name} ${item.last_name}`,
-        stdID: item.student_id,
-        note: item.note,
-      });
+    return apiData.map(item => {
+        const formatTime = (time) => {
+            const [hours, minutes] = time.split(":"); // แยกชั่วโมงและนาทีจากเวลา
+            return `${hours}:${minutes}`;
+        };
 
-      return acc;
-    }, {});
+        return {
+            name: `${item.first_name} ${item.last_name}`,
+            Fromtime: formatTime(item.reservation_time_from), // ใช้ฟังก์ชัน formatTime
+            Totime: formatTime(item.reservation_time_to), // ใช้ฟังก์ชัน formatTime
+            table: item.table_number,
+            note: item.note,
+            date: new Date(item.reservation_date)
+        };
+    });
+};
 
-    return Object.values(groupedByDate);
-  };
 
 
 
@@ -210,12 +193,14 @@ const CoMonth = () => {
     const prevMonthDate = new Date(selectedMonth);
     prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
     setSelectedMonth(prevMonthDate.toISOString().split('T')[0].slice(0, 7));
+    fetchData(prevMonthDate.toISOString().split('T')[0].slice(0, 7));
   };
 
   const handleNextMonth = () => {
     const nextMonthDate = new Date(selectedMonth);
     nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
     setSelectedMonth(nextMonthDate.toISOString().split('T')[0].slice(0, 7));
+    fetchData(nextMonthDate.toISOString().split('T')[0].slice(0, 7));
   };
 
   const handleDateClick = (year, month, day) => {
@@ -226,12 +211,12 @@ const CoMonth = () => {
 
   const handleselectMonth = (e) => {
     setSelectedMonth(e.target.value);
-    fetchData();
+    fetchData(e.target.value);
   };
 
   // Responsive check
   useEffect(() => {
-    fetchData();
+    fetchData(new Date().toISOString().split('T')[0].slice(0, 7));
 
     const checkMobileView = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -528,6 +513,7 @@ const CoMonth = () => {
         </div>
 
         {/* Detail View Modal for Desktop */}
+        
         {showDetailView && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg w-full max-w-md max-h-[80%] overflow-y-auto">

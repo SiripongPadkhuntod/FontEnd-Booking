@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 
 const CoGrid = () => {
   const desks = ["A01", "A02", "A03", "A04", "A05", "A06", "B01", "B02", "C01", "C02"];
@@ -13,7 +13,44 @@ const CoGrid = () => {
     { desk: "C01", name: "Bob Wilson", time: "2:00 PM", note: "Daily standup", date: new Date("2024-11-10") },
   ];
 
-  const [selectedMonth, setSelectedMonth] = useState("2024-11");
+  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().split('T')[0].slice(0, 7));
+
+  // แปลงข้อมูลจาก JSON ให้เป็น Object
+  const transformData = (text) => {
+    const data = JSON.parse(text);
+    console.log(data);
+  };
+
+  // ดึงข้อมูลจาก API
+  useEffect(() => {
+    fetchData(selectedMonth);
+  }, [selectedMonth]);
+
+  
+
+
+
+  const fetchData = async (test) => {
+    try {
+      console.log(test);
+      const response = await fetch(`http://localhost:8080/reservations/${test}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const text = await response.text();
+      console.log(text);
+      transformData(text);
+    }
+    catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+
+
+
 
   // สร้างวันที่ทั้งหมดในเดือน
   const getDaysInMonth = (year, month) => {

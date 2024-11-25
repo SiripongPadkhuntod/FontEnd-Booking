@@ -24,6 +24,7 @@ const CoMap = ({ nightMode }) => {
   const [displayTime, setDisplayTime] = useState("08:00");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [timeModal, setTimeModal] = useState(displayTime);
+  const [timeModalTo, setTimeModalTo] = useState(displayTime);
 
   // รวมเวลาทั้งหมดในที่เดียว
   const allTimes = [
@@ -383,7 +384,6 @@ const CoMap = ({ nightMode }) => {
           <h3 className="text-2xl font-bold mb-2">NEW BOOKING</h3>
           <p className="text-gray-500 mb-6">Desk Number ##</p>
 
-          {/* Date & Time */}
           <div className="mb-4">
             <label className="block text-sm font-semibold mb-1">Date & Time</label>
             <input
@@ -410,9 +410,13 @@ const CoMap = ({ nightMode }) => {
               <div className="flex-1">
                 <label className="block text-sm font-semibold">To</label>
                 {/* "To" Time Select based on the selected "From" time */}
-                <select className="select select-bordered w-full text-white" value={timeModal + 1}>
-                  {allTimes.slice(allTimes.indexOf(timeModal) + 1).map((time) => (
-                    <option key={time} value={time}>
+                <select
+                  className="select select-bordered w-full text-white"
+                  value={timeModalTo}
+                  onChange={(e) => setTimeModalTo(e.target.value)} // Handle time change
+                >
+                  {allTimes.slice(allTimes.indexOf(timeModal) + 1).map((time, index) => (
+                    <option key={index} value={time}>
                       {time}
                     </option>
                   ))}
@@ -420,6 +424,7 @@ const CoMap = ({ nightMode }) => {
               </div>
             </div>
           </div>
+
 
           <div className="flex justify-end gap-2">
             <button className="btn btn-primary">Confirm Booking</button>
@@ -466,7 +471,8 @@ const CoMap = ({ nightMode }) => {
               <div className="flex-1">
                 <label className="block text-sm font-semibold">To</label>
                 {/* "To" Time Select based on the selected "From" time */}
-                <select className="select select-bordered w-full text-white" value={timeModal + 1}>
+                <select className="select select-bordered w-full text-white"
+                  value={timeModal + 1}>
                   {allTimes.slice(allTimes.indexOf(timeModal) + 1).map((time) => (
                     <option key={time} value={time}>
                       {time}
