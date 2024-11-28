@@ -40,7 +40,7 @@ const Home = () => {
       return;
     }
 
-    fetch("http://localhost:8080/verifyToken", {
+    fetch("https://backend-6ug4.onrender.com/verifyToken", {
       method: "POST",
       headers: {
         "Authorization": "Bearer " + token
@@ -70,7 +70,7 @@ const Home = () => {
     if (!email) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/users/email/${email}`);
+      const response = await fetch(`https://backend-6ug4.onrender.com/users/email/${email}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
 
       if (response.headers.get('Content-Type')?.includes('application/json')) {

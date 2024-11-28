@@ -56,7 +56,7 @@ function ProfilePage({ nightMode, useremail }) {
   const fetchUserData = async () => {
     try {
       // ระบุ URL ที่สมบูรณ์
-      const response = await fetch(`http://localhost:8080/users/email/${useremail}`);
+      const response = await fetch(`https://backend-6ug4.onrender.com/users/email/${useremail}`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch user data');

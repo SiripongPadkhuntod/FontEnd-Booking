@@ -23,7 +23,7 @@ function Login() {
     console.log('Google token:', response.credential); // ตรวจสอบ token
 
     // ส่ง token ไปยัง backend
-    fetch('http://localhost:8080/api/auth/google', {
+    fetch('https://backend-6ug4.onrender.com/api/auth/google', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: response.credential }),
@@ -58,7 +58,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:8080/login/email", {
+      const response = await fetch("https://backend-6ug4.onrender.com/login/email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
