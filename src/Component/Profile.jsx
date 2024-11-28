@@ -10,6 +10,7 @@ import { FaEdit } from "react-icons/fa";
 import { RiImageEditFill } from "react-icons/ri";
 
 
+
 function ProfilePage({ nightMode, useremail }) {
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -17,6 +18,7 @@ function ProfilePage({ nightMode, useremail }) {
   const [error, setError] = useState(null);
   const [showDetails, setShowDetails] = useState(true); // Default to show Details section
   const [showCalendar, setShowCalendar] = useState(false); // Default to hide Calendar section
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const [userData2, setUserData2] = useState({
     email: 'example@gmail.com',
@@ -46,6 +48,11 @@ function ProfilePage({ nightMode, useremail }) {
   // const toggleEdit = () => {
   //   setIsEditing(!isEditing);
   // };
+
+  const handleCloseModal = () => {
+    console.log('Close modal clicked'); // Debug log
+    setShowLogoutModal(false);
+  };
 
   const handleCanselEdit = () => {
     setIsEditing(false);
@@ -78,10 +85,6 @@ function ProfilePage({ nightMode, useremail }) {
       setLoading(false);
     }
   };
-
-
-
-
 
 
 
@@ -224,13 +227,37 @@ drop-shadow-lg">
 
           {/* Logout Button - Centered on desktop */}
           <button
-            onClick={handleLogout}
+            onClick={() => setShowLogoutModal(true)}
             className="hidden lg:flex mt-auto w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors max-w-xs mx-auto justify-center"
           >
             Logout
           </button>
         </div>
       </CSSTransition>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className={`bg-white rounded-lg p-6 shadow-xl ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}>
+            <h2 className="text-xl font-bold mb-4">Confirm Logout</h2>
+            <p className="mb-6">Are you sure you want to log out?</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => handleCloseModal()}
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
       {/* Details Section */}

@@ -4,31 +4,40 @@ const CoGrid = () => {
   const desks = ["A01", "A02", "A03", "A04", "A05", "A06", "B01", "B02", "C01", "C02"];
   
   // ข้อมูลตัวอย่าง
-  const bookings = [
-    { desk: "A01", name: "John Doe", time: "10:00 AM", note: "Team meeting", date: new Date("2024-11-01") },
-    { desk: "A01", name: "John Doe", time: "10:00 AM", note: "Team meeting", date: new Date("2024-11-01") },
-    { desk: "A01", name: "John Doe", time: "10:00 AM", note: "Team meeting", date: new Date("2024-11-01") },
-    { desk: "A02", name: "Jane Smith", time: "1:00 PM", note: "Project review", date: new Date("2024-11-15") },
-    { desk: "B01", name: "Alice Brown", time: "3:00 PM", note: "Client call", date: new Date("2024-11-20") },
-    { desk: "C01", name: "Bob Wilson", time: "2:00 PM", note: "Daily standup", date: new Date("2024-11-10") },
-  ];
+  // const bookings = [
+  //   { desk: "A01", name: "John Doe", time: "10:00 AM", note: "Team meeting", date: new Date("2024-11-01") },
+  //   { desk: "A01", name: "John Doe", time: "10:00 AM", note: "Team meeting", date: new Date("2024-11-01") },
+  //   { desk: "A01", name: "John Doe", time: "10:00 AM", note: "Team meeting", date: new Date("2024-11-01") },
+  //   { desk: "A02", name: "Jane Smith", time: "1:00 PM", note: "Project review", date: new Date("2024-11-15") },
+  //   { desk: "B01", name: "Alice Brown", time: "3:00 PM", note: "Client call", date: new Date("2024-11-20") },
+  //   { desk: "C01", name: "Bob Wilson", time: "2:00 PM", note: "Daily standup", date: new Date("2024-11-10") },
+  // ];
+
+  const [bookings, setBookings] = useState([]);
 
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().split('T')[0].slice(0, 7));
 
   // แปลงข้อมูลจาก JSON ให้เป็น Object
   const transformData = (text) => {
     const data = JSON.parse(text);
-    console.log(data);
+    
+    const transformedData = data.map((item) => ({
+      desk: item.table_number,
+      name: `${item.first_name} ${item.last_name}`,
+      time: new Date(item.reservation_date).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+      note: item.note,
+      date: new Date(item.reservation_date),
+    }));
+
+    console.log(transformedData);
+    setBookings(transformedData);
   };
 
   // ดึงข้อมูลจาก API
   useEffect(() => {
     fetchData(selectedMonth);
   }, [selectedMonth]);
-
   
-
-
 
   const fetchData = async (test) => {
     try {
@@ -47,9 +56,6 @@ const CoGrid = () => {
       console.error("Error fetching data:", error);
     }
   };
-
-
-
 
 
   // สร้างวันที่ทั้งหมดในเดือน
