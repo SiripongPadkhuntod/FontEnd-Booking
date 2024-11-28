@@ -134,7 +134,7 @@ const BookingApp = ({ fullname }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("http://localhost:8080/reservationsall");
+                const response = await fetch("https://backend-6ug4.onrender.com/reservationsall");
                 const result = await response.json();
                 const transformedData = transformData(result, sortOrder);
                 setData(transformedData);

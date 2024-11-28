@@ -36,7 +36,7 @@ const CoMonth = () => {
   const fetchData = async (test) => {
     try {
       console.log(test);
-      const response = await fetch(`http://localhost:8080/reservations/${test}`);
+      const response = await fetch(`https://backend-6ug4.onrender.com/reservations/${test}`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
