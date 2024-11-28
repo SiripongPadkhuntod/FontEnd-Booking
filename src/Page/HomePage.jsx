@@ -32,39 +32,39 @@ const Home = () => {
   const [role, setRole] = useState(null);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem('authToken');
-  //   if (!token) {
-  //     console.error("Token not found");
-  //     navigate("/");
-  //     return;
-  //   }
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error("Token not found");
+      navigate("/");
+      return;
+    }
 
-  //   fetch("http://localhost:8080/verifyToken", {
-  //     method: "POST",
-  //     headers: {
-  //       "Authorization": "Bearer " + token
-  //     }
-  //   })
-  //     .then(response => {
-  //       if (!response.ok) {
-  //         throw new Error(`HTTP error! status: ${response.status}`);
-  //       }
-  //       return response.json();
-  //     })
-  //     .then(data => {
-  //       if (data?.user?.email) {
-  //         setEmail(data.user.email);
-  //         setRole(data.role);
-  //       }
-  //     })
-  //     .catch(error => {
-  //       console.error("Error:", error.message);
-  //       navigate("/");
-  //     });
+    fetch("http://localhost:8080/verifyToken", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data?.user?.email) {
+          setEmail(data.user.email);
+          setRole(data.role);
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error.message);
+        navigate("/");
+      });
 
-  //   fetchUserData();
-  // }, [navigate, email]);
+    fetchUserData();
+  }, [navigate, email]);
 
   const fetchUserData = async () => {
     if (!email) return;
