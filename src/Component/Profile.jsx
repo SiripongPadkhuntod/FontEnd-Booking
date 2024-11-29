@@ -20,11 +20,31 @@ function ProfilePage({ nightMode, useremail }) {
   const [showTable, setShowTable] = useState(false); // Default to hide Calendar section
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [role, setRole] = useState('user');
-
-
-
-
+  const [image, setImage] = useState(userData?.photo || "/api/placeholder/80/80");
+  const [imageBG, setImageBG] = useState(userData?.photo || "/api/placeholder/80/80");
   const [userData2, setUserData2] = useState({});
+  const navigate = useNavigate(); // ใช้ useNavigate สำหรับเปลี่ยนเส้นทาง
+
+  useEffect(() => {
+
+    fetchUserData()
+  }, []);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result); // อัปเดตภาพที่เลือก
+      };
+      reader.readAsDataURL(file); // อ่านไฟล์เป็น URL
+    }
+  };
+
+
+
+
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -32,7 +52,7 @@ function ProfilePage({ nightMode, useremail }) {
   };
 
 
-  const navigate = useNavigate(); // ใช้ useNavigate สำหรับเปลี่ยนเส้นทาง
+ 
 
 
   const handleLogout = () => {
@@ -113,10 +133,7 @@ function ProfilePage({ nightMode, useremail }) {
 
 
 
-  useEffect(() => {
-
-    fetchUserData()
-  }, []);
+  
 
   if (loading) {
     return (
@@ -162,36 +179,50 @@ function ProfilePage({ nightMode, useremail }) {
 
           {/* Profile Picture */}
           <div
-            className="relative rounded-xl p-4 h-40"
+            className={`relative rounded-xl p-4 h-40`}
             style={{ backgroundImage: 'url("https://i.pinimg.com/736x/3c/36/9a/3c369a99eb52dfc6cf0db66bfc3fa909.jpg")', backgroundSize: 'cover', backgroundPosition: 'center' }}
           >
             {/* Edit Button */}
             <botton
-              className="absolute bottom-0 right-0 mb-2 mr-2 w-10 h-10 bg-blue-500 text-white rounded-full flex justify-center items-center hover:bg-blue-700 transition-all"
+              className={`absolute bottom-0 right-0 mb-2 mr-2 w-10 h-10 bg-blue-500 text-white rounded-full flex justify-center items-center hover:bg-blue-700 transition-all ${isEditing ? '' : 'hidden'}`}
               type="file"
-              onClick={() => {
-                // Handle image upload logic here
-              }}
+              onClick={() => document.getElementById('fileInputBG').click()}
             >
               <RiImageEditFill className="w-6 h-6" />
+              {/* ซ่อน input file */}
+              <input
+                  id="fileInputBG"
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange} // ตรวจจับการเลือกไฟล์
+                />
             </botton>
 
             <div className="absolute -bottom-10 left-4">
               <div className="w-28 h-28 rounded-full border-4 border-white bg-gray-200 overflow-hidden">
                 <img
-                  src={userData?.photo || "/api/placeholder/80/80"}
+                  src={image}
                   alt="User"
                   className="w-full h-full object-cover"
                 />
               </div>
               {/* edit button */}
               <button
-                className="absolute bottom-0 right-0 mb-2 mr-2 w-8 h-8 bg-blue-500 text-white rounded-full flex justify-center items-center hover:bg-blue-700 transition-all"
-                onClick={() => {
-                  // Handle image upload logic here
-                }}
+                className={`absolute bottom-0 right-0 mb-2 mr-2 w-8 h-8 bg-blue-500 text-white rounded-full flex justify-center items-center hover:bg-blue-700 transition-all
+                  ${isEditing ? '' : 'hidden'}`}
+                onClick={() => document.getElementById('fileInput').click()} // เปิด input file เมื่อคลิกที่ปุ่ม
+                disabled={!isEditing} // ปิดปุ่มเมื่อไม่ได้อยู่ในโหมดแก้ไข
+         
               >
                 <RiImageEditFill className="w-4 h-4" />
+
+                {/* ซ่อน input file */}
+                <input
+                  id="fileInput"
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange} // ตรวจจับการเลือกไฟล์
+                />
               </button>
             </div>
           </div>
@@ -238,6 +269,7 @@ function ProfilePage({ nightMode, useremail }) {
                 setShowDetails(false); // Hide details section
                 setShowCalendar(true); // Show calendar section
                 setShowTable(false); // Hide calendar section
+                setIsEditing(false);
               }} // Show calendar section
             >
 
@@ -257,6 +289,7 @@ function ProfilePage({ nightMode, useremail }) {
                 setShowDetails(false); // Hide details section
                 setShowCalendar(false); // Show calendar section
                 setShowTable(true); // Hide calendar section
+                setIsEditing(false);
               }} // Show calendar section
             >
 

@@ -53,6 +53,7 @@ const CoDay = () => {
   }, []); // useEffect จะทำงานเมื่อ component ติดตั้งครั้งแรก
 
   if (loading) {
+    // return <div>Loading...</div>; // แสดงข้อความขณะโหลดข้อมูล
     return <div>Loading...</div>; // แสดงข้อความขณะโหลดข้อมูล
   }
 
