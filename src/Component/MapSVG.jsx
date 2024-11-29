@@ -40,14 +40,18 @@ function isBetweenTimes(time, startTime, endTime) {
     return timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes;
 }
 
-function MapSVG({ time }) {
+function MapSVG({ time, date }) {
 
     const [booking, setBooking] = useState(new Set());
     useEffect(() => {
-        const timeMap = bookings.map(item => ({ disabled: isBetweenTimes(time, item.Fromtime, item.Totime), table: item.table }))
+        const timeMap = bookings
+        .filter(item => item.date?.getTime() === date?.getTime())
+        .map(item => ({ disabled: isBetweenTimes(time, item.Fromtime, item.Totime), table: item.table }))
         const bookingTableSet = new Set(timeMap.filter(item => item.disabled).map(item => item.table))
         setBooking(bookingTableSet)
-    }, [time])
+        console.log(bookingTableSet,date,time);
+        
+    }, [time, date])
     const setNumbertable = (tableNumber) => {
         // const currentBooking = [...booking];
         // currentBooking.push(tableNumber)
