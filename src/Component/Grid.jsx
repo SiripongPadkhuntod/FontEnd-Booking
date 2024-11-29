@@ -111,7 +111,7 @@ const CoGrid = () => {
       <h2 className="text-2xl font-bold mb-4 text-center">Monthly Desk Bookings</h2>
 
       {/* เลือกเดือน */}
-      <div className="mb-4">
+      <div className=" p-1 rounded-lg bg-purple-200/30 backdrop-blur-md border border-purple-300 w-72">
         <label className="mr-2">เลือกเดือน:</label>
         <input
           type="month"
@@ -130,9 +130,9 @@ const CoGrid = () => {
           }}
         >
           {/* Header แถวแรก */}
-          <div className="font-semibold text-center bg-purple-300 p-2">วันที่</div>
+          <div className="font-semibold text-center bg-purple-300 p-2 rounded-lg ">วันที่</div>
           {desks.map((desk, index) => (
-            <div key={index} className="font-semibold text-center bg-purple-300 p-2">
+            <div key={index} className="font-semibold text-center bg-purple-300 p-2 rounded-lg ">
               {desk}
             </div>
           ))}
@@ -141,7 +141,7 @@ const CoGrid = () => {
           {daysInMonth.map((date, index) => (
             <React.Fragment key={index}>
               {/* วันที่และวันในสัปดาห์ */}
-              <div className="font-medium text-left bg-purple-100 p-2">
+              <div className="font-medium text-left bg-purple-100 p-2 ">
                 {getDayInThai(date)} {date.getDate()}
               </div>
               {desks.map((desk, deskIndex) => {
@@ -153,7 +153,7 @@ const CoGrid = () => {
                 return (
                   <div
                     key={`${index}-${deskIndex}`}
-                    className="bg-white w-full h-20 p-3 rounded-lg shadow-sm border relative group"
+                    className="bg-white w-full h-20 p-3 shadow-sm border relative group"
                   >
                     {renderBookingNames(bookingsForDeskAndDate)}
 

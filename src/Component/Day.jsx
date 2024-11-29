@@ -1,24 +1,55 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 const CoDay = () => {
-  const desks = ["A01", "A02", "A03", "A04", "A05", "B01", "B02", "C01", "C02"];
+  const desks = ["A01", "A02", "A03", "A04", "A05","A06", "B01", "B02", "C01", "C02"];
 
-  const bookings = [
-    { desk: "A01", name: "Theeraphat (Tle)", start: 10, end: 12 },
-    { desk: "A01", name: "Siripong (Stop)", start: 13, end: 18 },
-    { desk: "A02", name: "Tonkla", start: 11, end: 14 },
-    { desk: "A03", name: "P'Koon", start: 9, end: 12 },
-    { desk: "A04", name: "Chanon (Tee)", start: 12, end: 15 },
-    { desk: "A05", name: "P'Ray", start: 9, end: 12 },
-    { desk: "B01", name: "Warodom (Ryu)", start: 9, end: 18 },
-    { desk: "B02", name: "John Doe", start: 10, end: 13 },
-    { desk: "B02", name: "Jane Smith", start: 14, end: 17 },
-    { desk: "C01", name: "Alex Johnson", start: 9, end: 11 },
-    { desk: "C01", name: "Emily Davis", start: 12, end: 16 },
-    { desk: "C02", name: "Michael Brown", start: 10, end: 14 },
+  // ตัวอย่างข้อมูลใหม่ในรูปแบบที่คุณให้มา
+  const [bookings, setBookings] = useState([]);
+  
+  const hours = Array.from({ length: 10 }, (_, i) => 9 + i); // เวลาที่จะแสดง (9:00 ถึง 18:00)
+
+  // ตัวอย่างข้อมูลที่ส่งมาจาก API หรือ JSON ใหม่
+  const rawBookings = [
+    {
+      "table_number": "A05",
+      "reservation_time_from": "08:00:00",
+      "reservation_time_to": "10:00:00",
+      "first_name": "FirstName38",
+      "last_name": "LastName38"
+    },
+    {
+      "table_number": "A06",
+      "reservation_time_from": "15:00:00",
+      "reservation_time_to": "17:00:00",
+      "first_name": "FirstName40",
+      "last_name": "LastName40"
+    },
+    {
+      "table_number": "B02",
+      "reservation_time_from": "10:00:00",
+      "reservation_time_to": "18:00:00",
+      "first_name": "FirstName45",
+      "last_name": "LastName45"
+    },
+    {
+      "table_number": "B01",
+      "reservation_time_from": "13:00:00",
+      "reservation_time_to": "15:00:00",
+      "first_name": "FirstName17",
+      "last_name": "LastName17"
+    }
   ];
 
-  const hours = Array.from({ length: 10 }, (_, i) => 9 + i);
+  // แปลงข้อมูล JSON ใหม่ให้เป็นรูปแบบที่ใช้งานได้
+  useEffect(() => {
+    const transformedData = rawBookings.map(item => ({
+      desk: item.table_number,
+      name: `${item.first_name} ${item.last_name}`,
+      start: parseInt(item.reservation_time_from.split(":")[0], 10), // แปลงเวลาเริ่มต้น
+      end: parseInt(item.reservation_time_to.split(":")[0], 10), // แปลงเวลาจบ
+    }));
+    setBookings(transformedData);
+  }, []);
 
   const getColor = (name) => {
     const colors = [
@@ -55,9 +86,10 @@ const CoDay = () => {
         </div>
         <div className="bg-gray-100 relative">
           {desks.map((desk, idx) => {
+            // กรองข้อมูลการจองเฉพาะที่ตรงกับโต๊ะนั้น
             const deskBookings = bookings
               .filter((booking) => booking.desk === desk)
-              .sort((a, b) => a.start - b.start);
+              .sort((a, b) => a.start - b.start); // เรียงตามเวลาจอง
 
             return (
               <div key={idx} className="flex items-top" style={{ marginBottom: '2px' }}>
