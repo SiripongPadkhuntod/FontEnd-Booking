@@ -4,6 +4,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { GrFormView, GrFormViewHide } from "react-icons/gr";
 import { CiMail } from "react-icons/ci";
 import { RiLockPasswordLine } from "react-icons/ri";
+import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
 
 function Modal({ isOpen, message, submessage, onClose }) {
   if (!isOpen) return null;
@@ -72,49 +73,42 @@ function Login() {
 
   const handleLoginGoogle = async (response) => {
     try {
-      const res = await fetch('https://backend-6ug4.onrender.com/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: response.credential }),
-      });
-      const data = await res.json();
-
-      if (data.message === 'Login successful') {
-        localStorage.setItem('authToken', data.token);
+      const res = await API.post('/api/auth/google', { token: response.credential });
+      if (res.data.message === 'Login successful') {
+        localStorage.setItem('authToken', res.data.token);
         navigate("/home");
       } else {
         setModalState({
           isOpen: true,
-          message: data.message || "Login Failed",
+          message: res.data.message || "Login Failed",
           submessage: "Please check your email domain.",
         });
       }
     } catch (error) {
-      console.error("Error:", error);
       setModalState({
         isOpen: true,
         message: "Error",
         submessage: "Unable to connect to the server. Please try again.",
       });
+      console.error("Error:", error);
     }
   };
+  
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("https://backend-6ug4.onrender.com/login/email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('authToken', data.token);
+      const res = await API.post("/login/email", { email, password });
+      
+      if (res.status === 200) {
+        localStorage.setItem('authToken', res.data.token);
         navigate("/home");
       } else {
-        const errorMessage = await res.text();
-        setModalState({ isOpen: true, message: "Login Failed", submessage: errorMessage });
+        setModalState({
+          isOpen: true,
+          message: "Login Failed",
+          submessage: res.data || "Unknown error",
+        });
       }
     } catch (error) {
       console.error("Error:", error);
@@ -125,6 +119,7 @@ function Login() {
       });
     }
   };
+  
 
   return (
     <div className="mx-auto flex flex-col md:flex-row items-center h-screen p-4 w-screen bg-gray-50">

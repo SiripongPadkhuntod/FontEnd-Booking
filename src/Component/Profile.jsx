@@ -8,6 +8,7 @@ import Skeleton from 'react-loading-skeleton'; // นำเข้า Skeleton
 import { FaEdit } from "react-icons/fa";
 import { RiImageEditFill } from "react-icons/ri";
 import { Save } from 'lucide-react';
+import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
 
 function ProfilePage({ nightMode, useremail }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -57,23 +58,14 @@ function ProfilePage({ nightMode, useremail }) {
 
   const fetchUserData = async () => {
     try {
-      // ระบุ URL ที่สมบูรณ์
-      const response = await fetch(`http://localhost:3000/users/email/${useremail}`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch user data');
-      }
-
-      const contentType = response.headers.get('Content-Type');
-      // ตรวจสอบว่า Content-Type เป็น application/json หรือไม่
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        setUserData(data);
-        setUserData2(data);
-        setRole(data.role);
+      const response = await API.get(`/users/email/${useremail}`);
+  
+      if (response.status === 200) {
+        setUserData(response.data);
+        setUserData2(response.data);
+        setRole(response.data.role);
       } else {
-        const errorText = await response.text();
-        throw new Error('Response is not JSON: ' + errorText);
+        throw new Error('Failed to fetch user data');
       }
       setLoading(false);
     } catch (err) {
@@ -81,43 +73,37 @@ function ProfilePage({ nightMode, useremail }) {
       setLoading(false);
     }
   };
+  
 
   const editUserData = async () => {
-    let jsonData = {
+    const jsonData = {
       email: userData2.email,
       first_name: userData2.first_name,
       last_name: userData2.last_name,
       phonenumber: userData2.phonenumber,
       student_id: userData2.student_id,
       department: userData2.department,
-    }
-
+    };
+  
     console.log('Edit user data:', jsonData);
-
+  
     try {
-      const response = await fetch(`http://localhost:3000/editprofile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(jsonData),
-      });
-
-      if (!response.status === 200) {
+      const response = await API.put('/editprofile', jsonData);
+  
+      if (response.status === 200) {
+        console.log('Edit user data:', response.data);
+        setUserData2(jsonData);
+        fetchUserData();
+      } else {
         throw new Error('Failed to update user data');
       }
-
-      const data = await response.json();
-      console.log('Edit user data:', data);
-      setUserData2(jsonData);
-      fetchUserData();
-
     } catch (err) {
       setError(err.message);
     }
-
-    console.log('Edit user data:', userData2);
+  
+    console.log('Updated user data:', userData2);
   };
+  
 
   const handleSave = async () => {
     editUserData();

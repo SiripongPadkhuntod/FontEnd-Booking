@@ -1,23 +1,10 @@
-import React from "react";
-
+import React, { useState, useEffect } from "react";
+import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
 const CoDay = () => {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true); // สำหรับการแสดงสถานะขณะโหลดข้อมูล
+  const [error, setError] = useState(null); // สำหรับการจัดการข้อผิดพลาด
   const desks = ["A01", "A02", "A03", "A04", "A05", "B01", "B02", "C01", "C02"];
-
-  const bookings = [
-    { desk: "A01", name: "Theeraphat (Tle)", start: 10, end: 12 },
-    { desk: "A01", name: "Siripong (Stop)", start: 13, end: 18 },
-    { desk: "A02", name: "Tonkla", start: 11, end: 14 },
-    { desk: "A03", name: "P'Koon", start: 9, end: 12 },
-    { desk: "A04", name: "Chanon (Tee)", start: 12, end: 15 },
-    { desk: "A05", name: "P'Ray", start: 9, end: 12 },
-    { desk: "B01", name: "Warodom (Ryu)", start: 9, end: 18 },
-    { desk: "B02", name: "John Doe", start: 10, end: 13 },
-    { desk: "B02", name: "Jane Smith", start: 14, end: 17 },
-    { desk: "C01", name: "Alex Johnson", start: 9, end: 11 },
-    { desk: "C01", name: "Emily Davis", start: 12, end: 16 },
-    { desk: "C02", name: "Michael Brown", start: 10, end: 14 },
-  ];
-
   const hours = Array.from({ length: 10 }, (_, i) => 9 + i);
 
   const getColor = (name) => {
@@ -34,6 +21,48 @@ const CoDay = () => {
     const hash = [...name].reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];
   };
+
+  // const bookings = [
+  //   { desk: "A01", name: "Theeraphat (Tle)", start: 10, end: 12 },
+  //   { desk: "A01", name: "Siripong (Stop)", start: 13, end: 18 },
+  //   { desk: "A02", name: "Tonkla", start: 11, end: 14 },
+  //   { desk: "A03", name: "P'Koon", start: 9, end: 12 },
+  //   { desk: "A04", name: "Chanon (Tee)", start: 12, end: 15 },
+  //   { desk: "A05", name: "P'Ray", start: 9, end: 12 },
+  //   { desk: "B01", name: "Warodom (Ryu)", start: 9, end: 18 },
+  //   { desk: "B02", name: "John Doe", start: 10, end: 13 },
+  //   { desk: "B02", name: "Jane Smith", start: 14, end: 17 },
+  //   { desk: "C01", name: "Alex Johnson", start: 9, end: 11 },
+  //   { desk: "C01", name: "Emily Davis", start: 12, end: 16 },
+  //   { desk: "C02", name: "Michael Brown", start: 10, end: 14 },
+  // ];
+
+  // ดึงข้อมูลการจองจาก API
+  useEffect(() => {
+    API.get("/reservations/day/2024-11-29")
+      .then((response) => {
+        console.log(response.data);
+        // setBookings(transformData(response.data))
+        // transformData(response.data)
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError("An error occurred. Please try again later.");
+        console.error("Error fetching data:", error);
+      });
+  }, []); // useEffect จะทำงานเมื่อ component ติดตั้งครั้งแรก
+
+  if (loading) {
+    return <div>Loading...</div>; // แสดงข้อความขณะโหลดข้อมูล
+  }
+
+  if (error) {
+    return <div>{error}</div>; // แสดงข้อผิดพลาดหากมี
+  }
+
+
+
+ 
 
   return (
     <div className="p-4 sm:p-10 h-full w-full bg-gradient-to-b from-[#87CEEB] to-[#ADD8E6]">

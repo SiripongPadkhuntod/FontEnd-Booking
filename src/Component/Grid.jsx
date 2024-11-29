@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from "react";
-
+import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
 const CoGrid = () => {
   const desks = ["A01", "A02", "A03", "A04", "A05", "A06", "B01", "B02", "C01", "C02"];
   
@@ -18,9 +18,7 @@ const CoGrid = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().split('T')[0].slice(0, 7));
 
   // แปลงข้อมูลจาก JSON ให้เป็น Object
-  const transformData = (text) => {
-    const data = JSON.parse(text);
-    
+  const transformData = (data) => {
     const transformedData = data.map((item) => ({
       desk: item.table_number,
       name: `${item.first_name} ${item.last_name}`,
@@ -28,10 +26,11 @@ const CoGrid = () => {
       note: item.note,
       date: new Date(item.reservation_date),
     }));
-
+  
     console.log(transformedData);
     setBookings(transformedData);
   };
+  
 
   // ดึงข้อมูลจาก API
   useEffect(() => {
@@ -40,22 +39,21 @@ const CoGrid = () => {
   
 
   const fetchData = async (test) => {
-    try {
-      console.log(test);
-      const response = await fetch(`https://backend-6ug4.onrender.com/reservations/${test}`);
+  try {
+    const response = await API.get(`/reservations/${test}`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+    if (response.status === 200) {
+      console.log(response.data);  // ข้อมูลที่ได้รับจาก API
+      transformData(response.data);  // ส่งข้อมูลที่เป็น object ไปยัง transformData
+    } else {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
 
-      const text = await response.text();
-      console.log(text);
-      transformData(text);
-    }
-    catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+  
 
 
   // สร้างวันที่ทั้งหมดในเดือน
