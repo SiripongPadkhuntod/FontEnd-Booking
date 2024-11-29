@@ -4,7 +4,7 @@ import API from '../api'; // ถ้าใช้ axios แบบที่เร�
 export let bookings = [
   { name: "John Doe", Fromtime: "10:00", Totime: "18:00", table: "A1", note: "Team meeting", date: new Date("2024-11-16") },
   { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-29") },
   { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
   { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
   { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A2", note: "Client call", date: new Date("2024-11-15") },

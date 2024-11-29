@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import MapSVG from './MapSVG';
 import AdminConfigModal from './AdminModal';
+import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
 
 import { GrCaretPrevious, GrCaretNext } from 'react-icons/gr'; // import ไอคอน
 import { FaRegWindowClose } from "react-icons/fa";
@@ -81,6 +82,18 @@ const CoMap = ({ nightMode }) => {
     document.getElementById('bookingModal').showModal(); // เปิด bookingModal
   };
 
+  const fetchData = async () => {
+    // const date = new Date().toISOString().split('T')[0];
+    const currentDate = date.toISOString().split('T')[0];
+    console.log(currentDate);
+    try {
+      const response = await API.get(`/reservations/day/${currentDate}`);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -92,9 +105,10 @@ const CoMap = ({ nightMode }) => {
 
     window.addEventListener('resize', handleResize);
     handleResize();
+    fetchData()
 
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [date]);
 
   const handleTimeChange = (e) => {
     const selectedValue = parseInt(e.target.value);

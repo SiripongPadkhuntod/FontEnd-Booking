@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { th } from "date-fns/locale";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
 
 // ลงทะเบียนภาษาไทย
 registerLocale("th", th);
@@ -131,17 +132,20 @@ const BookingApp = ({ fullname }) => {
     const [sortOrder, setSortOrder] = useState("desc");
     const [data, setData] = useState([]);
 
+    const fetchData = async () => {
+        try {
+          const response = await API.get("/reservations/all");
+      
+          const transformedData = transformData(response.data, sortOrder);
+          setData(transformedData);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+      
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch("https://backend-6ug4.onrender.com/reservationsall");
-                const result = await response.json();
-                const transformedData = transformData(result, sortOrder);
-                setData(transformedData);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
+        
 
         fetchData();
     }, [sortOrder]);

@@ -39,11 +39,11 @@ const CoDay = () => {
 
   // ดึงข้อมูลการจองจาก API
   useEffect(() => {
-    API.get("/reservations/day/2024-11-29")
+    const currentDate = new Date().toISOString().split('T')[0]; // ดึงวันที่ปัจจุบันในรูปแบบ YYYY-MM-DD
+    API.get(`/reservations/day/${currentDate}`)
       .then((response) => {
         console.log(response.data);
-        // setBookings(transformData(response.data))
-        // transformData(response.data)
+        // setBookings(response.data); // ถ้าคุณได้ทำการแปลงข้อมูลแล้ว
         setLoading(false);
       })
       .catch((error) => {
