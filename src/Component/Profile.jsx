@@ -17,10 +17,11 @@ function ProfilePage({ nightMode, useremail }) {
   const [error, setError] = useState(null);
   const [showDetails, setShowDetails] = useState(true); // Default to show Details section
   const [showCalendar, setShowCalendar] = useState(false); // Default to hide Calendar section
+  const [showTable, setShowTable] = useState(false); // Default to hide Calendar section
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [role, setRole] = useState('user');
 
-  
+
 
 
   const [userData2, setUserData2] = useState({});
@@ -54,12 +55,12 @@ function ProfilePage({ nightMode, useremail }) {
     setUserData2(userData);
   };
 
- 
+
 
   const fetchUserData = async () => {
     try {
       const response = await API.get(`/users/email/${useremail}`);
-  
+
       if (response.status === 200) {
         setUserData(response.data);
         setUserData2(response.data);
@@ -73,7 +74,7 @@ function ProfilePage({ nightMode, useremail }) {
       setLoading(false);
     }
   };
-  
+
 
   const editUserData = async () => {
     const jsonData = {
@@ -84,12 +85,12 @@ function ProfilePage({ nightMode, useremail }) {
       student_id: userData2.student_id,
       department: userData2.department,
     };
-  
+
     console.log('Edit user data:', jsonData);
-  
+
     try {
       const response = await API.put('/editprofile', jsonData);
-  
+
       if (response.status === 200) {
         console.log('Edit user data:', response.data);
         setUserData2(jsonData);
@@ -100,10 +101,10 @@ function ProfilePage({ nightMode, useremail }) {
     } catch (err) {
       setError(err.message);
     }
-  
+
     console.log('Updated user data:', userData2);
   };
-  
+
 
   const handleSave = async () => {
     editUserData();
@@ -153,10 +154,9 @@ function ProfilePage({ nightMode, useremail }) {
       <CSSTransition key="profile-section" timeout={500} classNames="fade">
         <div
           className={`w-full md:w-1/3 p-10 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}
-    transition-all duration-500 shadow-lg rounded-lg flex flex-col`}
+                    transition-all duration-500 shadow-lg rounded-lg flex flex-col`}
         >
-          <h1 className="cursor-pointer text-blue-500 hover:underline text-2xl font-bold mb-5 text-left 
-drop-shadow-lg">
+          <h1 className="cursor-pointer text-blue-500 hover:underline text-2xl font-bold mb-5 text-left  drop-shadow-lg">
             My Profile
           </h1>
 
@@ -219,6 +219,7 @@ drop-shadow-lg">
               onClick={() => {
                 setShowDetails(true);
                 setShowCalendar(false); // Hide calendar section
+                setShowTable(false); // Hide calendar section
               }} // Show details section
             >
               <span className="w-8 h-8">📝</span>
@@ -227,6 +228,7 @@ drop-shadow-lg">
                 <div className="text-left text-sm">Manage your user-account settings</div>
               </div>
             </button>
+
             <button
               className={`flex items-center gap-2 hover:text-blue-600 hover:bg-orange-200 h-20 w-full drop-shadow-lg rounded-lg text-xl justify-start p-5
                           ${showCalendar ? 'bg-blue-500 text-black' : 'bg-white text-gray-800'} 
@@ -235,12 +237,32 @@ drop-shadow-lg">
               onClick={() => {
                 setShowDetails(false); // Hide details section
                 setShowCalendar(true); // Show calendar section
+                setShowTable(false); // Hide calendar section
               }} // Show calendar section
             >
 
               <span className="w-8 h-8">⚙️</span>
               <div className="flex flex-col ml-2">
                 <div className="text-left">Admin Setting</div>
+                <div className="text-left text-sm">Manage your personal calendar</div>
+              </div>
+            </button>
+
+            <button
+              className={`flex items-center gap-2 hover:text-blue-600 hover:bg-orange-200 h-20 w-full drop-shadow-lg rounded-lg text-xl justify-start p-5
+                          ${showTable ? 'bg-blue-500 text-black' : 'bg-white text-gray-800'} 
+                          ${role === 'admin' ? '' : 'hidden'}
+                        `}
+              onClick={() => {
+                setShowDetails(false); // Hide details section
+                setShowCalendar(false); // Show calendar section
+                setShowTable(true); // Hide calendar section
+              }} // Show calendar section
+            >
+
+              <span className="w-8 h-8">⚙️</span>
+              <div className="flex flex-col ml-2">
+                <div className="text-left">Table Setting</div>
                 <div className="text-left text-sm">Manage your personal calendar</div>
               </div>
             </button>
