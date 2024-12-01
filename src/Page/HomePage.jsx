@@ -171,7 +171,7 @@ const Home = () => {
           pt-16 md:pt-0
         `}
       >
-        <div className="h-full flex flex-col p-4 space-y-4">
+        <div className="h-full flex flex-col p-5 space-y-4">
           {/* Profile Section */}
           <div className="hidden md:flex items-center space-x-4 mb-4">
             <div className="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center">

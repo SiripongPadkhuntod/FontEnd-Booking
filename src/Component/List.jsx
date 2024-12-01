@@ -4,6 +4,7 @@ import { th } from "date-fns/locale";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import API from '../api';
+import { motion,AnimatePresence  } from "framer-motion";
 
 registerLocale("th", th);
 
@@ -15,8 +16,18 @@ const BookingDetailModal = ({ booking, nightMode, onClose }) => {
     const buttonBgClass = nightMode ? "bg-blue-600 hover:bg-blue-500" : "bg-blue-500 hover:bg-blue-400";
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4">
-            <div className={`w-full max-w-lg rounded-lg ${bgClass} p-8 relative shadow-2xl`}>
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4"
+        >
+            <motion.div
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.8 }}
+                className={`w-full max-w-lg rounded-lg ${bgClass} p-8 relative shadow-2xl`}
+            >
                 {/* ปุ่มปิด */}
                 <button 
                     onClick={onClose} 
@@ -63,17 +74,10 @@ const BookingDetailModal = ({ booking, nightMode, onClose }) => {
                         Close
                     </button>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 };
-
-
-
-
-
-
-
 
 const Header = ({ 
     activeTab, 
@@ -186,7 +190,7 @@ const BookingList = ({
             </div>
             <div className="max-h-[600px] overflow-y-auto">
                 {filteredData.map((day, index) => (
-                    <div key={index}>
+                    <motion.div key={index}>
                         <div className={`${nightMode ? 'bg-gray-700 text-gray-200' : 'bg-red-50 text-red-700'} font-semibold p-4 sticky top-0 z-10`}>
                             {day.date}
                         </div>
@@ -194,23 +198,27 @@ const BookingList = ({
                             // Add date to the booking object for details modal
                             const bookingWithDate = {...booking, date: day.date};
                             return (
-                            <div 
-                                key={idx} 
-                                className={`grid grid-cols-4 border-t ${rowClass} ${hoverClass} transition-colors cursor-pointer`}
-                                onClick={() => onBookingSelect(bookingWithDate)}
-                            >
-                                <div className="p-2 sm:p-4 truncate">{booking.desk}</div>
-                                <div className="p-2 sm:p-4 truncate">{booking.time}</div>
-                                <div className="p-2 sm:p-4 truncate">
-                                    {booking.stdID ? `${booking.stdID} ${booking.name}` : booking.name || "—"}
-                                </div>
-                                <div className="p-2 sm:p-4 flex items-center justify-center">
-                                    {/* <Info className={`w-5 h-5 ${nightMode ? 'text-gray-400' : 'text-gray-500'}`} /> */}
-                                    {booking.note ? booking.note : "—"}
-                                </div>
-                            </div>
-                        )})}
-                    </div>
+                                <motion.div
+                                    key={idx}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.3 }}
+                                    className={`grid grid-cols-4 border-t ${rowClass} ${hoverClass} transition-colors cursor-pointer`}
+                                    onClick={() => onBookingSelect(bookingWithDate)}
+                                >
+                                    <div className="p-2 sm:p-4 truncate">{booking.desk}</div>
+                                    <div className="p-2 sm:p-4 truncate">{booking.time}</div>
+                                    <div className="p-2 sm:p-4 truncate">
+                                        {booking.stdID ? `${booking.stdID} ${booking.name}` : booking.name || "—"}
+                                    </div>
+                                    <div className="p-2 sm:p-4 flex items-center justify-center">
+                                        {booking.note ? booking.note : "—"}
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </motion.div>
                 ))}
             </div>
         </div>
@@ -290,13 +298,15 @@ const BookingApp = ({ fullname, nightMode }) => {
                     nightMode={nightMode}
                     onBookingSelect={setSelectedBooking}
                 />
-                {selectedBooking && (
-                    <BookingDetailModal 
-                        booking={selectedBooking} 
-                        nightMode={nightMode}
-                        onClose={() => setSelectedBooking(null)}
-                    />
-                )}
+                <AnimatePresence>
+                    {selectedBooking && (
+                        <BookingDetailModal 
+                            booking={selectedBooking} 
+                            nightMode={nightMode}
+                            onClose={() => setSelectedBooking(null)}
+                        />
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );

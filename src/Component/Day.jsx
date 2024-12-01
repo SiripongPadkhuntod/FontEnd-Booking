@@ -65,27 +65,29 @@ const CoDay = ({ nightMode }) => {
         const formattedDate = currentDate.toISOString().split('T')[0];
         const response = await API.get(`/reservations/day/${formattedDate}`);
         console.log(response.data);
+        
         // Transform API response to match the mock data structure
         const transformedData = response.data.map((booking) => {
           let start = new Date(`${booking.reservation_date.split('T')[0]}T${booking.reservation_time_from}+07:00`);
           let end = new Date(`${booking.reservation_date.split('T')[0]}T${booking.reservation_time_to}+07:00`);
-
-
-          // console.log(start, end);
           
-          console.log(start, end);
           return {
             desk: booking.table_number,
             name: `${booking.first_name} ${booking.last_name}`,
             start: start.getHours(),
             end: end.getHours(),
-            date: formattedDate, // Using the formatted date from the current date
+            date: booking.reservation_date.split('T')[0],
           };
         });
         setBookings(transformedData);
       } catch (error) {
-        // setError("Unable to fetch bookings. Please try again later.");
-        setLoading(false);
+        if (error.response && error.response.status === 404) {
+          // If 404, set bookings to an empty array
+          setBookings([]);
+        } else {
+          // Handle other errors (optional)
+          console.error("Unable to fetch bookings:", error);
+        }
       } finally {
         setLoading(false);
       }
@@ -93,6 +95,7 @@ const CoDay = ({ nightMode }) => {
   
     fetchBookings();
   }, [currentDate]);
+  
   
 
 
