@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
+import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
 // ข้อมูลตัวอย่าง
 export let bookings = [
   { name: "John Doe", Fromtime: "10:00", Totime: "18:00", table: "A1", note: "Team meeting", date: new Date("2024-11-16") },
   { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-29") },
   { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
   { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
   { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A2", note: "Client call", date: new Date("2024-11-15") },
@@ -35,23 +36,13 @@ const CoMonth = () => {
 
   const fetchData = async (test) => {
     try {
-      console.log(test);
-      const response = await fetch(`https://backend-6ug4.onrender.com/reservations/${test}`);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const text = await response.text();
-      
-      try {
-        const result = JSON.parse(text);
-        const transformedData = transformData(result);
+      const response = await API.get(`/reservations/${test}`);
+  
+      if (response.status === 200) {
+        const transformedData = transformData(response.data);
         setBookings(transformedData);
-      } catch (jsonError) {
-        console.error("Error parsing JSON:", jsonError);
-        console.error("Response text:", text);
-        throw new Error("Invalid JSON response");
+      } else {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -63,7 +54,7 @@ const CoMonth = () => {
       ]);
     }
   };
-
+  
   const transformData = (apiData) => {
 
     // Log ข้อมูลที่ได้จาก API

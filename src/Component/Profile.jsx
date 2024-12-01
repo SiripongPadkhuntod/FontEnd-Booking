@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // ใช้ useNavigate เพื่อเปลี่ยนหน้า
+import { json, useNavigate } from 'react-router-dom'; // ใช้ useNavigate เพื่อเปลี่ยนหน้า
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import ErrorDisplay from './ErrorDisplay';
-// import { set } from 'react-datepicker/dist/date_utils';
 import { TbPencilCancel } from "react-icons/tb";
 import Skeleton from 'react-loading-skeleton'; // นำเข้า Skeleton
 
 import { FaEdit } from "react-icons/fa";
 import { RiImageEditFill } from "react-icons/ri";
-
-
+import { Save } from 'lucide-react';
+import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
 
 function ProfilePage({ nightMode, useremail }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -18,16 +17,34 @@ function ProfilePage({ nightMode, useremail }) {
   const [error, setError] = useState(null);
   const [showDetails, setShowDetails] = useState(true); // Default to show Details section
   const [showCalendar, setShowCalendar] = useState(false); // Default to hide Calendar section
+  const [showTable, setShowTable] = useState(false); // Default to hide Calendar section
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [role, setRole] = useState('user');
+  const [image, setImage] = useState(userData?.photo || "/api/placeholder/80/80");
+  const [imageBG, setImageBG] = useState(userData?.photo || "/api/placeholder/80/80");
+  const [userData2, setUserData2] = useState({});
+  const navigate = useNavigate(); // ใช้ useNavigate สำหรับเปลี่ยนเส้นทาง
 
-  const [userData2, setUserData2] = useState({
-    email: 'example@gmail.com',
-    first_name: 'John',
-    last_name: 'Doe',
-    phonenumber: '0812345678',
-    student_ID: '123456',
-    major: '',
-  });
+  useEffect(() => {
+
+    fetchUserData()
+  }, []);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result); // อัปเดตภาพที่เลือก
+      };
+      reader.readAsDataURL(file); // อ่านไฟล์เป็น URL
+    }
+  };
+
+
+
+
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,10 +52,8 @@ function ProfilePage({ nightMode, useremail }) {
   };
 
 
-  const navigate = useNavigate(); // ใช้ useNavigate สำหรับเปลี่ยนเส้นทาง
+ 
 
-  // const { id } = useParams();  // ใช้เพื่อดึง :id จาก URL
-  const id = useremail;
 
   const handleLogout = () => {
     localStorage.removeItem('authToken'); // ลบ Token จาก LocalStorage
@@ -60,24 +75,18 @@ function ProfilePage({ nightMode, useremail }) {
     setUserData2(userData);
   };
 
+
+
   const fetchUserData = async () => {
     try {
-      // ระบุ URL ที่สมบูรณ์
-      const response = await fetch(`https://backend-6ug4.onrender.com/users/email/${useremail}`);
+      const response = await API.get(`/users/email/${useremail}`);
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch user data');
-      }
-
-      const contentType = response.headers.get('Content-Type');
-      // ตรวจสอบว่า Content-Type เป็น application/json หรือไม่
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        setUserData(data);
-        setUserData2(data);
+      if (response.status === 200) {
+        setUserData(response.data);
+        setUserData2(response.data);
+        setRole(response.data.role);
       } else {
-        const errorText = await response.text();
-        throw new Error('Response is not JSON: ' + errorText);
+        throw new Error('Failed to fetch user data');
       }
       setLoading(false);
     } catch (err) {
@@ -87,11 +96,44 @@ function ProfilePage({ nightMode, useremail }) {
   };
 
 
+  const editUserData = async () => {
+    const jsonData = {
+      email: userData2.email,
+      first_name: userData2.first_name,
+      last_name: userData2.last_name,
+      phonenumber: userData2.phonenumber,
+      student_id: userData2.student_id,
+      department: userData2.department,
+    };
 
-  useEffect(() => {
+    console.log('Edit user data:', jsonData);
 
-    fetchUserData()
-  }, []);
+    try {
+      const response = await API.put('/editprofile', jsonData);
+
+      if (response.status === 200) {
+        console.log('Edit user data:', response.data);
+        setUserData2(jsonData);
+        fetchUserData();
+      } else {
+        throw new Error('Failed to update user data');
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+
+    console.log('Updated user data:', userData2);
+  };
+
+
+  const handleSave = async () => {
+    editUserData();
+    setIsEditing(false);
+  };
+
+
+
+  
 
   if (loading) {
     return (
@@ -129,45 +171,58 @@ function ProfilePage({ nightMode, useremail }) {
       <CSSTransition key="profile-section" timeout={500} classNames="fade">
         <div
           className={`w-full md:w-1/3 p-10 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}
-    transition-all duration-500 shadow-lg rounded-lg flex flex-col`}
+                    transition-all duration-500 shadow-lg rounded-lg flex flex-col`}
         >
-          <h1 className="cursor-pointer text-blue-500 hover:underline text-2xl font-bold mb-5 text-left 
-drop-shadow-lg">
+          <h1 className="cursor-pointer text-blue-500 hover:underline text-2xl font-bold mb-5 text-left  drop-shadow-lg">
             My Profile
           </h1>
 
           {/* Profile Picture */}
           <div
-            className="relative rounded-xl p-4 h-40"
+            className={`relative rounded-xl p-4 h-40`}
             style={{ backgroundImage: 'url("https://i.pinimg.com/736x/3c/36/9a/3c369a99eb52dfc6cf0db66bfc3fa909.jpg")', backgroundSize: 'cover', backgroundPosition: 'center' }}
           >
             {/* Edit Button */}
-            <button
-              className="absolute bottom-0 right-0 mb-2 mr-2 w-10 h-10 bg-blue-500 text-white rounded-full flex justify-center items-center hover:bg-blue-700 transition-all"
+            <botton
+              className={`absolute bottom-0 right-0 mb-2 mr-2 w-10 h-10 bg-blue-500 text-white rounded-full flex justify-center items-center hover:bg-blue-700 transition-all ${isEditing ? '' : 'hidden'}`}
               type="file"
-              onClick={() => {
-                // Handle image upload logic here
-              }}
+              onClick={() => document.getElementById('fileInputBG').click()}
             >
               <RiImageEditFill className="w-6 h-6" />
-            </button>
+              {/* ซ่อน input file */}
+              <input
+                  id="fileInputBG"
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange} // ตรวจจับการเลือกไฟล์
+                />
+            </botton>
 
             <div className="absolute -bottom-10 left-4">
               <div className="w-28 h-28 rounded-full border-4 border-white bg-gray-200 overflow-hidden">
                 <img
-                  src={userData?.photo || "/api/placeholder/80/80"}
+                  src={image}
                   alt="User"
                   className="w-full h-full object-cover"
                 />
               </div>
               {/* edit button */}
               <button
-                className="absolute bottom-0 right-0 mb-2 mr-2 w-8 h-8 bg-blue-500 text-white rounded-full flex justify-center items-center hover:bg-blue-700 transition-all"
-                onClick={() => {
-                  // Handle image upload logic here
-                }}
+                className={`absolute bottom-0 right-0 mb-2 mr-2 w-8 h-8 bg-blue-500 text-white rounded-full flex justify-center items-center hover:bg-blue-700 transition-all
+                  ${isEditing ? '' : 'hidden'}`}
+                onClick={() => document.getElementById('fileInput').click()} // เปิด input file เมื่อคลิกที่ปุ่ม
+                disabled={!isEditing} // ปิดปุ่มเมื่อไม่ได้อยู่ในโหมดแก้ไข
+         
               >
                 <RiImageEditFill className="w-4 h-4" />
+
+                {/* ซ่อน input file */}
+                <input
+                  id="fileInput"
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange} // ตรวจจับการเลือกไฟล์
+                />
               </button>
             </div>
           </div>
@@ -195,6 +250,7 @@ drop-shadow-lg">
               onClick={() => {
                 setShowDetails(true);
                 setShowCalendar(false); // Hide calendar section
+                setShowTable(false); // Hide calendar section
               }} // Show details section
             >
               <span className="w-8 h-8">📝</span>
@@ -204,22 +260,42 @@ drop-shadow-lg">
               </div>
             </button>
 
-
-
             <button
               className={`flex items-center gap-2 hover:text-blue-600 hover:bg-orange-200 h-20 w-full drop-shadow-lg rounded-lg text-xl justify-start p-5
                           ${showCalendar ? 'bg-blue-500 text-black' : 'bg-white text-gray-800'} 
-            
+                          ${role === 'admin' ? '' : 'hidden'}
                         `}
               onClick={() => {
                 setShowDetails(false); // Hide details section
                 setShowCalendar(true); // Show calendar section
+                setShowTable(false); // Hide calendar section
+                setIsEditing(false);
               }} // Show calendar section
             >
 
-              <span className="w-8 h-8">📅</span>
+              <span className="w-8 h-8">⚙️</span>
               <div className="flex flex-col ml-2">
-                <div className="text-left">Personal Calendar Feed</div>
+                <div className="text-left">Admin Setting</div>
+                <div className="text-left text-sm">Manage your personal calendar</div>
+              </div>
+            </button>
+
+            <button
+              className={`flex items-center gap-2 hover:text-blue-600 hover:bg-orange-200 h-20 w-full drop-shadow-lg rounded-lg text-xl justify-start p-5
+                          ${showTable ? 'bg-blue-500 text-black' : 'bg-white text-gray-800'} 
+                          ${role === 'admin' ? '' : 'hidden'}
+                        `}
+              onClick={() => {
+                setShowDetails(false); // Hide details section
+                setShowCalendar(false); // Show calendar section
+                setShowTable(true); // Hide calendar section
+                setIsEditing(false);
+              }} // Show calendar section
+            >
+
+              <span className="w-8 h-8">⚙️</span>
+              <div className="flex flex-col ml-2">
+                <div className="text-left">Table Setting</div>
                 <div className="text-left text-sm">Manage your personal calendar</div>
               </div>
             </button>
@@ -298,15 +374,30 @@ drop-shadow-lg">
             <h3 className="text-lg font-semibold mb-4 border-b pb-2">
               Login Information
             </h3>
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-              <input
-                type="email"
-                name="email"
-                value={userData2.email || ''}
-                onChange={handleInputChange}
-                className="w-full max-w-lg p-3 mb-4 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none text-gray-200"
-                readOnly={!isEditing}
-              />
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 '>
+              <div className="tooltip tooltip-top tooltip-info" data-tip="หากต้องการแก้ไข Email โปรดติดต่อผู้ดูแลระบบ">
+                <label className="input input-bordered flex items-center gap-2 bg-white text-gray-500 ">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    className="h-4 w-4 opacity-70  ">
+                    <path
+                      d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
+                    <path
+                      d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
+                  </svg>
+                  <input
+                    type="email"
+                    name="email"
+                    value={userData2.email || ''}
+                    onChange={handleInputChange}
+                    className={` w-full p-3  `}
+                    readOnly
+                    onClick={() => { }}
+                  />
+                </label>
+              </div>
               {/* add reset password */}
               <button
                 className="py-2 px-4 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 w-full sm:w-fit max-w-md p-3 mb-4"
@@ -315,9 +406,6 @@ drop-shadow-lg">
                 Reset Password
               </button>
             </div>
-
-
-
 
             {/* Contact Section */}
             <h3 className="text-lg font-semibold mb-4 border-b pb-2">Contact</h3>
@@ -329,7 +417,8 @@ drop-shadow-lg">
                 placeholder="Firstname"
                 value={userData2.first_name || ''}
                 onChange={handleInputChange}
-                className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none max-w-xs text-gray-200"
+                className={`w-full p-3 rounded-lg border border-gray-300  max-w-xs  ${isEditing ? 'text-red-600' : 'text-gray-500'}
+                  ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}
                 readOnly={!isEditing}
               />
               <input
@@ -338,7 +427,8 @@ drop-shadow-lg">
                 placeholder="Lastname"
                 value={userData2.last_name || ''}
                 onChange={handleInputChange}
-                className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none max-w-xs text-gray-200"
+                className={`w-full p-3 rounded-lg border border-gray-300  max-w-xs  ${isEditing ? 'text-red-600' : 'text-gray-500'}
+                  ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}
                 readOnly={!isEditing}
               />
             </div>
@@ -353,7 +443,8 @@ drop-shadow-lg">
               placeholder="(TH) e.g. 081 234 5678"
               value={userData2.phonenumber || ''}
               onChange={handleInputChange}
-              className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none max-w-xs text-gray-200"
+              className={`w-full p-3 rounded-lg border border-gray-300  max-w-xs  ${isEditing ? 'text-red-600' : 'text-gray-500'}
+                  ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}
               readOnly={!isEditing}
             />
 
@@ -364,20 +455,22 @@ drop-shadow-lg">
             <div className="grid grid-cols-2 gap-2">
               <input
                 type="text"
-                name="student_ID"
+                name="student_id"
                 placeholder="Student ID"
                 value={userData2.student_id || ''}
                 onChange={handleInputChange}
-                className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none text-gray-200"
+                className={`w-full p-3 rounded-lg border border-gray-300  max-w-xs  ${isEditing ? 'text-red-600' : 'text-gray-500'}
+                  ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}
                 readOnly={!isEditing}
               />
               <input
                 type="text"
-                name="major"
+                name="department"
                 placeholder="Major"
                 value={userData2.department || ''}
                 onChange={handleInputChange}
-                className="w-full p-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-500 focus:outline-none text-gray-200"
+                className={`w-full p-3 rounded-lg border border-gray-300  max-w-xs  ${isEditing ? 'text-red-600' : 'text-gray-500'}
+                ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}
                 readOnly={!isEditing}
               />
             </div>
@@ -386,8 +479,8 @@ drop-shadow-lg">
             {isEditing && (
               <button
                 className="py-2 px-4 mt-6 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-all duration-300"
-                type="submit"
-              // onClick={}
+                type="button"
+                onClick={handleSave}
               >
                 Save all Changes
               </button>
@@ -401,20 +494,45 @@ drop-shadow-lg">
         <div
           className={`flex-1 p-10 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showCalendar ? '' : 'hidden'}`}
         >
-          <h3 className="text-xl font-semibold mb-4">Personal Calendar Feed</h3>
+          <h3 className="text-xl font-semibold mb-4">Admin Setting</h3>
           <div className="text-center text-gray-500">
             {/* เพิ่มที่นี่เพื่อแสดงข้อมูล Personal Calendar */}
             <p>กำลังพัฒนา ^_^</p>
             <p>Coming soon...</p>
-
-
           </div>
         </div>
       </CSSTransition>
 
+      {/* Modal */}
+
+      {/* <dialog
+        className="modal modal-open"
+      >
+        <div style={{ animation: "popup 0.4s ease-in-out" }} className="modal-box bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white shadow-xl rounded-lg">
+          <h3 className="font-bold text-2xl mb-4">{"message"}</h3>
+          <p className="py-4">{"submessage"}</p>
+          <div className="flex justify-end space-x-4">
+
+            <button className="btn btn-sm btn-success text-white shadow-md" >
+              Save
+            </button>
+            <button className="btn btn-sm btn-neutral text-white shadow-md" >
+              Cancel
+            </button>
+
+          </div>
+        </div>
+        <div
+          className="modal-backdrop backdrop-blur-sm bg-opacity-30"
+        ></div>
+      </dialog> */}
+
+
     </TransitionGroup>
+
 
   );
 }
+
 
 export default ProfilePage;

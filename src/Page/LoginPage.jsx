@@ -4,61 +4,31 @@ import { GoogleLogin } from '@react-oauth/google';
 import { GrFormView, GrFormViewHide } from "react-icons/gr";
 import { CiMail } from "react-icons/ci";
 import { RiLockPasswordLine } from "react-icons/ri";
+import API from '../api';
 
 function Modal({ isOpen, message, submessage, onClose }) {
   if (!isOpen) return null;
   return (
-    <dialog
-      className="modal modal-open"
-    >
-      <div style={{ animation: "popup 0.4s ease-in-out" }} className="modal-box bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white shadow-xl rounded-lg">
-        <h3 className="font-bold text-2xl mb-4">{message}</h3>
-        <p className="py-4">{submessage}</p>
-        <div className="flex justify-end space-x-4">
-      
-          <button className="btn btn-sm btn-success text-white shadow-md" onClick={onClose}>
+    <dialog className="modal modal-open">
+      <div className="modal-box bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white shadow-2xl rounded-2xl transform transition-all duration-300 ease-in-out scale-100 opacity-100">
+        <h3 className="font-bold text-3xl mb-4 text-center text-white drop-shadow-lg">{message}</h3>
+        <p className="py-4 text-center text-gray-100">{submessage}</p>
+        <div className="flex justify-center mt-6">
+          <button
+            className="btn btn-outline btn-ghost text-white border-white hover:bg-white hover:text-purple-600 transition-colors duration-300 px-8"
+            onClick={onClose}
+          >
             OK
           </button>
         </div>
       </div>
       <div
-        className="modal-backdrop backdrop-blur-sm bg-opacity-30"
+        className="modal-backdrop backdrop-blur-sm bg-black bg-opacity-40"
         onClick={onClose}
       ></div>
     </dialog>
   );
 }
-
-// CSS สำหรับเอฟเฟกต์ popup
-const styles = `
-@keyframes popup {
-  0% {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.modal-box {
-  animation: popup 0.4s ease-in-out;
-}
-`;
-
-// เพิ่ม CSS ลงในหน้า
-function injectStyles() {
-  const styleSheet = document.createElement("style");
-  styleSheet.type = "text/css";
-  styleSheet.innerText = styles;
-  document.head.appendChild(styleSheet);
-}
-
-injectStyles();
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -72,49 +42,41 @@ function Login() {
 
   const handleLoginGoogle = async (response) => {
     try {
-      const res = await fetch('https://backend-6ug4.onrender.com/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: response.credential }),
-      });
-      const data = await res.json();
-
-      if (data.message === 'Login successful') {
-        localStorage.setItem('authToken', data.token);
+      const res = await API.post('/api/auth/google', { token: response.credential });
+      if (res.data.message === 'Login successful') {
+        localStorage.setItem('authToken', res.data.token);
         navigate("/home");
       } else {
         setModalState({
           isOpen: true,
-          message: data.message || "Login Failed",
+          message: res.data.message || "Login Failed",
           submessage: "Please check your email domain.",
         });
       }
     } catch (error) {
-      console.error("Error:", error);
       setModalState({
         isOpen: true,
         message: "Error",
         submessage: "Unable to connect to the server. Please try again.",
       });
+      console.error("Error:", error);
     }
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("https://backend-6ug4.onrender.com/login/email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await API.post("/login/email", { email, password });
 
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('authToken', data.token);
+      if (res.status === 200) {
+        localStorage.setItem('authToken', res.data.token);
         navigate("/home");
       } else {
-        const errorMessage = await res.text();
-        setModalState({ isOpen: true, message: "Login Failed", submessage: errorMessage });
+        setModalState({
+          isOpen: true,
+          message: "Login Failed",
+          submessage: res.data || "Unknown error",
+        });
       }
     } catch (error) {
       console.error("Error:", error);
@@ -127,50 +89,99 @@ function Login() {
   };
 
   return (
-    <div className="mx-auto flex flex-col md:flex-row items-center h-screen p-4 w-screen bg-gray-50">
-      {/* Login Form */}
-      <div className="w-full md:w-1/2 flex flex-col items-center p-6 bg-white shadow-lg rounded-lg h-screen justify-center">
-        <h1 className="text-3xl font-bold text-gray-700 mb-6">Hi Sir, Have a Nice Day!</h1>
-        <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4 mb-5">
-          <label className="input input-bordered flex items-center gap-2">
-            <CiMail className="text-xl" />
-            <input
-              type="email"
-              placeholder="RSU Mail"
-              className="grow"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </label>
-          <label className="input input-bordered flex items-center gap-2">
-            <RiLockPasswordLine className="text-xl" />
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              className="grow"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button type="button" className="btn btn-ghost btn-square" onClick={togglePasswordVisibility}>
-              {showPassword ? <GrFormViewHide className="text-xl" /> : <GrFormView className="text-xl" />}
-            </button>
-          </label>
-          <label className="label">
-            <a className="label-text-alt link link-hover">Forgot password?</a>
-          </label>
-          <button type="submit" className="btn glass w-full p-3 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-800">
-            Login Now
-          </button>
-        </form>
-        {error && <div className="mt-4 text-red-500">{error}</div>}
-        <div className="divider divider-neutral min-w-fit">or login with</div>
-        <GoogleLogin onSuccess={handleLoginGoogle} onError={() => console.log('Login Failed')} className="p-4" />
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl bg-white shadow-2xl rounded-3xl overflow-hidden flex">
+        {/* Login Form Section */}
+        <div className="w-full md:w-1/2 p-12 flex flex-col justify-center">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-4">
+              Welcome Back
+            </h1>
+            <p className="text-gray-500">Sign in to continue to your account</p>
+          </div>
 
-      {/* Image Section */}
-      <div className="w-screen h-screen md:w-1/2 hidden md:flex items-center justify-center relative">
-        <img src="https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=750&q=80" alt="login" className="object-cover h-screen w-screen" />
-        <div className="absolute inset-0 bg-black opacity-20"></div>
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <CiMail className="text-xl text-gray-400" />
+              </div>
+              <input
+                type="email"
+                placeholder="RSU Mail"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <RiLockPasswordLine className="text-xl text-gray-400" />
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-purple-600 transition duration-300"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? <GrFormViewHide className="text-xl" /> : <GrFormView className="text-xl" />}
+              </button>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <label className="flex items-center">
+                <input type="checkbox" className="mr-2 rounded focus:ring-purple-500" />
+                <span className="text-gray-600">Remember me</span>
+              </label>
+              <a href="#" className="text-purple-600 hover:underline">Forgot password?</a>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:opacity-90 transition duration-300 transform hover:scale-[1.02] shadow-lg"
+            >
+              Sign In
+            </button>
+          </form>
+
+          <div className="mt-6 text-center  ">
+            <div className="flex items-center justify-center space-x-4">
+              <div className="h-px bg-gray-300 w-full"></div>
+              <span className="text-gray-500">or</span>
+              <div className="h-px bg-gray-300 w-full"></div>
+            </div>
+
+            <div className="mt-4 flex justify-center">
+              <GoogleLogin
+                onSuccess={handleLoginGoogle}
+                onError={() => console.log('Login Failed')}
+                className="w-full md:w-auto"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Image Section */}
+        <div className="w-1/2 hidden md:block relative">
+          <img
+            src="https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=750&q=80"
+            alt="login background"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-60"></div>
+          <div className="absolute inset-0 flex items-center justify-center text-center text-white p-8">
+            <div>
+              <h2 className="text-4xl font-bold mb-4">Hello, Friend!</h2>
+              <p className="text-lg">Enter your personal details and start your journey with us</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Modal */}
