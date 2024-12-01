@@ -39,7 +39,7 @@ const CoDay = ({ nightMode }) => {
     return colors[hash % colors.length];
   };
 
-  const isTestMode = true; // เปลี่ยนเป็น false เพื่อเชื่อมต่อกับ API จริง
+  const isTestMode = false; // เปลี่ยนเป็น false เพื่อเชื่อมต่อกับ API จริง
 
   useEffect(() => {
     const fetchBookings = async () => {
