@@ -205,7 +205,8 @@ const BookingList = ({
                                     {booking.stdID ? `${booking.stdID} ${booking.name}` : booking.name || "—"}
                                 </div>
                                 <div className="p-2 sm:p-4 flex items-center justify-center">
-                                    <Info className={`w-5 h-5 ${nightMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                                    {/* <Info className={`w-5 h-5 ${nightMode ? 'text-gray-400' : 'text-gray-500'}`} /> */}
+                                    {booking.note ? booking.note : "—"}
                                 </div>
                             </div>
                         )})}

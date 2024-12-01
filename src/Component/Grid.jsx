@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, Clock, User, FileText, AlertCircle } from 'lucide-react';
 
+import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
+
 const CoGrid = () => {
   const desks = ["A01", "A02", "A03", "A04", "A05", "A06", "B01", "B02", "C01", "C02"];
   const [bookings, setBookings] = useState([]);
@@ -50,10 +52,15 @@ const CoGrid = () => {
   const fetchData = async (selectedDate) => {
     setIsLoading(true);
     try {
-      // Simulating API call with mock data
-      // Replace this with your actual API call:
-      // const response = await yourAPI.get(`/reservations/${selectedDate}`);
-      // transformData(response.data);
+      const response = await API.get(`/reservations/${selectedDate}`);
+  
+      if (response.status === 200) {
+        const transformedData = transformData(response.data);
+        // setBookings(transformedData);
+        console.log("Data fetched successfully:", transformedData);
+      } else {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
       setTimeout(() => {
         transformData(mockBookings);

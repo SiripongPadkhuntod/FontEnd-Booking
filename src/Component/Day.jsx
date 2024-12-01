@@ -51,7 +51,7 @@ const CoDay = ({ nightMode }) => {
           { desk: "A01", name: "Mock User 1", start: 9, end: 11, date: "2024-12-01" },
           { desk: "A02", name: "Mock User 1", start: 9, end: 11, date: "2024-12-01" },
           { desk: "A03", name: "Mock User 1", start: 11, end: 12, date: "2024-12-01" },
-          { desk: "A01", name: "Mock User 1", start: 9, end: 11, date: "2024-12-01" },
+          { desk: "A01", name: "Mock User 1", start: 9, end: 11, date: "2024-12-05" },
           { desk: "A02", name: "Mock User 2", start: 12, end: 14, date: "2024-12-02" },
           { desk: "B01", name: "Mock User 3", start: 15, end: 17, date: "2024-12-03" },
         ];

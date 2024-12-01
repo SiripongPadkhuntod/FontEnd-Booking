@@ -4,12 +4,12 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import ErrorDisplay from './ErrorDisplay';
 import { TbPencilCancel } from "react-icons/tb";
 import Skeleton from 'react-loading-skeleton'; // นำเข้า Skeleton
+import CoAdmin from "../Component/adminconfig";
 
 import { FaEdit } from "react-icons/fa";
 import { RiImageEditFill } from "react-icons/ri";
 import { Save } from 'lucide-react';
-import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
-
+import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้\
 function ProfilePage({ nightMode, useremail }) {
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -496,11 +496,35 @@ function ProfilePage({ nightMode, useremail }) {
         >
           <h3 className="text-xl font-semibold mb-4">Admin Setting</h3>
           <div className="text-center text-gray-500">
-            {/* เพิ่มที่นี่เพื่อแสดงข้อมูล Personal Calendar */}
+    
             <p>กำลังพัฒนา ^_^</p>
             <p>Coming soon...</p>
           </div>
+
+          {/* <CoAdmin/> */}
         </div>
+
+
+        
+      </CSSTransition>
+
+       {/* TableConfig Section */}
+       <CSSTransition key="TableConfig" timeout={500} classNames="fade">
+        <div
+          className={`flex-1 p-10 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showTable ? '' : 'hidden'}`}
+        >
+          {/* <h3 className="text-xl font-semibold mb-4">Admin Setting</h3>
+          <div className="text-center text-gray-500">
+    
+            <p>กำลังพัฒนา ^_^</p>
+            <p>Coming soon...</p>
+          </div> */}
+
+          <CoAdmin/>
+        </div>
+
+
+        
       </CSSTransition>
 
       {/* Modal */}
