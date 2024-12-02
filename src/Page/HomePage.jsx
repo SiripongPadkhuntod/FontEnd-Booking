@@ -57,7 +57,7 @@ const Home = () => {
       return;
     }
 
-    fetch("http://kazuyaserver.thddns.net:6867/", {
+    fetch("http://kazuyaserver.thddns.net:6867/verifyToken", {
       method: "POST",
       headers: {
         "Authorization": "Bearer " + token

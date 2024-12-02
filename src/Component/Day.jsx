@@ -72,25 +72,41 @@ const CoDay = ({ nightMode }) => {
         const transformedData = response.data.map((booking) => {
           let start = new Date(`${booking.reservation_date.split('T')[0]}T${booking.reservation_time_from}+07:00`);
           let end = new Date(`${booking.reservation_date.split('T')[0]}T${booking.reservation_time_to}+07:00`);
-          
+
+
+          let startHour = start.getHours();
+          let startMinutes = start.getMinutes();
+          let endHour = end.getHours();
+          let endMinutes = end.getMinutes();
+
+          let width;
+          if (endMinutes === 0 && startMinutes === 0) {
+            width = "100%"; // ถ้าเวลาจองเต็มชั่วโมง
+          } else {
+            width = "50%"; // ถ้าเป็นครึ่งชั่วโมง
+          }
+
+
           return {
             desk: booking.table_number,
             name: `${booking.first_name} ${booking.last_name}`,
-            start: start.getHours(),
-            end: end.getHours(),
-            date: booking.reservation_date.split('T')[0],
+            start: startHour + (startMinutes / 60),
+            end: endHour + (endMinutes / 60),
+            date: formattedDate, // Using the formatted date from the current date
+            width: width,
           };
 
         });
         setBookings(transformedData);
       } catch (error) {
         if (error.response && error.response.status === 404) {
-          // If 404, set bookings to an empty array
           setBookings([]);
-        } else {
-          // Handle other errors (optional)
-          console.error("Unable to fetch bookings:", error);
         }
+        else {
+          console.error("Errorrrrr", error);
+        }
+        // setError("Unable to fetch bookings. Please try again later.");
+        setLoading(false);
       } finally {
         setLoading(false);
       }
@@ -98,8 +114,7 @@ const CoDay = ({ nightMode }) => {
 
     fetchBookings();
   }, [currentDate]);
-  
-  
+
 
 
 
