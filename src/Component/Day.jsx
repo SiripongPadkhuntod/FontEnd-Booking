@@ -11,7 +11,7 @@ const CoDay = ({ nightMode }) => {
   const desks = ["A01", "A02", "A03", "A04", "A05", "B01", "B02", "C01", "C02"];
   const hours = Array.from({ length: 10 }, (_, i) => 9 + i);
 
-  const getColor = (name, isNightMode) => {
+  const getColor = (name,index, isNightMode) => {
     const lightColors = [
       { bg: "bg-blue-500/80 hover:bg-blue-500", text: "text-white" },
       { bg: "bg-green-500/80 hover:bg-green-500", text: "text-white" },
@@ -35,16 +35,18 @@ const CoDay = ({ nightMode }) => {
     ];
 
     const colors = isNightMode ? darkColors : lightColors;
-    const hash = [...name].reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return colors[hash % colors.length];
+    const randomSeed = [...name].reduce((acc, char) => acc + char.charCodeAt(0), 0) + index;
+    const randomIndex = (randomSeed + Math.floor(Math.random() * 1000)) % colors.length;
+    return colors[randomIndex];
   };
 
   const isTestMode = false; // เปลี่ยนเป็น false เพื่อเชื่อมต่อกับ API จริง
+  
 
   useEffect(() => {
     const fetchBookings = async () => {
       setLoading(true); // Show loading status when changing date
-  
+
       if (isTestMode) {
         // Mock data for the current date
         const mockData = [
@@ -60,7 +62,7 @@ const CoDay = ({ nightMode }) => {
         setLoading(false);
         return;
       }
-  
+
       try {
         const formattedDate = currentDate.toISOString().split('T')[0];
         const response = await API.get(`/reservations/day/${formattedDate}`);
@@ -70,33 +72,49 @@ const CoDay = ({ nightMode }) => {
         const transformedData = response.data.map((booking) => {
           let start = new Date(`${booking.reservation_date.split('T')[0]}T${booking.reservation_time_from}+07:00`);
           let end = new Date(`${booking.reservation_date.split('T')[0]}T${booking.reservation_time_to}+07:00`);
-          
+
+
+          let startHour = start.getHours();
+          let startMinutes = start.getMinutes();
+          let endHour = end.getHours();
+          let endMinutes = end.getMinutes();
+
+          let width;
+          if (endMinutes === 0 && startMinutes === 0) {
+            width = "100%"; // ถ้าเวลาจองเต็มชั่วโมง
+          } else {
+            width = "50%"; // ถ้าเป็นครึ่งชั่วโมง
+          }
+
+
           return {
             desk: booking.table_number,
             name: `${booking.first_name} ${booking.last_name}`,
-            start: start.getHours(),
-            end: end.getHours(),
-            date: booking.reservation_date.split('T')[0],
+            start: startHour + (startMinutes / 60),
+            end: endHour + (endMinutes / 60),
+            date: formattedDate, // Using the formatted date from the current date
+            width: width,
           };
+
         });
         setBookings(transformedData);
       } catch (error) {
         if (error.response && error.response.status === 404) {
-          // If 404, set bookings to an empty array
           setBookings([]);
-        } else {
-          // Handle other errors (optional)
-          console.error("Unable to fetch bookings:", error);
         }
+        else {
+          console.error("Errorrrrr", error);
+        }
+        // setError("Unable to fetch bookings. Please try again later.");
+        setLoading(false);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchBookings();
   }, [currentDate]);
-  
-  
+
 
 
 
@@ -255,23 +273,26 @@ const CoDay = ({ nightMode }) => {
                     </div>
 
                     {deskBookings.map((booking, bookingIdx) => {
-                      const startTime = Math.max(9, booking.start);
-                      const endTime = Math.min(18, booking.end);
+                      const startTime = Math.max(9, booking.start); // คำนวณเวลาที่เริ่ม (ไม่ต่ำกว่า 9)
+                      const endTime = Math.min(18, booking.end); // คำนวณเวลาที่จบ (ไม่เกิน 18)
+
+                      // คำนวณตำแหน่งบนกริด
                       const gridStart = (startTime - 9) * (100 / hours.length);
-                      const gridEnd = (endTime - 8) * (100 / hours.length);
-                      const colorClass = getColor(booking.name, nightMode);
+                      const gridEnd = (endTime - 9) * (100 / hours.length);
+
+                      const colorClass = getColor(booking.name,bookingIdx,nightMode);
 
                       return (
                         <div
                           key={bookingIdx}
-                          className={`absolute text-xs sm:text-sm rounded-md px-2 py-1 
+                                              className={`absolute text-xs sm:text-sm rounded-md px-2 py-1 
                             ${colorClass.bg} ${colorClass.text}
                             transform transition-all duration-300 
                             hover:scale-105 cursor-pointer
                           `}
                           style={{
-                            left: `${gridStart}%`,
-                            width: `${gridEnd - gridStart}%`,
+                            left: `${gridStart}%`, // กำหนดตำแหน่งเริ่มต้น
+                            width: `${gridEnd - gridStart}%`, // กำหนดความกว้างของกราฟ
                             top: "50%",
                             transform: "translateY(-50%)",
                             overflow: "hidden",
@@ -281,6 +302,7 @@ const CoDay = ({ nightMode }) => {
                         </div>
                       );
                     })}
+
                   </div>
                 </div>
               );
