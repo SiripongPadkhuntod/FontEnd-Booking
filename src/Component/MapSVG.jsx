@@ -132,7 +132,7 @@ function MapSVG({ time, date }) {
 
                 {/* Reusable Circle Buttons */}
                 <g className="cursor-pointer">
-                    <CircleButton cx={228} cy={355} tableNumber="A6" onClick={setNumbertable} disabled={hasBooking('A6')} />
+                    <CircleButton cx={228} cy={355} tableNumber="A6" tableid="1" onClick={setNumbertable} disabled={hasBooking('A6')} />
                     <CircleButton cx={226} cy={164} tableNumber="A3" onClick={setNumbertable} disabled={hasBooking('A3')} />
                     <CircleButton cx={464} cy={387} tableNumber="B1" onClick={setNumbertable} disabled={hasBooking('B1')} />
                     <CircleButton cx={556} cy={387} tableNumber="B2" onClick={setNumbertable} disabled={hasBooking('B2')} />

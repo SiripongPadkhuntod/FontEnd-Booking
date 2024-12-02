@@ -46,58 +46,59 @@ const Home = () => {
   const [imageUrl, setImg] = useState("");
   const [email, setEmail] = useState(null);
   const [role, setRole] = useState(null);
+  const [userid, setUserId] = useState(null);
   const navigate = useNavigate();
 
   // Existing useEffect and fetchUserData methods remain the same...
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      console.error("Token not found");
-      navigate("/");
-      return;
-    }
-
-    fetch("http://kazuyaserver.thddns.net:6867/verifyToken", {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer " + token
+    const fetchTokenData = async () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        console.error("Token not found");
+        navigate("/");
+        return;
       }
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+  
+      try {
+        const response = await API.post("/verifyToken", {}, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+  
+        if (response.status === 200 && response.data?.user?.email) {
+          setEmail(response.data.user.email);
+          setRole(response.data.user.role);
+          setUserId(response.data.user.user_id);
         }
-        return response.json();
-      })
-      .then(data => {
-        if (data?.user?.email) {
-          setEmail(data.user.email);
-          setRole(data.user.role);
-        }
-      })
-      .catch(error => {
+      } catch (error) {
         console.error("Error:", error.message);
         navigate("/");
-      });
-
+      }
+    };
+  
+    const fetchUserData = async () => {
+      if (!email) return;
+  
+      try {
+        const response = await API.get(`/users/email/${email}`);
+  
+        if (response.status === 200) {
+          const data = response.data;
+          setFirstname(data.first_name);
+          setLastname(data.last_name);
+          setImg(data.photo);
+        } else {
+          throw new Error('Failed to fetch user data');
+        }
+      } catch (error) {
+        console.error("Error:", error.message);
+      }
+    };
+  
+    fetchTokenData();
     fetchUserData();
   }, [navigate, email]);
-
-  const fetchUserData = async () => {
-    if (!email) return;
-
-    try {
-      const response = await API.get(`/users/email/${email}`);
-      if (response.status !== 200) throw new Error('Failed to fetch user data');
-
-      const data = response.data;
-      setFirstname(data.first_name);
-      setLastname(data.last_name);
-      setImg(data.photo);
-    } catch (error) {
-      console.error("Error:", error.message);
-    }
-  };
 
   const renderComponent = () => {
     switch (activeComponent) {
@@ -245,7 +246,7 @@ const Home = () => {
           timeout={300}
           classNames="fade"
         >
-          <div className="h-full w-full">
+          <div className="h-full w-full overflow-auto">
             {renderComponent()}
           </div>
         </CSSTransition>

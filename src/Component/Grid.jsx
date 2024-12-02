@@ -2,28 +2,22 @@ import React, { useState, useEffect } from "react";
 import { Calendar, Clock, User, MapPin, Moon, Sun } from 'lucide-react';
 import API from '../api';
 
+
 const CoGrid = ({nightMode}) => {
+  // const [desks, setDesks] = useState([]);
   const desks = ["A01", "A02", "A03", "A04", "A05", "A06", "B01", "B02", "C01", "C02"];
   
   const [bookings, setBookings] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().split('T')[0].slice(0, 7));
 
-  const transformData = (data) => {
-    const transformedData = data.map((item) => ({
-      desk: item.table_number,
-      name: `${item.first_name} ${item.last_name}`,
-      timeform: item.reservation_time_from.slice(0, 5),
-      timeto: item.reservation_time_to.slice(0, 5),
-      note: item.note,
-      date: new Date(item.reservation_date),
-    }));
-  
-    console.log(transformedData);
-    setBookings(transformedData);
-  };
+ 
+
+
 
   useEffect(() => {
+    fetchTable();
     fetchData(selectedMonth);
+    
   }, [selectedMonth]);
 
   const fetchData = async (month) => {
@@ -39,6 +33,38 @@ const CoGrid = ({nightMode}) => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
+  };
+
+  const fetchTable = async () => {
+    try {
+      const response = await API.get(`/tables`);
+      if (response.status === 200) {
+        console.log("Data fetched successfully!" , response.data);
+        //เอาแค่ table_number
+        const desk = response.data.map((item) => item.table_number);
+        setDesks(desk); 
+      } else {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+
+  const transformData = (data) => {
+    const transformedData = data.map((item) => ({
+      desk: item.table_number,
+      name: `${item.first_name} ${item.last_name}`,
+      timeform: item.reservation_time_from.slice(0, 5),
+      timeto: item.reservation_time_to.slice(0, 5),
+      note: item.note,
+      date: new Date(item.reservation_date),
+    }));
+  
+    console.log(transformedData);
+    setBookings(transformedData);
   };
 
   const getDaysInMonth = (year, month) => {
