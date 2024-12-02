@@ -11,8 +11,12 @@ import { FaRegWindowClose } from "react-icons/fa";
 
 const CoMap = ({ nightMode }) => {
   const [time, setTime] = useState("08:00");
+  const [date, setDate] = useState(() => {
+    const now = new Date();
+    now.setUTCHours(0, 0, 0, 0);
+    return now;
+  });
   const [bookingTime, setBookingTime] = useState("");
-  const [date, setDate] = useState(new Date());
   const mapRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -21,12 +25,15 @@ const CoMap = ({ nightMode }) => {
   const [offsetY, setOffsetY] = useState(0);
   const [scale, setScale] = useState(1);
   const [numbertable, setNumbertable] = useState(0);
+  const [TableID, setTableID] = useState(0);
   const [selectedTime, setSelectedTime] = useState(0);
   const [displayTime, setDisplayTime] = useState("08:00");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [timeModal, setTimeModal] = useState(displayTime);
   const [timeModalTo, setTimeModalTo] = useState(displayTime);
-
+  const [bookDate, setBookDate] = useState()
+  const [bookFrom, setBookFrom] = useState()
+  const [bookTo, setBookTo] = useState()
   // รวมเวลาทั้งหมดในที่เดียว
   const allTimes = [
     "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -35,8 +42,38 @@ const CoMap = ({ nightMode }) => {
     "20:00", "20:30", "21:00", "21:30", "22:00"
   ];
 
+  const editUserData = async () => {
+    const jsonData = {
+      email: userData2.email,
+      first_name: userData2.first_name,
+      last_name: userData2.last_name,
+      phonenumber: userData2.phonenumber,
+      student_id: userData2.student_id,
+      department: userData2.department,
+    };
+
+    console.log('Edit user data:', jsonData);
+
+    try {
+      const response = await API.put('/editprofile', jsonData);
+
+      if (response.status === 200) {
+        console.log('Edit user data:', response.data);
+        setUserData2(jsonData);
+        fetchUserData();
+      } else {
+        throw new Error('Failed to update user data');
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+
+    console.log('Updated user data:', userData2);
+  };
+
 
   const getSelectedTimeIndex = (selectedTime) => {
+
     const [hours, minutes] = selectedTime.split(':').map(Number);
     const selectedTimeIndex = (hours - 8) * 2 + (minutes === 30 ? 1 : 0);
     return selectedTimeIndex;
@@ -122,6 +159,39 @@ const CoMap = ({ nightMode }) => {
     setTimeModal(formattedTime);
   };
 
+  const booking = async () => {
+    console.log({
+      bookDate: bookDate.toISOString(),
+      bookFrom,
+      bookTo,
+      numbertable,
+      TableID,
+    })
+
+    let jsonData = {
+      user_id: 2,
+      table_id: TableID,
+      reservation_date: bookDate.toISOString(),
+      starttime: bookFrom,
+      endtime: bookTo,
+      roomid: 1
+
+    }
+
+    try {
+      const response = await API.post('/reservations', jsonData);
+
+      if (response.status === 200) {
+        console.log('Edit user data:', response.data);
+      
+      } else {
+        throw new Error('Failed to update user data');
+      }
+    } catch (err) {
+      console.log(err.message)
+    }
+  }
+
 
 
   const handleTouchStart = (e) => {
@@ -177,6 +247,14 @@ const CoMap = ({ nightMode }) => {
     const minutes = parseInt(timeParts[1]);
     return (hours - 8) * 2 + (minutes === 30 ? 1 : 0);
   };
+  const toTime = (val) => String(val).padStart(2, '0')
+  useEffect(() => {
+    setBookDate(date)
+    setBookFrom(time)
+    const [hh, mm] = time.split(":").map(Number)
+
+    setBookTo(`${toTime(hh)}:${toTime(mm + 30)}`)
+  }, [date, time])
 
   return (
     <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode ? 'bg-gray-900' : 'bg-white'}`}>
@@ -203,7 +281,8 @@ const CoMap = ({ nightMode }) => {
           bookingTime={bookingTime}
           date={date}
           numbertable={numbertable}
-          setNumbertable={setNumbertable}
+          onSelectNumbertable={setNumbertable}
+          onSelectNumbertableID={setTableID}
           nightMode={nightMode}
           setBookingTime={setBookingTime}
           setDisplayTime={setDisplayTime}
@@ -402,17 +481,21 @@ const CoMap = ({ nightMode }) => {
             <label className="block text-sm font-semibold mb-1">Date & Time</label>
             <input
               type="date"
-              className="input input-bordered w-full mb-3 text-white"
-              value={date.toISOString().slice(0, 10)}
+              className="input input-bordered w-full mb-3 text-black"
+              onChange={(e) => setBookDate(e.target.value)}
+              value={bookDate?.toISOString().slice(0, 10)}
             />
             <div className="flex gap-2">
               <div className="flex-1">
                 <label className="block text-sm font-semibold">From</label>
                 {/* "From" Time Select with the current time pre-selected */}
                 <select
-                  className="select select-bordered w-full text-white"
+                  className="select select-bordered w-full text-black"
                   value={timeModal} // Bind to the selected time
-                  onChange={(e) => setTimeModal(e.target.value)} // Handle time change
+                  onChange={(e) => {
+                    setBookFrom(e.target.value)
+                    setTimeModal(e.target.value)
+                  }} // Handle time change
                 >
                   {allTimes.map((time, index) => (
                     <option key={index} value={time}>
@@ -425,9 +508,12 @@ const CoMap = ({ nightMode }) => {
                 <label className="block text-sm font-semibold">To</label>
                 {/* "To" Time Select based on the selected "From" time */}
                 <select
-                  className="select select-bordered w-full text-white"
+                  className="select select-bordered w-full text-black"
                   value={timeModalTo}
-                  onChange={(e) => setTimeModalTo(e.target.value)} // Handle time change
+                  onChange={(e) => {
+                    setBookTo(e.target.value)
+                    setTimeModalTo(e.target.value)
+                  }} // Handle time change
                 >
                   {allTimes.slice(allTimes.indexOf(timeModal) + 1).map((time, index) => (
                     <option key={index} value={time}>
@@ -441,7 +527,7 @@ const CoMap = ({ nightMode }) => {
 
 
           <div className="flex justify-end gap-2">
-            <button className="btn btn-primary">Confirm Booking</button>
+            <button className="btn btn-primary" onClick={booking}>Confirm Booking</button>
             <button
               className="btn btn-outline"
               onClick={() => cancelBooking()}
@@ -452,7 +538,7 @@ const CoMap = ({ nightMode }) => {
         </form>
       </dialog>
 
-      {/* Booking Modal */}
+      {/* User Booking Modal */}
       <dialog id="bookingModal2" className="modal">
         <form method="dialog" className="modal-box rounded-lg w-full max-w-md p-6 bg-gray-900 text-white">
           <h3 className="text-2xl font-bold mb-2">Desk A1</h3>
@@ -473,7 +559,10 @@ const CoMap = ({ nightMode }) => {
                 <select
                   className="select select-bordered w-full text-white"
                   value={timeModal} // Bind to the selected time
-                  onChange={(e) => setTimeModal(e.target.value)} // Handle time change
+                  onChange={(e) => {
+                    setTimeModal(e.target.value)
+                    setBookFrom(e.target.value)
+                  }} // Handle time change
                 >
                   {allTimes.map((time, index) => (
                     <option key={index} value={time}>
@@ -508,106 +597,7 @@ const CoMap = ({ nightMode }) => {
           </div>
         </form>
       </dialog>
-
-      {/* Modal admin config */}
-      <dialog id="adminModal" className="modal">
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-gray-800 rounded-lg shadow-lg p-6 max-w-4xl w-[90%] h-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%]">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl text-white font-semibold">Admin Config</h2>
-              <button onClick={() => document.getElementById('adminModal').close()} className="text-gray-400 hover:text-white">
-                <FaRegWindowClose className="text-2xl rotate-90" />
-              </button>
-            </div>
-
-            <div className="flex gap-4 mb-6">
-              <div className="bg-green-500 rounded px-4 py-2 flex items-center">
-                <span className="text-2xl font-bold text-white mr-2">35</span>
-                <div className="text-white text-sm leading-tight">
-                  Total<br />Desks Used
-                </div>
-              </div>
-              <div className="bg-red-500 rounded px-4 py-2 flex items-center">
-                <span className="text-2xl font-bold text-white mr-2">17</span>
-                <div className="text-white text-sm leading-tight">
-                  LOCKED
-                </div>
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-white text-lg">Maps</h3>
-                <button className="text-gray-300 hover:text-white text-sm">View All →</button>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-white rounded-lg p-4 aspect-video">Map01</div>
-                <div className="bg-gray-200 rounded-lg p-4 aspect-video">Map02</div>
-                <div className="bg-gray-200 rounded-lg p-4 aspect-video">Map03</div>
-              </div>
-            </div>
-
-            {/* Editing and Desks Side by Side */}
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              {/* Editing Section */}
-              <div className="w-full md:w-1/2">
-                <h3 className="text-white text-lg mb-4">Editing</h3>
-                <div className="flex gap-4 mb-4">
-                  <select className="bg-gray-700 text-white rounded px-3 py-2">
-                    <option>A01</option>
-                  </select>
-                  <span className="text-white self-center">FROM</span>
-                  <select className="bg-gray-700 text-white rounded px-3 py-2">
-                    <option>09:00</option>
-                  </select>
-                  <span className="text-white self-center">TO</span>
-                  <select className="bg-gray-700 text-white rounded px-3 py-2">
-                    <option>16:00</option>
-                  </select>
-                </div>
-                <div className="mb-6">
-                  <h3 className="text-white text-lg mb-4">Details</h3>
-                  <div className="text-gray-300 space-y-2">
-                    <p>Desk : A01</p>
-                    <p>Map : RSU LAB</p>
-                    <p>From : 09:00AM TO 16:00PM</p>
-                    <p>Status : <span className="text-red-500">• LOCKED</span></p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <button className="bg-green-500 text-white px-6 py-2 rounded flex items-center gap-2">
-                    <span className="text-xl">🔓</span> UNLOCK
-                  </button>
-                  <button className="bg-red-500 text-white px-6 py-2 rounded flex items-center gap-2">
-                    <span className="text-xl">🔒</span> LOCK
-                  </button>
-                </div>
-              </div>
-
-              {/* Desks Table Section */}
-              <div className="w-full md:w-1/2 overflow-y-scroll h-[28rem] bg-gray-700 rounded-lg p-5 text-black">
-                <table className="w-full">
-                  <thead>
-                    <tr className="text-gray-100">
-                      <th className="py-2 text-left">Desks</th>
-                      <th className="py-2 text-right">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {['A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'A07', 'A08', 'A09'].map(desk => (
-                      <tr key={desk} className="border-t border-gray-500">
-                        <td className="py-3 text-white">{desk}</td>
-                        <td className="py-3 text-right text-red-500">• Locked</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </dialog>
-    </div>
+    </div >
   );
 };
 
