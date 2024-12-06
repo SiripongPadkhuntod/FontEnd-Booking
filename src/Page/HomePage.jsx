@@ -152,7 +152,11 @@ const Home = () => {
         <div className="flex items-center space-x-2">
           <span className="text-sm font-medium">{first_name} {last_name}</span>
           <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center">
-            {first_name?.[0]}{last_name?.[0]}
+          {imageUrl ? (
+                <img src={imageUrl} alt="Profile" className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <span>{first_name?.[0]}{last_name?.[0]}</span>
+              )}
           </div>
         </div>
       </div>
@@ -174,60 +178,61 @@ const Home = () => {
       >
         <div className="h-full flex flex-col p-5 space-y-4">
           {/* Profile Section */}
-          <div className="hidden md:flex items-center space-x-4 mb-4">
-            <div className="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center">
-              {imageUrl ? (
-                <img src={imageUrl} alt="Profile" className="w-full h-full rounded-full object-cover" />
-              ) : (
-                <span>{first_name?.[0]}{last_name?.[0]}</span>
-              )}
-            </div>
+          <div className="hidden md:flex items-center space-x-6 mb-6">
+  <div className="w-14 h-14 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105">
+    {imageUrl ? (
+      <img src={imageUrl} alt="Profile" className="w-full h-full rounded-full object-cover" />
+    ) : (
+      <span className="font-semibold text-xl">{first_name?.[0]}{last_name?.[0]}</span>
+    )}
+  </div>
 
-            <div>
-              <div className="font-bold">{first_name} {last_name}</div>
-              {/* <div className="text-sm uppercase">{role || 'Admin'}</div> */}
-              <div className="badge badge-primary uppercase text-sm">{role || 'Admin'}</div>
+  <div>
+    <div className="font-bold text-lg text-gray-800">{first_name} {last_name}</div>
+    <div className="badge badge-primary text-sm font-medium text-white uppercase mt-1">{role || 'Admin'}</div>
+  </div>
+</div>
 
-            </div>
-          </div>
 
           {/* Menu Items */}
           <nav className="space-y-2 flex-grow">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                className={`
-                  w-full p-2 rounded-lg flex items-center
-                  ${activeComponent === item.id
-                    ? currentColorScheme.activeItem
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-700'}
-                `}
-                onClick={() => {
-                  setActiveComponent(item.id);
-                  setIsMenuOpen(false);
-                }}
-              >
-                <item.icon className="mr-3" />
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </nav>
+  {menuItems.map((item) => (
+    <button
+      key={item.id}
+      className={`
+        w-full p-3 rounded-lg flex items-center transition-all duration-200 ease-in-out
+        ${activeComponent === item.id
+          ? `${currentColorScheme.activeItem} transform scale-105`
+          : 'hover:bg-blue-500 dark:hover:bg-blue-600 hover:text-white dark:hover:text-white'}
+      `}
+      onClick={() => {
+        setActiveComponent(item.id);
+        setIsMenuOpen(false);
+      }}
+    >
+      <item.icon className="mr-4 text-lg" />
+      <span className="font-medium">{item.label}</span>
+    </button>
+  ))}
+</nav>
+
 
           {/* Footer */}
           <div className="mt-auto space-y-4 pb-4">
-            <button
-              onClick={() => setIsNightMode(!isNightMode)}
-              className={`
-                w-full p-2 rounded-lg flex items-center justify-center
-                ${isNightMode
-                  ? 'bg-gray-700 text-yellow-400'
-                  : 'bg-gray-100 text-gray-800'}
-              `}
-            >
-              {isNightMode ? <HiSun className="mr-2" /> : <HiMoon className="mr-2" />}
-              {isNightMode ? 'Light Mode' : 'Dark Mode'}
-            </button>
-          </div>
+  <button
+    onClick={() => setIsNightMode(!isNightMode)}
+    className={`
+      w-full p-3 rounded-lg flex items-center justify-center transition-all duration-300 ease-in-out
+      ${isNightMode
+        ? 'bg-gray-700 text-yellow-400 shadow-lg hover:scale-105'
+        : 'bg-gray-100 text-gray-800 shadow-md hover:scale-105'}
+    `}
+  >
+    {isNightMode ? <HiSun className="mr-2 text-xl" /> : <HiMoon className="mr-2 text-xl" />}
+    <span className="font-medium">{isNightMode ? 'Light Mode' : 'Dark Mode'}</span>
+  </button>
+</div>
+
         </div>
       </div>
 

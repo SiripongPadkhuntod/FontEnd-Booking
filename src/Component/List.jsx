@@ -49,7 +49,7 @@ const BookingDetailModal = ({ booking, nightMode, onClose }) => {
                     {/* Date & Time */}
                     <div className={`p-4 rounded-lg ${cardBgClass}`}>
                         <label className="text-sm font-medium text-gray-500">Date & Time</label>
-                        <p className="text-lg font-semibold">{booking.date} - {booking.time}</p>
+                        <p className="text-lg font-semibold">{booking.date} - {booking.timeform}</p>
                     </div>
 
                     {/* Booker Name */}
@@ -208,7 +208,7 @@ const BookingList = ({
                                     onClick={() => onBookingSelect(bookingWithDate)}
                                 >
                                     <div className="p-2 sm:p-4 truncate">{booking.desk}</div>
-                                    <div className="p-2 sm:p-4 truncate">{booking.time}</div>
+                                    <div className="p-2 sm:p-4 truncate">{booking.timeform} - {booking.timeto} น. </div>
                                     <div className="p-2 sm:p-4 truncate">
                                         {booking.stdID ? `${booking.stdID} ${booking.name}` : booking.name || "—"}
                                     </div>
@@ -262,7 +262,8 @@ const BookingApp = ({ fullname, nightMode }) => {
 
             acc[date].bookings.push({
                 desk: item.table_number,
-                time: dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+                timeform: item.reservation_time_from.substring(0, 5),
+                timeto: item.reservation_time_to.substring(0, 5),
                 name: `${item.first_name} ${item.last_name}`,
                 stdID: item.student_id,
                 note: item.note,
@@ -281,7 +282,10 @@ const BookingApp = ({ fullname, nightMode }) => {
     const bgClass = nightMode ? "bg-gray-900 text-gray-200" : "bg-gray-100 text-gray-900";
 
     return (
-        <div className={`${bgClass} min-h-screen py-4 sm:py-8 px-2 sm:px-6 lg:px-8 transition-colors duration-300`}>
+        <div className={`${bgClass} min-h-screen py-4 sm:py-8 px-2 sm:px-6 lg:px-8 transition-colors duration-300 ${nightMode
+            ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
+            : 'bg-gradient-to-b from-blue-100 to-blue-200'
+            }`}>
             <div className="max-w-7xl mx-auto">
                 <Header
                     activeTab={activeTab}

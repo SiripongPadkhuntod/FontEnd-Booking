@@ -128,7 +128,10 @@ const CoGrid = ({nightMode}) => {
   };
 
   return (
-    <div className={`w-full h-full p-6 ${nightMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <div className={`w-full h-full p-6 ${nightMode
+      ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
+      : 'bg-gradient-to-b from-blue-100 to-blue-200'
+      }`}>
       <div className="max-w-7xl mx-auto">
         <h2 className={`text-3xl font-extrabold mb-6 text-center flex items-center justify-center ${nightMode ? 'text-gray-200' : 'text-gray-800'}`}>
           {nightMode ? <Moon size={32} className="mr-3 text-indigo-400" /> : <Calendar size={32} className="mr-3 text-indigo-600" />}

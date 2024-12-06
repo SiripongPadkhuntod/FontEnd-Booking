@@ -179,7 +179,10 @@ const CoMap = ({ nightMode }) => {
   };
 
   return (
-    <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode ? 'bg-gray-900' : 'bg-white'}`}>
+    <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode
+      ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
+      : 'bg-gradient-to-b from-blue-100 to-blue-200'
+      }`}>
       <div
         ref={mapRef}
         onMouseDown={handleMouseDown}

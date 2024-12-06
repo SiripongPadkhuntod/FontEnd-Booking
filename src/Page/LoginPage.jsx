@@ -46,6 +46,7 @@ function Login() {
       if (res.data.message === 'Login successful') {
         localStorage.setItem('authToken', res.data.token);
         navigate("/home");
+        // console.log(res.data);
       } else {
         setModalState({
           isOpen: true,
@@ -150,7 +151,7 @@ function Login() {
             </button>
           </form>
 
-          <div className="mt-6 text-center  ">
+          <div className="mt-6 text-center">
             <div className="flex items-center justify-center space-x-4">
               <div className="h-px bg-gray-300 w-full"></div>
               <span className="text-gray-500">or</span>
@@ -163,6 +164,10 @@ function Login() {
                 onError={() => console.log('Login Failed')}
                 className="w-full md:w-auto"
               />
+            </div>
+
+            <div className="mt-4 text-gray-600">
+              Don't have an account? <a href="/register" className="text-purple-600 hover:underline">Sign Up</a>
             </div>
           </div>
         </div>

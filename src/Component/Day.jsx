@@ -180,7 +180,7 @@ const CoDay = ({ nightMode }) => {
               onClick={() => handleDateChange(-1)}
               className={`btn p-3 sm:p-2 rounded-full ${nightMode
                 ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                : 'bg-blue-600 text-white hover:bg-blue-500'} transition-colors duration-300`}
+                : 'bg-red-800 text-white hover:bg-red-800'} transition-colors duration-300`}
             >
               ←
             </button>
@@ -201,7 +201,7 @@ const CoDay = ({ nightMode }) => {
               onClick={() => handleDateChange(1)}
               className={`btn p-3 sm:p-2 rounded-full ${nightMode
                 ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                : 'bg-blue-600 text-white hover:bg-blue-500'} transition-colors duration-300`}
+                : 'bg-red-800 text-white hover:bg-red-800'} transition-colors duration-300`}
             >
               →
             </button>

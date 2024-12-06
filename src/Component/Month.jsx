@@ -22,7 +22,7 @@ import { CSSTransition } from 'react-transition-group';
 
 
 
-const CoMonth = () => {
+const CoMonth = ({nightMode }) => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().split('T')[0].slice(0, 7));
   const [showDetailView, setShowDetailView] = useState(false);
   const [selectedDateBookings, setSelectedDateBookings] = useState([]);
@@ -227,15 +227,20 @@ const CoMonth = () => {
   // Mobile Layout
   const renderMobileLayout = () => {
     return (
-      <div className="flex flex-col h-full ">
+      <div className={`flex flex-col h-full ${nightMode
+      ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
+      : 'bg-gradient-to-b from-blue-100 to-blue-200'
+      }`}>
         <div className="p-4">
-          <h2 className="text-xl font-bold mb-4 text-center text-black">Monthly Desk Booking</h2>
+          <h2 className={`text-xl font-bold mb-4 text-center  ${nightMode ? 'text-white' : 'text-black'}`}>
+            Monthly Desk Booking
+          </h2>
 
           {/* Month selector */}
           <div className="mb-4 flex justify-between items-center gap-2">
             <button
               onClick={handlePrevMonth}
-              className="p-2 border rounded-full bg-blue-500 text-white hover:bg-blue-600 transition duration-200 shadow-md"
+              className="p-2 border rounded-full bg-red-800 text-white hover:bg-red-800transition duration-200 shadow-md"
             >
               &lt;
             </button>
@@ -247,22 +252,22 @@ const CoMonth = () => {
             />
             <button
               onClick={handleNextMonth}
-              className="p-2 border rounded-full bg-blue-500 text-white hover:bg-blue-600 transition duration-200 shadow-md"
+              className="p-2 border rounded-full bg-red-800 text-white hover:bg-red-800 transition duration-200 shadow-md"
             >
               &gt;
             </button>
           </div>
 
           {/* Mobile view toggle */}
-          <div className="flex mb-4">
+          <div className="flex mb-4 rounded-lg">
             <button
-              className={`w-1/2 p-2 ${activeView === 'calendar' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+              className={`w-1/2 p-2 ${activeView === 'calendar' ? 'bg-red-800 text-white' : 'bg-gray-200 text-gray-700'} rounded-l-lg`}
               onClick={() => setActiveView('calendar')}
             >
               ปฏิทิน
             </button>
             <button
-              className={`w-1/2 p-2 ${activeView === 'bookings' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+              className={`w-1/2 p-2 ${activeView === 'bookings' ? 'bg-red-800 text-white' : 'bg-gray-200 text-gray-700'} rounded-r-lg`}
               onClick={() => setActiveView('bookings')}
             >
               รายการจอง
@@ -390,7 +395,10 @@ const CoMonth = () => {
   // Desktop Layout
   const renderDesktopLayout = () => {
     return (
-      <div className="p-4 min-h-full">
+      <div className={`p-4 min-h-full ${nightMode
+      ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
+      : 'bg-gradient-to-b from-blue-100 to-blue-200'
+      }`}>
         <h2 className="text-xl font-bold mb-4 text-center text-black">Monthly Desk Booking</h2>
 
         {/* เลือกเดือน */}
