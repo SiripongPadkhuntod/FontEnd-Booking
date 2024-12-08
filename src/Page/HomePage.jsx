@@ -102,7 +102,7 @@ const Home = () => {
 
   const renderComponent = () => {
     switch (activeComponent) {
-      case "Map": return <CoMap nightMode={isNightMode} />;
+      case "Map": return <CoMap nightMode={isNightMode} userid={userid}/>;
       case "Profile": return <CoProfile nightMode={isNightMode} useremail={email} />;
       case "List": return <CoList fullname={first_name + " " + last_name} nightMode={isNightMode} />;
       case "Grid": return <CoGrid nightMode={isNightMode} />;

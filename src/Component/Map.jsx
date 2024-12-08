@@ -9,7 +9,7 @@ import { GrCaretPrevious, GrCaretNext } from 'react-icons/gr'; // import ไอ�
 import { FaRegWindowClose } from "react-icons/fa";
 
 
-const CoMap = ({ nightMode }) => {
+const CoMap = ({ nightMode,userid }) => {
   const [time, setTime] = useState("08:00");
   const [date, setDate] = useState(() => {
     const now = new Date();
@@ -34,6 +34,7 @@ const CoMap = ({ nightMode }) => {
   const [bookDate, setBookDate] = useState()
   const [bookFrom, setBookFrom] = useState()
   const [bookTo, setBookTo] = useState()
+  
   // รวมเวลาทั้งหมดในที่เดียว
   const allTimes = [
     "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -160,36 +161,33 @@ const CoMap = ({ nightMode }) => {
   };
 
   const booking = async () => {
-    console.log({
-      bookDate: bookDate.toISOString(),
-      bookFrom,
-      bookTo,
-      numbertable,
-      TableID,
-    })
+  
+    
 
     let jsonData = {
-      user_id: 2,
-      table_id: TableID,
+      user_id: userid,
+      table_id: TableID.toString(), // แปลงเป็น string ถ้าจำเป็น
       reservation_date: bookDate.toISOString(),
       starttime: bookFrom,
       endtime: bookTo,
-      roomid: 1
+      roomid: 1,
+    };
 
-    }
+    console.log('Booking data:', jsonData);
+    
 
     try {
       const response = await API.post('/reservations', jsonData);
-
+    
       if (response.status === 200) {
-        console.log('Edit user data:', response.data);
-      
+        console.log('Booking successful:', response.data);
       } else {
-        throw new Error('Failed to update user data');
+        console.error('Booking failed:', response.status, response.data);
       }
     } catch (err) {
-      console.log(err.message)
+      console.error('Error occurred:', err.response ? err.response.data : err.message);
     }
+    
   }
 
 
