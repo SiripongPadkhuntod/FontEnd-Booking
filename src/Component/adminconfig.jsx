@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Lock, Unlock, MapPin } from 'lucide-react';
 
 function AdminConfig() {
   const [desks, setDesks] = useState([
@@ -14,6 +15,17 @@ function AdminConfig() {
   ]);
 
   const [selectedDesk, setSelectedDesk] = useState(desks[0]);
+  const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
+
+  // Responsive handling
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleRowClick = (desk) => {
     setSelectedDesk(desk);
@@ -33,19 +45,110 @@ function AdminConfig() {
     }));
   };
 
+  // Mobile view rendering
+  if (isMobileView) {
+    return (
+      <div className="bg-gray-100 min-h-full p-4">
+        <div className="bg-white rounded-xl shadow-lg p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-xl font-bold text-gray-800">Admin Config</h1>
+            <div className="flex space-x-2">
+              <div className="flex items-center text-green-600">
+                <Unlock size={16} className="mr-1" />
+                {desks.filter((desk) => desk.status === 'UNLOCKED').length}
+              </div>
+              <div className="flex items-center text-red-600">
+                <Lock size={16} className="mr-1" />
+                {desks.filter((desk) => desk.status === 'LOCKED').length}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {desks.map((desk) => (
+              <div 
+                key={desk.desk} 
+                onClick={() => handleRowClick(desk)}
+                className={`p-3 rounded-lg border flex justify-between items-center ${
+                  desk.desk === selectedDesk.desk ? 'bg-gray-200' : 'bg-white'
+                }`}
+              >
+                <div>
+                  <div className="font-semibold">{desk.desk}</div>
+                  <div className={`${desk.status === 'LOCKED' ? 'text-red-600' : 'text-green-600'}`}>
+                    {desk.status}
+                  </div>
+                </div>
+                <div className="text-sm text-gray-500">
+                  {desk.from} - {desk.to}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4">
+            <h2 className="text-lg font-semibold mb-2">Desk Details</h2>
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="mb-2">
+                <label className="text-sm text-gray-600">Desk</label>
+                <input
+                  type="text"
+                  value={selectedDesk.desk}
+                  className="w-full mt-1 p-2 border border-gray-300 rounded-lg bg-white"
+                  readOnly
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-sm text-gray-600">From</label>
+                  <input
+                    type="time"
+                    value={selectedDesk.from}
+                    onChange={(e) => setSelectedDesk({ ...selectedDesk, from: e.target.value })}
+                    className="w-full p-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600">To</label>
+                  <input
+                    type="time"
+                    value={selectedDesk.to}
+                    onChange={(e) => setSelectedDesk({ ...selectedDesk, to: e.target.value })}
+                    className="w-full p-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={toggleStatus}
+                className={`w-full p-3 mt-4 text-white rounded-lg transition-colors ${
+                  selectedDesk.status === 'LOCKED' ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
+                }`}
+              >
+                {selectedDesk.status === 'LOCKED' ? 'Unlock Desk' : 'Lock Desk'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop view
   return (
-    <div className="bg-gray-100 min-h-screen p-6">
+    <div className="bg-gray-100 min-h-full p-6">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-gray-800">Admin Config</h1>
-        <div className="flex space-x-2">
+        <div className="flex space-x-4">
           <div className="flex items-center text-green-600">
+            <Unlock size={20} className="mr-2" />
             <span className="font-semibold">
               {desks.filter((desk) => desk.status === 'UNLOCKED').length}
             </span>{' '}
             Total Desks Used
           </div>
           <div className="flex items-center text-red-600">
+            <Lock size={20} className="mr-2" />
             <span className="font-semibold">
               {desks.filter((desk) => desk.status === 'LOCKED').length}
             </span>{' '}
@@ -55,27 +158,23 @@ function AdminConfig() {
       </div>
 
       {/* Maps Section */}
-      <div className="flex space-x-4 mb-6">
-        <div className="flex flex-col items-center w-1/4">
-          <div className="w-full h-48 bg-gray-200 rounded-lg"></div>
-          <div className="mt-2 text-center">Map 1</div>
-        </div>
-        <div className="flex flex-col items-center w-1/4">
-          <div className="w-full h-48 bg-gray-200 rounded-lg"></div>
-          <div className="mt-2 text-center">Map 2</div>
-        </div>
-        <div className="flex flex-col items-center w-1/4">
-          <div className="w-full h-48 bg-gray-200 rounded-lg"></div>
-          <div className="mt-2 text-center">Map 3</div>
-        </div>
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        {[1, 2, 3].map((mapNum) => (
+          <div key={mapNum} className="flex flex-col items-center">
+            <div className="w-full aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
+              <MapPin size={48} className="text-gray-400" />
+            </div>
+            <div className="mt-2 text-center text-gray-600">Map {mapNum}</div>
+          </div>
+        ))}
       </div>
 
       {/* Main Content */}
-      <div className="flex space-x-8">
+      <div className="grid grid-cols-3 gap-8">
         {/* Editing Section */}
-        <div className="w-1/3">
+        <div className="col-span-1">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Editing</h2>
-          <div className="bg-white p-4 rounded-lg shadow-md">
+          <div className="bg-white p-6 rounded-xl shadow-lg">
             <div className="mb-4">
               <label className="block text-sm text-gray-600">Desk</label>
               <input
@@ -85,37 +184,40 @@ function AdminConfig() {
                 readOnly
               />
             </div>
-            <div className="mb-4">
-              <label className="block text-sm text-gray-600">From</label>
-              <input
-                type="time"
-                value={selectedDesk.from}
-                onChange={(e) =>
-                  setSelectedDesk({ ...selectedDesk, from: e.target.value })
-                }
-                className="w-full mt-1 p-2 border border-gray-300 rounded-lg"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm text-gray-600">From</label>
+                <input
+                  type="time"
+                  value={selectedDesk.from}
+                  onChange={(e) => setSelectedDesk({ ...selectedDesk, from: e.target.value })}
+                  className="w-full mt-1 p-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600">To</label>
+                <input
+                  type="time"
+                  value={selectedDesk.to}
+                  onChange={(e) => setSelectedDesk({ ...selectedDesk, to: e.target.value })}
+                  className="w-full mt-1 p-2 border border-gray-300 rounded-lg"
+                />
+              </div>
             </div>
-            <div className="mb-4">
-              <label className="block text-sm text-gray-600">To</label>
-              <input
-                type="time"
-                value={selectedDesk.to}
-                onChange={(e) =>
-                  setSelectedDesk({ ...selectedDesk, to: e.target.value })
-                }
-                className="w-full mt-1 p-2 border border-gray-300 rounded-lg"
-              />
-            </div>
-            <div className="mb-4">
+            <div className="mt-4 mb-4">
               <span className="block text-sm text-gray-600">
-                Status: {selectedDesk.status}
+                Status: <span className={selectedDesk.status === 'LOCKED' ? 'text-red-600' : 'text-green-600'}>
+                  {selectedDesk.status}
+                </span>
               </span>
             </div>
             <button
               onClick={toggleStatus}
-              className={`w-full p-2 mt-4 text-white ${selectedDesk.status === 'LOCKED' ? 'bg-red-500' : 'bg-green-500'
-                } rounded-lg`}
+              className={`w-full p-3 text-white rounded-lg transition-colors ${
+                selectedDesk.status === 'LOCKED' 
+                  ? 'bg-red-500 hover:bg-red-600' 
+                  : 'bg-green-500 hover:bg-green-600'
+              }`}
             >
               {selectedDesk.status === 'LOCKED' ? 'UNLOCK' : 'LOCK'}
             </button>
@@ -123,35 +225,42 @@ function AdminConfig() {
         </div>
 
         {/* Desks Section */}
-        <div className="w-2/3">
+        <div className="col-span-2">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Desks</h2>
-          <table className="min-w-full table-auto bg-white shadow-md rounded-lg">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="py-2 px-4 text-left">Desk</th>
-                <th className="py-2 px-4 text-left">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {desks.map((desk) => (
-                <tr
-                  key={desk.desk}
-                  onClick={() => handleRowClick(desk)}
-                  className={`cursor-pointer hover:bg-gray-100  ${desk.desk === selectedDesk.desk ? 'bg-gray-300' : ''
-                    }`}
-                >
-                  <td className="py-2 px-4">{desk.desk}</td>
-                  <td
-                    className={`py-2 px-4  w-44  ${desk.status === 'LOCKED' ? 'text-red-600' : 'text-green-600'
-                      }`}
-                  >
-                    {desk.status}
-                  </td>
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <table className="min-w-full">
+              <thead>
+                <tr className="bg-gray-100 border-b">
+                  <th className="py-3 px-4 text-left text-gray-600">Desk</th>
+                  <th className="py-3 px-4 text-left text-gray-600">Time</th>
+                  <th className="py-3 px-4 text-left text-gray-600">Status</th>
                 </tr>
-              ))}
-            </tbody>
-
-          </table>
+              </thead>
+              <tbody>
+                {desks.map((desk) => (
+                  <tr
+                    key={desk.desk}
+                    onClick={() => handleRowClick(desk)}
+                    className={`cursor-pointer hover:bg-gray-50 ${
+                      desk.desk === selectedDesk.desk ? 'bg-gray-200' : ''
+                    }`}
+                  >
+                    <td className="py-3 px-4">{desk.desk}</td>
+                    <td className="py-3 px-4 text-gray-600">
+                      {desk.from} - {desk.to}
+                    </td>
+                    <td
+                      className={`py-3 px-4 font-semibold ${
+                        desk.status === 'LOCKED' ? 'text-red-600' : 'text-green-600'
+                      }`}
+                    >
+                      {desk.status}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

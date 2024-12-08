@@ -39,21 +39,15 @@ function ProfilePage({ nightMode, useremail }) {
       };
       reader.readAsDataURL(file); // อ่านไฟล์เป็น URL
     }
+
+    handleupload(file, userData.email);
+    console.log('File:', file);
   };
-
-
-
-
-
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUserData2({ ...userData2, [name]: value });
   };
-
-
- 
-
 
   const handleLogout = () => {
     localStorage.removeItem('authToken'); // ลบ Token จาก LocalStorage
@@ -73,7 +67,33 @@ function ProfilePage({ nightMode, useremail }) {
     setIsEditing(false);
     setUserData2(null);
     setUserData2(userData);
+    setImage(userData.photo);
   };
+
+
+  const handleupload = async (file, email) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('email', email); // เพิ่ม email ลงใน formData
+
+    try {
+      const response = await API.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.status === 200) {
+        console.log('Upload photo:', response.data);
+      } else {
+        throw new Error('Failed to upload photo');
+      }
+    } catch (err) {
+      console.error('Error uploading file:', err.message);
+    }
+  };
+
+
 
 
 
@@ -85,6 +105,7 @@ function ProfilePage({ nightMode, useremail }) {
         setUserData(response.data);
         setUserData2(response.data);
         setRole(response.data.role);
+        setImage(response.data.photo);
       } else {
         throw new Error('Failed to fetch user data');
       }
@@ -133,14 +154,8 @@ function ProfilePage({ nightMode, useremail }) {
 
 
 
-  
-
   if (loading) {
     return (
-      // <div className="flex items-center justify-center min-h-screen">
-      //   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-      //   <span className="ml-3">กำลังโหลดข้อมูล...</span>
-      // </div>
 
       <div className="flex items-center justify-center ">
         {/* ใช้ Skeleton สำหรับ loading */}
@@ -182,21 +197,7 @@ function ProfilePage({ nightMode, useremail }) {
             className={`relative rounded-xl p-4 h-40`}
             style={{ backgroundImage: 'url("https://i.pinimg.com/736x/3c/36/9a/3c369a99eb52dfc6cf0db66bfc3fa909.jpg")', backgroundSize: 'cover', backgroundPosition: 'center' }}
           >
-            {/* Edit Button */}
-            <botton
-              className={`absolute bottom-0 right-0 mb-2 mr-2 w-10 h-10 bg-blue-500 text-white rounded-full flex justify-center items-center hover:bg-blue-700 transition-all ${isEditing ? '' : 'hidden'}`}
-              type="file"
-              onClick={() => document.getElementById('fileInputBG').click()}
-            >
-              <RiImageEditFill className="w-6 h-6" />
-              {/* ซ่อน input file */}
-              <input
-                  id="fileInputBG"
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange} // ตรวจจับการเลือกไฟล์
-                />
-            </botton>
+
 
             <div className="absolute -bottom-10 left-4">
               <div className="w-28 h-28 rounded-full border-4 border-white bg-gray-200 overflow-hidden">
@@ -212,7 +213,7 @@ function ProfilePage({ nightMode, useremail }) {
                   ${isEditing ? '' : 'hidden'}`}
                 onClick={() => document.getElementById('fileInput').click()} // เปิด input file เมื่อคลิกที่ปุ่ม
                 disabled={!isEditing} // ปิดปุ่มเมื่อไม่ได้อยู่ในโหมดแก้ไข
-         
+
               >
                 <RiImageEditFill className="w-4 h-4" />
 
@@ -222,6 +223,7 @@ function ProfilePage({ nightMode, useremail }) {
                   type="file"
                   className="hidden"
                   onChange={handleFileChange} // ตรวจจับการเลือกไฟล์
+
                 />
               </button>
             </div>
@@ -240,66 +242,54 @@ function ProfilePage({ nightMode, useremail }) {
 
           {/* Menu Items */}
           <div className="flex flex-col gap-4">
-
-
             <button
-              className={`flex items-center gap-2 hover:text-blue-600 hover:bg-orange-200 h-20 w-full drop-shadow-lg rounded-lg text-xl justify-start p-5
-                          ${showDetails ? 'bg-blue-500 text-black' : 'bg-white text-gray-800'}
-          
-                        `}
+              className={`flex items-center gap-2 hover:text-blue-600 hover:bg-orange-200 h-20 w-full drop-shadow-lg rounded-lg text-xl justify-start p-5 transition-all duration-300 transform ${showDetails ? 'bg-blue-500 text-black scale-105' : 'bg-white text-gray-800'}`}
               onClick={() => {
                 setShowDetails(true);
                 setShowCalendar(false); // Hide calendar section
-                setShowTable(false); // Hide calendar section
+                setShowTable(false); // Hide table section
               }} // Show details section
             >
               <span className="w-8 h-8">📝</span>
               <div className="flex flex-col ml-2">
-                <div className="text-left">Personal Details</div>
-                <div className="text-left text-sm">Manage your user-account settings</div>
+                <div className="text-left font-semibold">Personal Details</div>
+                <div className="text-left text-sm text-gray-500">Manage your user-account settings</div>
               </div>
             </button>
 
             <button
-              className={`flex items-center gap-2 hover:text-blue-600 hover:bg-orange-200 h-20 w-full drop-shadow-lg rounded-lg text-xl justify-start p-5
-                          ${showCalendar ? 'bg-blue-500 text-black' : 'bg-white text-gray-800'} 
-                          ${role === 'admin' ? '' : 'hidden'}
-                        `}
+              className={`flex items-center gap-2 hover:text-blue-600 hover:bg-orange-200 h-20 w-full drop-shadow-lg rounded-lg text-xl justify-start p-5 transition-all duration-300 transform ${showCalendar ? 'bg-blue-500 text-black scale-105' : 'bg-white text-gray-800'} ${role === 'admin' ? '' : 'hidden'}`}
               onClick={() => {
                 setShowDetails(false); // Hide details section
                 setShowCalendar(true); // Show calendar section
-                setShowTable(false); // Hide calendar section
+                setShowTable(false); // Hide table section
                 setIsEditing(false);
               }} // Show calendar section
             >
-
               <span className="w-8 h-8">⚙️</span>
               <div className="flex flex-col ml-2">
-                <div className="text-left">Admin Setting</div>
-                <div className="text-left text-sm">Manage your personal calendar</div>
+                <div className="text-left font-semibold">Admin Setting</div>
+                <div className="text-left text-sm text-gray-500">Manage your personal calendar</div>
               </div>
             </button>
 
             <button
-              className={`flex items-center gap-2 hover:text-blue-600 hover:bg-orange-200 h-20 w-full drop-shadow-lg rounded-lg text-xl justify-start p-5
-                          ${showTable ? 'bg-blue-500 text-black' : 'bg-white text-gray-800'} 
-                          ${role === 'admin' ? '' : 'hidden'}
-                        `}
+              className={`flex items-center gap-2 hover:text-blue-600 hover:bg-orange-200 h-20 w-full drop-shadow-lg rounded-lg text-xl justify-start p-5 transition-all duration-300 transform ${showTable ? 'bg-blue-500 text-black scale-105' : 'bg-white text-gray-800'} ${role === 'admin' ? '' : 'hidden'}`}
               onClick={() => {
                 setShowDetails(false); // Hide details section
-                setShowCalendar(false); // Show calendar section
-                setShowTable(true); // Hide calendar section
+                setShowCalendar(false); // Hide calendar section
+                setShowTable(true); // Show table section
                 setIsEditing(false);
-              }} // Show calendar section
+              }} // Show table section
             >
-
               <span className="w-8 h-8">⚙️</span>
               <div className="flex flex-col ml-2">
-                <div className="text-left">Table Setting</div>
-                <div className="text-left text-sm">Manage your personal calendar</div>
+                <div className="text-left font-semibold">Table Setting</div>
+                <div className="text-left text-sm text-gray-500">Manage your personal calendar</div>
               </div>
             </button>
           </div>
+
 
           {/* Logout Button - Centered on desktop */}
           <button
@@ -313,20 +303,29 @@ function ProfilePage({ nightMode, useremail }) {
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className={`bg-white rounded-lg p-6 shadow-xl ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-all duration-300"
+          onMouseDown={() => setShowLogoutModal(false)} // Use mouseDown instead of click
+        >
+          <div
+            className={`bg-white rounded-lg p-8 shadow-xl transition-all duration-300 transform ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'} scale-95 hover:scale-100`}
+            onMouseDown={(e) => e.stopPropagation()} // Prevent closing modal body
+          >
             <h2 className="text-xl font-bold mb-4">Confirm Logout</h2>
             <p className="mb-6">Are you sure you want to log out?</p>
             <div className="flex justify-end space-x-4">
               <button
-                onClick={() => handleCloseModal()}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400"
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  setShowLogoutModal(false);
+                }}
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-all duration-300 transform hover:scale-105"
               >
                 Cancel
               </button>
               <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                onMouseDown={handleLogout}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105"
               >
                 Logout
               </button>
@@ -334,6 +333,7 @@ function ProfilePage({ nightMode, useremail }) {
           </div>
         </div>
       )}
+
 
 
       {/* Details Section */}
@@ -449,42 +449,42 @@ function ProfilePage({ nightMode, useremail }) {
             />
 
             {/* Organization Section */}
-            <h3 className="text-lg font-semibold mt-6 mb-4 border-b pb-2">
-              Organization
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-              <input
-                type="text"
-                name="student_id"
-                placeholder="Student ID"
-                value={userData2.student_id || ''}
-                onChange={handleInputChange}
-                className={`w-full p-3 rounded-lg border border-gray-300  max-w-xs  ${isEditing ? 'text-red-600' : 'text-gray-500'}
-                  ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}
-                readOnly={!isEditing}
-              />
-              <input
-                type="text"
-                name="department"
-                placeholder="Major"
-                value={userData2.department || ''}
-                onChange={handleInputChange}
-                className={`w-full p-3 rounded-lg border border-gray-300  max-w-xs  ${isEditing ? 'text-red-600' : 'text-gray-500'}
-                ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}
-                readOnly={!isEditing}
-              />
-            </div>
+      <div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Organization</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <input
+            type="text"
+            name="student_id"
+            placeholder="Student ID"
+            value={userData2.student_id || ''}
+            onChange={handleInputChange}
+            className={`w-full p-3 rounded-lg border border-gray-300 ${isEditing ? 'text-red-600' : 'text-gray-500'} ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}
+            readOnly={!isEditing}
+          />
+          <input
+            type="text"
+            name="department"
+            placeholder="Major"
+            value={userData2.department || ''}
+            onChange={handleInputChange}
+            className={`w-full p-3 rounded-lg border border-gray-300 ${isEditing ? 'text-red-600' : 'text-gray-500'} ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}
+            readOnly={!isEditing}
+          />
+        </div>
+      </div>
 
-            {/* Save Button */}
-            {isEditing && (
-              <button
-                className="py-2 px-4 mt-6 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-all duration-300"
-                type="button"
-                onClick={handleSave}
-              >
-                Save all Changes
-              </button>
-            )}
+             {/* Save Button */}
+      {isEditing && (
+        <div className="flex justify-center">
+          <button
+            className="py-2 px-4 mt-6 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-all duration-300"
+            type="button"
+            onClick={handleSave}
+          >
+            Save all Changes
+          </button>
+        </div>
+      )}
           </form>
         </div>
       </CSSTransition>
@@ -496,7 +496,7 @@ function ProfilePage({ nightMode, useremail }) {
         >
           <h3 className="text-xl font-semibold mb-4">Admin Setting</h3>
           <div className="text-center text-gray-500">
-    
+
             <p>กำลังพัฒนา ^_^</p>
             <p>Coming soon...</p>
           </div>
@@ -505,53 +505,17 @@ function ProfilePage({ nightMode, useremail }) {
         </div>
 
 
-        
+
       </CSSTransition>
 
-       {/* TableConfig Section */}
-       <CSSTransition key="TableConfig" timeout={500} classNames="fade">
+      {/* TableConfig Section */}
+      <CSSTransition key="TableConfig" timeout={500} classNames="fade">
         <div
           className={`flex-1 p-10 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showTable ? '' : 'hidden'}`}
         >
-          {/* <h3 className="text-xl font-semibold mb-4">Admin Setting</h3>
-          <div className="text-center text-gray-500">
-    
-            <p>กำลังพัฒนา ^_^</p>
-            <p>Coming soon...</p>
-          </div> */}
-
-          <CoAdmin/>
+          <CoAdmin />
         </div>
-
-
-        
       </CSSTransition>
-
-      {/* Modal */}
-
-      {/* <dialog
-        className="modal modal-open"
-      >
-        <div style={{ animation: "popup 0.4s ease-in-out" }} className="modal-box bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white shadow-xl rounded-lg">
-          <h3 className="font-bold text-2xl mb-4">{"message"}</h3>
-          <p className="py-4">{"submessage"}</p>
-          <div className="flex justify-end space-x-4">
-
-            <button className="btn btn-sm btn-success text-white shadow-md" >
-              Save
-            </button>
-            <button className="btn btn-sm btn-neutral text-white shadow-md" >
-              Cancel
-            </button>
-
-          </div>
-        </div>
-        <div
-          className="modal-backdrop backdrop-blur-sm bg-opacity-30"
-        ></div>
-      </dialog> */}
-
-
     </TransitionGroup>
 
 

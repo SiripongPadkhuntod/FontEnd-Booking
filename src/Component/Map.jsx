@@ -257,7 +257,10 @@ const CoMap = ({ nightMode }) => {
   }, [date, time])
 
   return (
-    <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode ? 'bg-gray-900' : 'bg-white'}`}>
+    <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode
+      ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
+      : 'bg-gradient-to-b from-blue-100 to-blue-200'
+      }`}>
       <div
         ref={mapRef}
         onMouseDown={handleMouseDown}
@@ -380,8 +383,6 @@ const CoMap = ({ nightMode }) => {
           </button>
         </div>
       </div>
-
-
 
       {/* Zoom controls - ปรับตำแหน่งสำหรับมือถือ */}
       <div className={`absolute ${isMobile ? 'bottom-4 right-4' : 'bottom-4 right-4'} flex ${isMobile ? 'flex-row space-x-2' : 'flex-col items-center'}`}>
@@ -538,7 +539,7 @@ const CoMap = ({ nightMode }) => {
         </form>
       </dialog>
 
-      {/* User Booking Modal */}
+      {/* User Booking Detail Modal    */} 
       <dialog id="bookingModal2" className="modal">
         <form method="dialog" className="modal-box rounded-lg w-full max-w-md p-6 bg-gray-900 text-white">
           <h3 className="text-2xl font-bold mb-2">Desk A1</h3>
@@ -597,7 +598,9 @@ const CoMap = ({ nightMode }) => {
           </div>
         </form>
       </dialog>
-    </div >
+
+      
+    </div>
   );
 };
 
