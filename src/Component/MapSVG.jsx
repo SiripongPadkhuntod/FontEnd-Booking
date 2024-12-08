@@ -18,7 +18,7 @@ let bookings = [
     { name: "James Green", Fromtime: "13:00", Totime: "18:00", table: "A1", note: "Project Update", date: new Date("2024-03-01") },
 ];
 
-const CircleButton = ({ cx, cy, tableNumber, onClick, disabled,tableID }) => {
+const CircleButton = ({ cx, cy, tableNumber, onClick, disabled,tableID}) => {
 
     const handleMouseEnter = (e) => { if (!disabled) e.target.setAttribute("fill", "#2E8B57") };
     const handleMouseLeave = (e) => { if (!disabled) e.target.setAttribute("fill", "#40AD0E") };
@@ -135,16 +135,16 @@ function MapSVG({ time, date, onSelectNumbertable,onSelectNumbertableID }) {
 
                 {/* Reusable Circle Buttons */}
                 <g className="cursor-pointer">
-                    <CircleButton cx={228} cy={355} tableNumber="A6" tableid="1" onClick={setNumbertable} disabled={hasBooking('A6')} />
-                    <CircleButton cx={226} cy={164} tableNumber="A3" onClick={setNumbertable} disabled={hasBooking('A3')} />
-                    <CircleButton cx={464} cy={387} tableNumber="B1" onClick={setNumbertable} disabled={hasBooking('B1')} />
-                    <CircleButton cx={556} cy={387} tableNumber="B2" onClick={setNumbertable} disabled={hasBooking('B2')} />
-                    <CircleButton cx={539} cy={104} tableNumber="C1" onClick={setNumbertable} disabled={hasBooking('C1')} />
-                    <CircleButton cx={157} cy={354} tableNumber="A5" onClick={setNumbertable} disabled={hasBooking('A5')} />
-                    <CircleButton cx={157} cy={164} tableNumber="A2" onClick={setNumbertable} disabled={hasBooking('A2')} />
-                    <CircleButton cx={86} cy={354} tableNumber="A4" onClick={setNumbertable} disabled={hasBooking('A4')} />
-                    <CircleButton cx={88} cy={164} tableNumber="A1" onClick={setNumbertable} disabled={hasBooking('A1')} />
-                    <CircleButton cx={469} cy={104} tableNumber="C2" onClick={setNumbertable} disabled={hasBooking('C2')} />
+                    <CircleButton cx={228} cy={355} tableNumber="A6" tableID="1" onClick={setNumbertable} disabled={hasBooking('A6')} />
+                    <CircleButton cx={226} cy={164} tableNumber="A3" tableID="1" onClick={setNumbertable} disabled={hasBooking('A3')} />
+                    <CircleButton cx={464} cy={387} tableNumber="B1" tableID="1" onClick={setNumbertable} disabled={hasBooking('B1')} />
+                    <CircleButton cx={556} cy={387} tableNumber="B2" tableID="1" onClick={setNumbertable} disabled={hasBooking('B2')} />
+                    <CircleButton cx={539} cy={104} tableNumber="C1" tableID="1" onClick={setNumbertable} disabled={hasBooking('C1')} />
+                    <CircleButton cx={157} cy={354} tableNumber="A5" tableID="1" onClick={setNumbertable} disabled={hasBooking('A5')} />
+                    <CircleButton cx={157} cy={164} tableNumber="A2" tableID="1" onClick={setNumbertable} disabled={hasBooking('A2')} />
+                    <CircleButton cx={86} cy={354} tableNumber="A4"  tableID="1" onClick={setNumbertable} disabled={hasBooking('A4')} />
+                    <CircleButton cx={88} cy={164} tableNumber="A1"  tableID="1" onClick={setNumbertable} disabled={hasBooking('A1')} />
+                    <CircleButton cx={469} cy={104} tableNumber="C2" tableID="1" onClick={setNumbertable} disabled={hasBooking('C2')} />
                 </g>
 
                 {/* Defining clip paths */}
