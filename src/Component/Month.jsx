@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
-
+import { Calendar, Clock, User, MapPin, Moon, Sun } from 'lucide-react';
 import { CSSTransition } from 'react-transition-group';
 
 
@@ -215,9 +215,10 @@ const CoMonth = ({nightMode }) => {
       : 'bg-gradient-to-b from-blue-100 to-blue-200'
       }`}>
         <div className="p-4">
-          <h2 className={`text-xl font-bold mb-4 text-center  ${nightMode ? 'text-white' : 'text-black'}`}>
-            Monthly Desk Booking
-          </h2>
+        <h2 className={`text-2xl font-extrabold mb-6 text-center flex items-center justify-center ${nightMode ? 'text-gray-200' : 'text-gray-800'}`}>
+          {nightMode ? <Moon size={20} className="mr-3 text-indigo-400" /> : <Calendar size={20} className="mr-3 text-indigo-600" />}
+          Monthly Desk Bookings
+        </h2>
 
           {/* Month selector */}
           <div className="mb-4 flex justify-between items-center gap-2">
@@ -382,7 +383,10 @@ const CoMonth = ({nightMode }) => {
       ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
       : 'bg-gradient-to-b from-blue-100 to-blue-200'
       }`}>
-        <h2 className="text-xl font-bold mb-4 text-center text-black">Monthly Desk Booking</h2>
+         <h2 className={`text-3xl font-extrabold mb-6 text-center flex items-center justify-center pt-5 ${nightMode ? 'text-gray-200' : 'text-gray-800'}`}>
+          {nightMode ? <Moon size={32} className="mr-3 text-indigo-400" /> : <Calendar size={32} className="mr-3 text-indigo-600" />}
+          Monthly Desk Bookings
+        </h2>
 
         {/* เลือกเดือน */}
         <div className="mb-4 flex justify-between items-center gap-2 ">

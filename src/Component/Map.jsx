@@ -4,6 +4,8 @@ import { faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import MapSVG from './MapSVG';
 import AdminConfigModal from './AdminModal';
 import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
+import { FaCheckCircle } from 'react-icons/fa'; // import ไอคอน
+
 
 import { GrCaretPrevious, GrCaretNext } from 'react-icons/gr'; // import ไอคอน
 import { FaRegWindowClose } from "react-icons/fa";
@@ -43,34 +45,7 @@ const CoMap = ({ nightMode,userid }) => {
     "20:00", "20:30", "21:00", "21:30", "22:00"
   ];
 
-  const editUserData = async () => {
-    const jsonData = {
-      email: userData2.email,
-      first_name: userData2.first_name,
-      last_name: userData2.last_name,
-      phonenumber: userData2.phonenumber,
-      student_id: userData2.student_id,
-      department: userData2.department,
-    };
-
-    console.log('Edit user data:', jsonData);
-
-    try {
-      const response = await API.put('/editprofile', jsonData);
-
-      if (response.status === 200) {
-        console.log('Edit user data:', response.data);
-        setUserData2(jsonData);
-        fetchUserData();
-      } else {
-        throw new Error('Failed to update user data');
-      }
-    } catch (err) {
-      setError(err.message);
-    }
-
-    console.log('Updated user data:', userData2);
-  };
+ 
 
 
   const getSelectedTimeIndex = (selectedTime) => {
@@ -120,17 +95,41 @@ const CoMap = ({ nightMode,userid }) => {
     document.getElementById('bookingModal').showModal(); // เปิด bookingModal
   };
 
+  // const fetchData = async () => {
+  //   // const date = new Date().toISOString().split('T')[0];
+  //   const currentDate = date.toISOString().split('T')[0];
+  //   console.log(currentDate);
+  //   try {
+  //     const response = await API.get(`/reservations/day/${currentDate}`);
+  //     console.log(response.data);
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   }
+  // };
+
   const fetchData = async () => {
-    // const date = new Date().toISOString().split('T')[0];
-    const currentDate = date.toISOString().split('T')[0];
-    console.log(currentDate);
     try {
+      const currentDate = date.toISOString().split('T')[0];
+      console.log(currentDate);
+  
       const response = await API.get(`/reservations/day/${currentDate}`);
-      console.log(response.data);
+  
+      if (response.status === 200) {
+        console.log('Data fetched:', response.data);
+        // setInitialTimes(response.data);
+      } else {
+        console.log('Failed to fetch data:', response.status, response.data);
+      }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      // กรองเฉพาะ 404 และไม่ log error อื่นๆ
+      if (error.response && error.response.status === 404) {
+        console.log("No data found for the selected date.");
+      } else {
+        console.log("An unexpected error occurred."+ error ); // แสดงข้อความสำหรับข้อผิดพลาดอื่น ๆ
+      }
     }
   };
+  
 
 
   useEffect(() => {
@@ -159,14 +158,18 @@ const CoMap = ({ nightMode,userid }) => {
     setTime(formattedTime)
     setTimeModal(formattedTime);
   };
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingDetails, setBookingDetails] = useState({
+    tableId: '',
+    date: null,
+    startTime: '',
+    endTime: ''
+  });
 
   const booking = async () => {
-  
-    
-
     let jsonData = {
       user_id: userid,
-      table_id: TableID.toString(), // แปลงเป็น string ถ้าจำเป็น
+      table_id: TableID.toString(),
       reservation_date: bookDate.toISOString(),
       starttime: bookFrom,
       endtime: bookTo,
@@ -174,21 +177,39 @@ const CoMap = ({ nightMode,userid }) => {
     };
 
     console.log('Booking data:', jsonData);
-    
 
     try {
       const response = await API.post('/reservations', jsonData);
     
       if (response.status === 200) {
         console.log('Booking successful:', response.data);
+        
+        // Set booking success details
+        setBookingDetails({
+          tableId: TableID.toString(),
+          date: bookDate,
+          startTime: bookFrom,
+          endTime: bookTo
+        });
+
+        // Close booking modal
+        document.getElementById('bookingModal').close();
+        
+        // Show success modal
+        setBookingSuccess(true);
+        document.getElementById('bookingSuccessModal').showModal();
       } else {
         console.error('Booking failed:', response.status, response.data);
       }
     } catch (err) {
       console.error('Error occurred:', err.response ? err.response.data : err.message);
     }
-    
-  }
+  };
+
+  const closeSuccessModal = () => {
+    setBookingSuccess(false);
+    document.getElementById('bookingSuccessModal').close();
+  };
 
 
 
@@ -596,6 +617,47 @@ const CoMap = ({ nightMode,userid }) => {
           </div>
         </form>
       </dialog>
+
+       {/* Booking Success Modal */}
+  <dialog id="bookingSuccessModal" className="modal">
+    <div className="modal-box rounded-lg w-full max-w-md p-6 bg-green-600 text-white">
+      <div className="text-center">
+        <FaCheckCircle className="mx-auto text-6xl mb-4 text-white" />
+        <h3 className="text-2xl font-bold mb-2">Booking Successful!</h3>
+        
+        <div className="bg-green-700 rounded-lg p-4 mt-4">
+          <div className="flex justify-between mb-2">
+            <span className="font-semibold">Desk Number:</span>
+            <span>{bookingDetails.tableId}</span>
+          </div>
+          <div className="flex justify-between mb-2">
+            <span className="font-semibold">Date:</span>
+            <span>
+              {bookingDetails.date && 
+                bookingDetails.date.toLocaleDateString('en-US', { 
+                  weekday: 'short', 
+                  month: 'short', 
+                  day: 'numeric', 
+                  year: 'numeric' 
+                })
+              }
+            </span>
+          </div>
+          <div className="flex justify-between mb-2">
+            <span className="font-semibold">Time:</span>
+            <span>{bookingDetails.startTime} - {bookingDetails.endTime}</span>
+          </div>
+        </div>
+        
+        <button 
+          onClick={closeSuccessModal} 
+          className="btn btn-white mt-4 w-full"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </dialog>
 
       
     </div>

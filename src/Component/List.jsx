@@ -168,9 +168,9 @@ const BookingList = ({
             ...day,
             bookings: day.bookings.filter((booking) =>
                 isMyBooking 
-                ? booking.name.toLowerCase().includes(searchQuery.toLowerCase())
-                : booking.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                  booking.stdID.toLowerCase().includes(searchQuery.toLowerCase())
+                ? (booking.name?.toLowerCase() ?? "").includes(searchQuery.toLowerCase())
+                : (booking.name?.toLowerCase() ?? "").includes(searchQuery.toLowerCase()) || 
+                  (booking.stdID?.toLowerCase() ?? "").includes(searchQuery.toLowerCase())
             ),
         }))
         .filter((day) => day.bookings.length > 0);
@@ -224,6 +224,7 @@ const BookingList = ({
         </div>
     );
 };
+
 
 const BookingApp = ({ fullname, nightMode }) => {
     const [activeTab, setActiveTab] = useState("all");

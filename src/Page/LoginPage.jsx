@@ -43,11 +43,21 @@ function Login() {
   const handleLoginGoogle = async (response) => {
     try {
       const res = await API.post('/api/auth/google', { token: response.credential });
-      if (res.data.message === 'Login successful') {
+      console.log("API Response:", res);
+  
+      if (res.status === 403) {
+        console.log("403 Forbidden: Non-RSU email used.");
+        setModalState({
+          isOpen: true,
+          message: "Login Failed",
+          submessage: "Please use your RSU email to login.",
+        });
+      } else if (res.status === 200) {
+        console.log("Login successful:", res.data);
         localStorage.setItem('authToken', res.data.token);
         navigate("/home");
-        // console.log(res.data);
       } else {
+        console.log("Unhandled response:", res.status);
         setModalState({
           isOpen: true,
           message: res.data.message || "Login Failed",
@@ -55,14 +65,25 @@ function Login() {
         });
       }
     } catch (error) {
-      setModalState({
-        isOpen: true,
-        message: "Error",
-        submessage: "Unable to connect to the server. Please try again.",
-      });
-      console.error("Error:", error);
+      console.error("Error in API request:", error);
+      if (error.response && error.response.status === 403) {
+        console.log("403 Forbidden Error handled in catch.");
+        setModalState({
+          isOpen: true,
+          message: "Login Failed",
+          submessage: "Please use your RSU email to login.",
+        });
+      } else {
+        console.log("Other error in catch block.");
+        setModalState({
+          isOpen: true,
+          message: "Error",
+          submessage: "Unable to connect to the server. Please try again.",
+        });
+      }
     }
   };
+  
 
   const handleLogin = async (e) => {
     e.preventDefault();

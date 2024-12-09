@@ -135,7 +135,7 @@ const CoGrid = ({nightMode}) => {
       <div className="max-w-7xl mx-auto">
         <h2 className={`text-3xl font-extrabold mb-6 text-center flex items-center justify-center ${nightMode ? 'text-gray-200' : 'text-gray-800'}`}>
           {nightMode ? <Moon size={32} className="mr-3 text-indigo-400" /> : <Calendar size={32} className="mr-3 text-indigo-600" />}
-          Monthly Desk Bookings
+          Grid Desk Bookings
         </h2>
 
         {/* Month Selector */}

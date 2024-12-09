@@ -3,15 +3,16 @@ import { Clock, Grid, User, Moon, Sun } from "lucide-react";
 import API from '../api';
 
 const CoDay = ({ nightMode }) => {
+
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  const desks = ["A01", "A02", "A03", "A04", "A05", "B01", "B02", "C01", "C02"];
-  const hours = Array.from({ length: 10 }, (_, i) => 9 + i);
+  const desks = ["A01", "A02", "A03", "A04", "A05", "A06", "B01", "B02", "C01", "C02"];
+  const hours = Array.from({ length: 15 }, (_, i) => 8 + i);
 
-  const getColor = (name,index, isNightMode) => {
+  const getColor = (name, index, isNightMode) => {
     const lightColors = [
       { bg: "bg-blue-500/80 hover:bg-blue-500", text: "text-white" },
       { bg: "bg-green-500/80 hover:bg-green-500", text: "text-white" },
@@ -41,7 +42,7 @@ const CoDay = ({ nightMode }) => {
   };
 
   const isTestMode = false; // เปลี่ยนเป็น false เพื่อเชื่อมต่อกับ API จริง
-  
+
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -67,7 +68,7 @@ const CoDay = ({ nightMode }) => {
         const formattedDate = currentDate.toISOString().split('T')[0];
         const response = await API.get(`/reservations/day/${formattedDate}`);
         console.log(response.data);
-        
+
         // Transform API response to match the mock data structure
         const transformedData = response.data.map((booking) => {
           let start = new Date(`${booking.reservation_date.split('T')[0]}T${booking.reservation_time_from}+07:00`);
@@ -273,33 +274,43 @@ const CoDay = ({ nightMode }) => {
                     </div>
 
                     {deskBookings.map((booking, bookingIdx) => {
-                      const startTime = Math.max(9, booking.start); // คำนวณเวลาที่เริ่ม (ไม่ต่ำกว่า 9)
-                      const endTime = Math.min(18, booking.end); // คำนวณเวลาที่จบ (ไม่เกิน 18)
+                      const startTime = Math.max(8, booking.start); // คำนวณเวลาที่เริ่ม (ไม่ต่ำกว่า 9)
+                      const endTime = Math.min(22, booking.end); // คำนวณเวลาที่จบ (ไม่เกิน 18)
 
                       // คำนวณตำแหน่งบนกริด
-                      const gridStart = (startTime - 9) * (100 / hours.length);
-                      const gridEnd = (endTime - 9) * (100 / hours.length);
+                      const gridStart = (startTime - 8) * (100 / hours.length);
+                      const gridEnd = (endTime - 8) * (100 / hours.length);
 
-                      const colorClass = getColor(booking.name,bookingIdx,nightMode);
+                      const colorClass = getColor(booking.name, bookingIdx, nightMode);
 
                       return (
                         <div
                           key={bookingIdx}
-                                              className={`absolute text-xs sm:text-sm rounded-md px-2 py-1 
+                          className={`
+                            absolute rounded-lg shadow-md 
+                            text-xs sm:text-sm 
+                            px-3 py-2 
                             ${colorClass.bg} ${colorClass.text}
                             transform transition-all duration-300 
-                            hover:scale-105 cursor-pointer
+                            hover:scale-105 hover:shadow-xl 
+                            cursor-pointer 
+                            border border-opacity-20 
+                            flex items-center justify-center
+                            truncate
                           `}
                           style={{
-                            left: `${gridStart}%`, // กำหนดตำแหน่งเริ่มต้น
-                            width: `${gridEnd - gridStart}%`, // กำหนดความกว้างของกราฟ
+                            left: `${gridStart}%`,
+                            width: `${gridEnd - gridStart}%`,
                             top: "50%",
                             transform: "translateY(-50%)",
-                            overflow: "hidden",
                           }}
+                          title={`${booking.name} ${booking.start}:00 - ${booking.end}:00`}
                         >
-                          {booking.name}
+                          <span className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
+                            {booking.name}
+                          </span>
                         </div>
+
                       );
                     })}
 
