@@ -3,13 +3,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import MapSVG from './MapSVG';
 import AdminConfigModal from './AdminModal';
-import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
+
 
 import { GrCaretPrevious, GrCaretNext } from 'react-icons/gr'; // import ไอคอน
 import { FaRegWindowClose } from "react-icons/fa";
 
 
-const CoMap = ({ nightMode,userid }) => {
+const CoMap = ({ nightMode }) => {
   const [time, setTime] = useState("08:00");
   const [date, setDate] = useState(() => {
     const now = new Date();
@@ -34,7 +34,6 @@ const CoMap = ({ nightMode,userid }) => {
   const [bookDate, setBookDate] = useState()
   const [bookFrom, setBookFrom] = useState()
   const [bookTo, setBookTo] = useState()
-  
   // รวมเวลาทั้งหมดในที่เดียว
   const allTimes = [
     "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -122,7 +121,7 @@ const CoMap = ({ nightMode,userid }) => {
 
   const fetchData = async () => {
     // const date = new Date().toISOString().split('T')[0];
-    const currentDate = date.toISOString().split('T')[0];
+    const currentDate = date.toISOString().split('T')[0];0
     console.log(currentDate);
     try {
       const response = await API.get(`/reservations/day/${currentDate}`);
@@ -161,33 +160,36 @@ const CoMap = ({ nightMode,userid }) => {
   };
 
   const booking = async () => {
-  
-    
+    console.log({
+      bookDate: bookDate.toISOString(),
+      bookFrom,
+      bookTo,
+      numbertable,
+      TableID,
+    })
 
     let jsonData = {
-      user_id: userid,
-      table_id: TableID.toString(), // แปลงเป็น string ถ้าจำเป็น
+      user_id: 2,
+      table_id: TableID,
       reservation_date: bookDate.toISOString(),
       starttime: bookFrom,
       endtime: bookTo,
-      roomid: 1,
-    };
+      roomid: 1
 
-    console.log('Booking data:', jsonData);
-    
+    }
 
     try {
       const response = await API.post('/reservations', jsonData);
-    
+
       if (response.status === 200) {
-        console.log('Booking successful:', response.data);
+        console.log('Edit user data:', response.data);
+      
       } else {
-        console.error('Booking failed:', response.status, response.data);
+        throw new Error('Failed to update user data');
       }
     } catch (err) {
-      console.error('Error occurred:', err.response ? err.response.data : err.message);
+      console.log(err.message)
     }
-    
   }
 
 
@@ -255,10 +257,7 @@ const CoMap = ({ nightMode,userid }) => {
   }, [date, time])
 
   return (
-    <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode
-      ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
-      : 'bg-gradient-to-b from-blue-100 to-blue-200'
-      }`}>
+    <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode ? 'bg-gray-900' : 'bg-white'}`}>
       <div
         ref={mapRef}
         onMouseDown={handleMouseDown}
@@ -381,6 +380,8 @@ const CoMap = ({ nightMode,userid }) => {
           </button>
         </div>
       </div>
+
+
 
       {/* Zoom controls - ปรับตำแหน่งสำหรับมือถือ */}
       <div className={`absolute ${isMobile ? 'bottom-4 right-4' : 'bottom-4 right-4'} flex ${isMobile ? 'flex-row space-x-2' : 'flex-col items-center'}`}>
@@ -537,7 +538,7 @@ const CoMap = ({ nightMode,userid }) => {
         </form>
       </dialog>
 
-      {/* User Booking Detail Modal    */} 
+      {/* User Booking Modal */}
       <dialog id="bookingModal2" className="modal">
         <form method="dialog" className="modal-box rounded-lg w-full max-w-md p-6 bg-gray-900 text-white">
           <h3 className="text-2xl font-bold mb-2">Desk A1</h3>
@@ -596,9 +597,7 @@ const CoMap = ({ nightMode,userid }) => {
           </div>
         </form>
       </dialog>
-
-      
-    </div>
+    </div >
   );
 };
 

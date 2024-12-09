@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from 'react';
+import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
 // import { bookings } from './Month';
 
-let bookings = [
-    { name: "John Doe", Fromtime: "10:00", Totime: "18:00", table: "A1", note: "Team meeting", date: new Date("2024-11-16") },
-    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-29") },
-    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A2", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "11:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") }, -
-    { name: "David Black", Fromtime: "17:00", Totime: "18:00", table: "A1", note: "Review", date: new Date("2024-11-20") },
-    { name: "Emma White", Fromtime: "09:00", Totime: "18:00", table: "A1", note: "Brainstorming", date: new Date("2024-02-29") },
-    { name: "James Green", Fromtime: "13:00", Totime: "18:00", table: "A1", note: "Project Update", date: new Date("2024-03-01") },
-];
+// let bookings = [
+//     { name: "John Doe", Fromtime: "10:00", Totime: "18:00", table: "A1", note: "Team meeting", date: new Date("2024-12-08") },
+//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-29") },
+//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
+//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A2", note: "Client call", date: new Date("2024-11-15") },
+//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
+//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+//     { name: "Alice Brown", Fromtime: "11:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") }, -
+//     { name: "David Black", Fromtime: "17:00", Totime: "18:00", table: "A1", note: "Review", date: new Date("2024-11-20") },
+//     { name: "Emma White", Fromtime: "09:00", Totime: "18:00", table: "A1", note: "Brainstorming", date: new Date("2024-02-29") },
+//     { name: "James Green", Fromtime: "13:00", Totime: "18:00", table: "A1", note: "Project Update", date: new Date("2024-03-01") },
+// ];
 
 const CircleButton = ({ cx, cy, tableNumber, onClick, disabled,tableID}) => {
 
@@ -43,6 +44,31 @@ const CircleButton = ({ cx, cy, tableNumber, onClick, disabled,tableID}) => {
     );
 };
 
+// const fetchData = async () => {
+//     // กำหนดตัวแปร date ที่ต้องการกรองข้อมูล
+//     const currentDate = new Date().toISOString().split('T')[0]; // ใช้วันที่ปัจจุบัน
+//     const date = currentDate; // กำหนดตัวแปร date ให้เป็นวันที่ปัจจุบัน
+
+//     console.log(currentDate);
+
+//     try {
+//         const response = await API.get(`/reservations/day/${currentDate}`);
+//         console.log(response.data); // ดูข้อมูลที่ได้รับจาก API
+
+//         // เก็บข้อมูลจาก API ลงใน state ที่เหมาะสม
+//         const timeMap = response.data
+//             .filter(item => new Date(item.date).toDateString() === new Date(date).toDateString()) // กรองข้อมูลให้ตรงกับวัน
+//             .map(item => ({ disabled: isBetweenTimes(time, item.Fromtime, item.Totime), table: item.table }));
+
+//         const bookingTableSet = new Set(timeMap.filter(item => item.disabled).map(item => item.table));
+//         setBooking(bookingTableSet); // เก็บผลที่ได้ลงใน state booking
+//     } catch (error) {
+//         console.error("Error fetching data:", error);
+//     }
+// };
+
+
+
 function timeToMinutes(timeString) {
     if (!timeString) return;
     const [hours, minutes] = timeString.split(":").map(Number);
@@ -62,14 +88,38 @@ function MapSVG({ time, date, onSelectNumbertable,onSelectNumbertableID }) {
 
     const [booking, setBooking] = useState(new Set());
     useEffect(() => {
-        const timeMap = bookings
-            .filter(item => item.date?.getTime() === date?.getTime())
-            .map(item => ({ disabled: isBetweenTimes(time, item.Fromtime, item.Totime), table: item.table }))
-        const bookingTableSet = new Set(timeMap.filter(item => item.disabled).map(item => item.table))
-        setBooking(bookingTableSet)
-        console.log(bookingTableSet, date, time);
+        const Bookings = async () => {
+            const currentDate = new Date().toISOString().split('T')[0]; // กำหนด currentDate เป็นวันที่ปัจจุบันในรูปแบบ yyyy-mm-dd
+            
+            try {
+                const response = await API.get(`/reservations/day/${currentDate}`);
+                
+                // ตรวจสอบการตอบกลับจาก API
+                if (response && response.data) {
+                    // console.log(response.data); // ตรวจสอบข้อมูลที่ได้รับจาก API
+                    
+                    // ประมวลผลข้อมูล
+                    const timeMap = response.data
+                        .filter(item => new Date(item.date).toDateString() === new Date(date).toDateString()) 
+                        .map(item => ({ disabled: isBetweenTimes(time, item.Fromtime, item.Totime), table: item.table }));
+                    
+                    const bookingTableSet = new Set(timeMap.filter(item => item.disabled).map(item => item.table));
+                    setBooking(bookingTableSet);
+                    console.log(bookingTableSet, date, time);
 
-    }, [time, date])
+                    
+                } else {
+                    console.error("No data found in the response.");
+                }
+            } catch (error) {
+                console.error("Error fetching bookings:", error);
+            }
+        };
+        
+        Bookings();
+    }, [time, date]); // ใช้เวลาและวันที่ใน dependency
+    
+
     const setNumbertable = (tableNumber,tableID) => {
         // const currentBooking = [...booking];
         // currentBooking.push(tableNumber)
@@ -82,8 +132,9 @@ function MapSVG({ time, date, onSelectNumbertable,onSelectNumbertableID }) {
     };
 
     const hasBooking = (tableName) => {
-        return booking.has(tableName)
-    }
+        return booking.has(tableName); // เช็คว่ามีการจองหรือไม่
+    };
+    
     return (
         <div>
             {JSON.stringify(date)}
@@ -144,7 +195,7 @@ function MapSVG({ time, date, onSelectNumbertable,onSelectNumbertableID }) {
                     <CircleButton cx={157} cy={164} tableNumber="A2" tableID="1" onClick={setNumbertable} disabled={hasBooking('A2')} />
                     <CircleButton cx={86} cy={354} tableNumber="A4"  tableID="1" onClick={setNumbertable} disabled={hasBooking('A4')} />
                     <CircleButton cx={88} cy={164} tableNumber="A1"  tableID="1" onClick={setNumbertable} disabled={hasBooking('A1')} />
-                    <CircleButton cx={469} cy={104} tableNumber="C2" tableID="1" onClick={setNumbertable} disabled={hasBooking('C2')} />
+                    <CircleButton cx={469} cy={104} tableNumber="C2" tableid="1" onClick={setNumbertable} disabled={hasBooking('C2')} />
                 </g>
 
                 {/* Defining clip paths */}
