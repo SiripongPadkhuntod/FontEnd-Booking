@@ -4,12 +4,13 @@ import { faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import MapSVG from './MapSVG';
 import AdminConfigModal from './AdminModal';
 import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
+import { FaCheckCircle } from 'react-icons/fa'; // import ไอคอน
 
 import { GrCaretPrevious, GrCaretNext } from 'react-icons/gr'; // import ไอคอน
 import { FaRegWindowClose } from "react-icons/fa";
 
 
-const CoMap = ({ nightMode }) => {
+const CoMap = ({ nightMode,userid }) => {
   const [time, setTime] = useState("08:00");
   const [date, setDate] = useState(() => {
     const now = new Date();
@@ -172,7 +173,7 @@ const CoMap = ({ nightMode }) => {
 
     let jsonData = {
       user_id: userid,
-      table_id: TableID.toString(), // แปลงเป็น string ถ้าจำเป็น
+      table_id: TableID.toString(),
       reservation_date: bookDate.toISOString(),
       starttime: bookFrom,
       endtime: bookTo,
@@ -181,20 +182,38 @@ const CoMap = ({ nightMode }) => {
 
     console.log('Booking data:', jsonData);
     
-
     try {
       const response = await API.post('/reservations', jsonData);
-
+    
       if (response.status === 200) {
         console.log('Booking successful:', response.data);
+        
+        // Set booking success details
+        setBookingDetails({
+          tableId: TableID.toString(),
+          date: bookDate,
+          startTime: bookFrom,
+          endTime: bookTo
+        });
+
+        // Close booking modal
+        document.getElementById('bookingModal').close();
+        
+        // Show success modal
+        setBookingSuccess(true);
+        document.getElementById('bookingSuccessModal').showModal();
       } else {
-        throw new Error('Failed to update user data');
+        console.error('Booking failed:', response.status, response.data);
       }
     } catch (err) {
-      console.log(err.message)
+      console.error('Error occurred:', err.response ? err.response.data : err.message);
     }
-    
-  }
+  };
+
+  const closeSuccessModal = () => {
+    setBookingSuccess(false);
+    document.getElementById('bookingSuccessModal').close();
+  };
 
 
 
@@ -261,7 +280,10 @@ const CoMap = ({ nightMode }) => {
   }, [date, time])
 
   return (
-    <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode ? 'bg-gray-900' : 'bg-white'}`}>
+    <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode
+      ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
+      : 'bg-gradient-to-b from-blue-100 to-blue-200'
+      }`}>
       <div
         ref={mapRef}
         onMouseDown={handleMouseDown}
@@ -601,6 +623,47 @@ const CoMap = ({ nightMode }) => {
           </div>
         </form>
       </dialog>
+
+      {/* Booking Success Modal */}
+  <dialog id="bookingSuccessModal" className="modal">
+    <div className="modal-box rounded-lg w-full max-w-md p-6 bg-green-600 text-white">
+      <div className="text-center">
+        <FaCheckCircle className="mx-auto text-6xl mb-4 text-white" />
+        <h3 className="text-2xl font-bold mb-2">Booking Successful!</h3>
+        
+        <div className="bg-green-700 rounded-lg p-4 mt-4">
+          <div className="flex justify-between mb-2">
+            <span className="font-semibold">Desk Number:</span>
+            <span>{bookingDetails.tableId}</span>
+          </div>
+          <div className="flex justify-between mb-2">
+            <span className="font-semibold">Date:</span>
+            <span>
+              {bookingDetails.date && 
+                bookingDetails.date.toLocaleDateString('en-US', { 
+                  weekday: 'short', 
+                  month: 'short', 
+                  day: 'numeric', 
+                  year: 'numeric' 
+                })
+              }
+            </span>
+          </div>
+          <div className="flex justify-between mb-2">
+            <span className="font-semibold">Time:</span>
+            <span>{bookingDetails.startTime} - {bookingDetails.endTime}</span>
+          </div>
+        </div>
+        
+        <button 
+          onClick={closeSuccessModal} 
+          className="btn btn-white mt-4 w-full"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </dialog>
 
       
     </div>
