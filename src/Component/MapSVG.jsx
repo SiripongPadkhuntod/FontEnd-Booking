@@ -16,7 +16,9 @@ const CircleButton = ({ cx, cy, tableNumber, onClick, disabled, tableID, showBoo
             onClick={() => {
                 if (disabled) {
                     // เรียกฟังก์ชันที่รับข้อมูลจาก API และแสดง Modal
-                    showBookingDetails(tableNumber, tableID);
+                    // showBookingDetails(tableNumber, tableID);
+                    document.getElementById('bookingModalDetail').showModal();
+                    onClick(tableNumber, tableID);
                 } else {
                     // Function when not disabled (normal behavior)
                     document.getElementById('availabilityModal').showModal();
@@ -52,7 +54,8 @@ function MapSVG({ time, date, onSelectNumbertable, onSelectNumbertableID }) {
     const [booking, setBooking] = useState(new Set());
     useEffect(() => {
         const Bookings = async () => {
-            const currentDate = new Date().toISOString().split('T')[0]; // กำหนด currentDate เป็นวันที่ปัจจุบันในรูปแบบ yyyy-mm-dd
+            // const currentDate = new Date().toISOString().split('T')[0]; // กำหนด currentDate เป็นวันที่ปัจจุบันในรูปแบบ yyyy-mm-dd
+            const currentDate = date.toISOString().split('T')[0]; // กำหนด currentDate เป็นวันที่ปัจจุบันในรูปแบบ yyyy-mm-dd
             console.log('Current Date:', currentDate);
             console.log('Time from props:', time);
             console.log('Date from props:', date);
@@ -178,9 +181,9 @@ function MapSVG({ time, date, onSelectNumbertable, onSelectNumbertableID }) {
                     <CircleButton cx={539} cy={104} tableNumber="C01" tableID="8" onClick={setNumbertable} disabled={hasBooking('C01')} />
                     <CircleButton cx={157} cy={354} tableNumber="A05" tableID="5" onClick={setNumbertable} disabled={hasBooking('A05')} />
                     <CircleButton cx={157} cy={164} tableNumber="A02" tableID="2" onClick={setNumbertable} disabled={hasBooking('A02')} />
-                    <CircleButton cx={86} cy={354} tableNumber="A04" tableID="4" onClick={setNumbertable} disabled={hasBooking('A04')} />
-                    <CircleButton cx={88} cy={164} tableNumber="A01" tableID="1" onClick={setNumbertable} disabled={hasBooking('A01')} />
-                    <CircleButton cx={469} cy={104} tableNumber="C02" tableid="9" onClick={setNumbertable} disabled={hasBooking('C02')} />
+                    <CircleButton cx={86} cy={354} tableNumber="A04"  tableID="4" onClick={setNumbertable} disabled={hasBooking('A04')} />
+                    <CircleButton cx={88} cy={164} tableNumber="A01"  tableID="1" onClick={setNumbertable} disabled={hasBooking('A01')} />
+                    <CircleButton cx={469} cy={104} tableNumber="C02" tableID="9" onClick={setNumbertable} disabled={hasBooking('C02')} />
                 </g>
                 
                 {/* Defining clip paths */}

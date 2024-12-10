@@ -52,74 +52,6 @@ const CoDay = ({ nightMode }) => {
 
 
   useEffect(() => {
-    const fetchBookings = async () => {
-      setLoading(true); // Show loading status when changing date
-
-      if (isTestMode) {
-        // Mock data for the current date
-        const mockData = [
-          { desk: "A01", name: "Mock User 1", start: 9, end: 11, date: "2024-12-01" },
-          { desk: "A02", name: "Mock User 1", start: 9, end: 11, date: "2024-12-01" },
-          { desk: "A03", name: "Mock User 1", start: 11, end: 12, date: "2024-12-01" },
-          { desk: "A01", name: "Mock User 1", start: 9, end: 11, date: "2024-12-05" },
-          { desk: "A02", name: "Mock User 2", start: 12, end: 14, date: "2024-12-02" },
-          { desk: "B01", name: "Mock User 3", start: 15, end: 17, date: "2024-12-03" },
-        ];
-        const formattedDate = currentDate.toISOString().split('T')[0];
-        setBookings(mockData.filter(booking => booking.date === formattedDate));
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const formattedDate = currentDate.toISOString().split('T')[0];
-        const response = await API.get(`/reservations/day/${formattedDate}`);
-        console.log(response.data);
-
-        // Transform API response to match the mock data structure
-        const transformedData = response.data.map((booking) => {
-          let start = new Date(`${booking.reservation_date.split('T')[0]}T${booking.reservation_time_from}+07:00`);
-          let end = new Date(`${booking.reservation_date.split('T')[0]}T${booking.reservation_time_to}+07:00`);
-
-
-          let startHour = start.getHours();
-          let startMinutes = start.getMinutes();
-          let endHour = end.getHours();
-          let endMinutes = end.getMinutes();
-
-          let width;
-          if (endMinutes === 0 && startMinutes === 0) {
-            width = "100%"; // ถ้าเวลาจองเต็มชั่วโมง
-          } else {
-            width = "50%"; // ถ้าเป็นครึ่งชั่วโมง
-          }
-
-
-          return {
-            desk: booking.table_number,
-            name: `${booking.first_name} ${booking.last_name}`,
-            start: startHour + (startMinutes / 60),
-            end: endHour + (endMinutes / 60),
-            date: formattedDate, // Using the formatted date from the current date
-            width: width,
-          };
-
-        });
-        setBookings(transformedData);
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          setBookings([]);
-        }
-        else {
-          console.error("Errorrrrr", error);
-        }
-        // setError("Unable to fetch bookings. Please try again later.");
-        setLoading(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBookings();
   }, [currentDate]);
 
@@ -130,6 +62,74 @@ const CoDay = ({ nightMode }) => {
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() + days);
     setCurrentDate(newDate);
+  };
+
+  const fetchBookings = async () => {
+    setLoading(true); // Show loading status when changing date
+
+    if (isTestMode) {
+      // Mock data for the current date
+      const mockData = [
+        { desk: "A01", name: "Mock User 1", start: 9, end: 11, date: "2024-12-01" },
+        { desk: "A02", name: "Mock User 1", start: 9, end: 11, date: "2024-12-01" },
+        { desk: "A03", name: "Mock User 1", start: 11, end: 12, date: "2024-12-01" },
+        { desk: "A01", name: "Mock User 1", start: 9, end: 11, date: "2024-12-05" },
+        { desk: "A02", name: "Mock User 2", start: 12, end: 14, date: "2024-12-02" },
+        { desk: "B01", name: "Mock User 3", start: 15, end: 17, date: "2024-12-03" },
+      ];
+      const formattedDate = currentDate.toISOString().split('T')[0];
+      setBookings(mockData.filter(booking => booking.date === formattedDate));
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const formattedDate = currentDate.toISOString().split('T')[0];
+      const response = await API.get(`/reservations/day/${formattedDate}`);
+      console.log(response.data);
+
+      // Transform API response to match the mock data structure
+      const transformedData = response.data.map((booking) => {
+        let start = new Date(`${booking.reservation_date.split('T')[0]}T${booking.reservation_time_from}+07:00`);
+        let end = new Date(`${booking.reservation_date.split('T')[0]}T${booking.reservation_time_to}+07:00`);
+
+
+        let startHour = start.getHours();
+        let startMinutes = start.getMinutes();
+        let endHour = end.getHours();
+        let endMinutes = end.getMinutes();
+
+        let width;
+        if (endMinutes === 0 && startMinutes === 0) {
+          width = "100%"; // ถ้าเวลาจองเต็มชั่วโมง
+        } else {
+          width = "50%"; // ถ้าเป็นครึ่งชั่วโมง
+        }
+
+
+        return {
+          desk: booking.table_number,
+          name: `${booking.first_name} ${booking.last_name}`,
+          start: startHour + (startMinutes / 60),
+          end: endHour + (endMinutes / 60),
+          date: formattedDate, // Using the formatted date from the current date
+          width: width,
+        };
+
+      });
+      setBookings(transformedData);
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        setBookings([]);
+      }
+      else {
+        console.error("Errorrrrr", error);
+      }
+      // setError("Unable to fetch bookings. Please try again later.");
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
 
@@ -184,14 +184,27 @@ const CoDay = ({ nightMode }) => {
           </h1>
           <div className="flex items-center space-x-4 mt-4 sm:mt-0">
             {/* ปุ่มเปลี่ยนวันที่ */}
-            <button
+            {/* <button
               onClick={() => handleDateChange(-1)}
               className={`btn p-3 sm:p-2 rounded-full ${nightMode
                 ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 : 'bg-red-800 text-white hover:bg-red-800'} transition-colors duration-300`}
             >
               ←
-            </button>
+            </button> */}
+
+            <button
+            onClick={() => handleDateChange(-1)}
+            className={`p-2 border rounded-full transition duration-200 shadow-md ${nightMode
+              ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 border-gray-600'
+              : 'bg-red-700 text-white hover:bg-red-600 border-red-700'
+              }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
 
             {/* วันที่ */}
             <span className={`font-semibold flex items-center ${nightMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -205,14 +218,26 @@ const CoDay = ({ nightMode }) => {
             </span>
 
             {/* ปุ่มเปลี่ยนวันที่ */}
-            <button
+            {/* <button
               onClick={() => handleDateChange(1)}
               className={`btn p-3 sm:p-2 rounded-full ${nightMode
                 ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 : 'bg-red-800 text-white hover:bg-red-800'} transition-colors duration-300`}
             >
               →
-            </button>
+            </button> */}
+
+            <button
+            onClick={() => handleDateChange(1)}
+            className={`p-2 border rounded-full transition duration-200 shadow-md ${nightMode
+              ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 border-gray-600'
+              : 'bg-red-700 text-white hover:bg-red-600 border-red-700'
+              }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
           </div>
         </div>
 

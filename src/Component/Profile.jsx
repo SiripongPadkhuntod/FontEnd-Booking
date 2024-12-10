@@ -176,6 +176,8 @@ function ProfilePage({ nightMode, useremail }) {
     );
   }
 
+  const initials = `${userData?.first_name?.charAt(0) || ''}${userData?.last_name?.charAt(0) || ''}`;
+
   return (
     <TransitionGroup
       component="div"
@@ -199,34 +201,32 @@ function ProfilePage({ nightMode, useremail }) {
           >
 
 
-            <div className="absolute -bottom-10 left-4">
-              <div className="w-28 h-28 rounded-full border-4 border-white bg-gray-200 overflow-hidden">
-                <img
-                  src={image}
-                  alt="User"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              {/* edit button */}
-              <button
-                className={`absolute bottom-0 right-0 mb-2 mr-2 w-8 h-8 bg-blue-500 text-white rounded-full flex justify-center items-center hover:bg-blue-700 transition-all
-                  ${isEditing ? '' : 'hidden'}`}
-                onClick={() => document.getElementById('fileInput').click()} // เปิด input file เมื่อคลิกที่ปุ่ม
-                disabled={!isEditing} // ปิดปุ่มเมื่อไม่ได้อยู่ในโหมดแก้ไข
+<div className="absolute -bottom-10 left-4">
+      <div className="w-28 h-28 rounded-full border-4 border-white bg-blue-500 overflow-hidden flex justify-center items-center">
+        {image ? (
+          <img src={image} alt="User" className="w-full h-full object-cover" />
+        ) : (
+          <span className="text-2xl font-semibold text-white">{initials}</span>
+        )}
+      </div>
+      {/* edit button */}
+      <button
+        className={`absolute bottom-0 right-0 mb-2 mr-2 w-8 h-8 bg-yellow-500 text-white rounded-full flex justify-center items-center hover:bg-blue-700 transition-all
+          ${isEditing ? '' : 'hidden'}`}
+        onClick={() => document.getElementById('fileInput').click()} // เปิด input file เมื่อคลิกที่ปุ่ม
+        disabled={!isEditing} // ปิดปุ่มเมื่อไม่ได้อยู่ในโหมดแก้ไข
+      >
+        <RiImageEditFill className="w-4 h-4" />
 
-              >
-                <RiImageEditFill className="w-4 h-4" />
-
-                {/* ซ่อน input file */}
-                <input
-                  id="fileInput"
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange} // ตรวจจับการเลือกไฟล์
-
-                />
-              </button>
-            </div>
+        {/* ซ่อน input file */}
+        <input
+          id="fileInput"
+          type="file"
+          className="hidden"
+          onChange={handleFileChange} // ตรวจจับการเลือกไฟล์
+        />
+      </button>
+    </div>
           </div>
 
           {/* User Details */}

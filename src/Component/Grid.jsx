@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Calendar, Clock, User, MapPin, Moon, Sun } from 'lucide-react';
 import API from '../api';
 
+import { motion,AnimatePresence  } from "framer-motion";
+
 
 const CoGrid = ({nightMode}) => {
   // const [desks, setDesks] = useState([]);
@@ -15,7 +17,7 @@ const CoGrid = ({nightMode}) => {
 
 
   useEffect(() => {
-    fetchTable();
+    // fetchTable();
     fetchData(selectedMonth);
     
   }, [selectedMonth]);
@@ -41,7 +43,8 @@ const CoGrid = ({nightMode}) => {
       if (response.status === 200) {
         console.log("Data fetched successfully!" , response.data);
         //เอาแค่ table_number
-        const desk = response.data.map((item) => item.table_number);
+        const desk = Array.isArray(response.data) ? response.data.map((item) => item.table_number) : [];
+
         setDesks(desk); 
       } else {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -128,6 +131,14 @@ const CoGrid = ({nightMode}) => {
   };
 
   return (
+    <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.5 }}
+    className="h-full"
+    
+        >
     <div className={`w-full h-full p-6 ${nightMode
       ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
       : 'bg-gradient-to-b from-blue-100 to-blue-200'
@@ -290,6 +301,7 @@ const CoGrid = ({nightMode}) => {
         </div>
       </div>
     </div>
+    </motion.div>
   );
 };
 

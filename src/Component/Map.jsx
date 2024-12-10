@@ -10,7 +10,7 @@ import { GrCaretPrevious, GrCaretNext } from 'react-icons/gr'; // import ไอ�
 import { FaRegWindowClose } from "react-icons/fa";
 
 
-const CoMap = ({ nightMode,userid }) => {
+const CoMap = ({ nightMode, userid }) => {
   const [time, setTime] = useState("08:00");
   const [date, setDate] = useState(() => {
     const now = new Date();
@@ -43,7 +43,7 @@ const CoMap = ({ nightMode,userid }) => {
     "20:00", "20:30", "21:00", "21:30", "22:00"
   ];
 
- 
+
 
 
   const getSelectedTimeIndex = (selectedTime) => {
@@ -112,9 +112,9 @@ const CoMap = ({ nightMode,userid }) => {
     try {
       const currentDate = date.toISOString().split('T')[0];
       console.log(currentDate);
-  
+
       const response = await API.get(`/reservations/day/${currentDate}`);
-  
+
       if (response.status === 200) {
         console.log('Data fetched:', response.data);
         // setInitialTimes(response.data);
@@ -126,11 +126,11 @@ const CoMap = ({ nightMode,userid }) => {
       if (error.response && error.response.status === 404) {
         console.log("No data found for the selected date.");
       } else {
-        console.log("An unexpected error occurred."+ error ); // แสดงข้อความสำหรับข้อผิดพลาดอื่น ๆ
+        console.log("An unexpected error occurred." + error); // แสดงข้อความสำหรับข้อผิดพลาดอื่น ๆ
       }
     }
   };
-  
+
 
 
   useEffect(() => {
@@ -168,8 +168,8 @@ const CoMap = ({ nightMode,userid }) => {
   });
 
   const booking = async () => {
-  
-    
+
+
 
     let jsonData = {
       user_id: userid,
@@ -181,13 +181,13 @@ const CoMap = ({ nightMode,userid }) => {
     };
 
     console.log('Booking data:', jsonData);
-    
+
     try {
       const response = await API.post('/reservations', jsonData);
-    
+
       if (response.status === 200) {
         console.log('Booking successful:', response.data);
-        
+
         // Set booking success details
         setBookingDetails({
           tableId: TableID.toString(),
@@ -198,7 +198,7 @@ const CoMap = ({ nightMode,userid }) => {
 
         // Close booking modal
         document.getElementById('bookingModal').close();
-        
+
         // Show success modal
         setBookingSuccess(true);
         document.getElementById('bookingSuccessModal').showModal();
@@ -213,6 +213,9 @@ const CoMap = ({ nightMode,userid }) => {
   const closeSuccessModal = () => {
     setBookingSuccess(false);
     document.getElementById('bookingSuccessModal').close();
+    fetchData();
+    //refresh page
+    window.location.reload();
   };
 
 
@@ -314,6 +317,7 @@ const CoMap = ({ nightMode,userid }) => {
           setDisplayTime={setDisplayTime}
           setSelectedTime={setSelectedTime}
           handleTimeChange={handleTimeChange}
+          // currentDate={date}
 
           // initialTimes={initialTimes}
           // moreTimes={moreTimes}
@@ -386,24 +390,50 @@ const CoMap = ({ nightMode,userid }) => {
 
         {/* Date Selector */}
         <div className="flex items-center space-x-4">
-          <button
+          {/* <button
             onClick={() => setDate(new Date(date.setDate(date.getDate() - 1)))}
             className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700 shadow-md"
           >
             <GrCaretPrevious size={20} />
+          </button> */}
+
+          <button
+            onClick={() => setDate(new Date(date.setDate(date.getDate() - 1)))}
+            className={`p-2 border rounded-full transition duration-200 shadow-md ${nightMode
+              ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 border-gray-600'
+              : 'bg-red-700 text-white hover:bg-red-600 border-red-700'
+              }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
           </button>
+
           <input
             type="date"
             value={date.toISOString().slice(0, 10)}
             onChange={(e) => setDate(new Date(e.target.value))}
             className="p-2 rounded-md border bg-gray-700 text-white"
           />
-          <button
+          {/* <button
             onClick={() => setDate(new Date(date.setDate(date.getDate() + 1)))}
             className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700 shadow-md"
           >
             <GrCaretNext size={20} />
+          </button> */}
+
+          <button
+            onClick={() => setDate(new Date(date.setDate(date.getDate() + 1)))}
+            className={`p-2 border rounded-full transition duration-200 shadow-md ${nightMode
+              ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 border-gray-600'
+              : 'bg-red-700 text-white hover:bg-red-600 border-red-700'
+              }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </button>
+
         </div>
       </div>
 
@@ -565,107 +595,71 @@ const CoMap = ({ nightMode,userid }) => {
       </dialog>
 
       {/* User Booking Modal */}
-      <dialog id="bookingModal2" className="modal">
+      <dialog id="bookingModalDetail" className="modal">
         <form method="dialog" className="modal-box rounded-lg w-full max-w-md p-6 bg-gray-900 text-white">
-          <h3 className="text-2xl font-bold mb-2">Desk A1</h3>
-          <p className="text-gray-500 mb-6">Desk Number ##</p>
-          
-          {/* Date & Time */}
+          <h3 className="text-2xl font-bold mb-2">Desk {numbertable}</h3>
+          <p className="text-gray-500 mb-6">No available times for bookings on {date.toLocaleDateString('th-TH')}</p>
+
           <div className="mb-4">
-            <label className="block text-sm font-semibold mb-1">Date & Time</label>
-            <input
-              type="date"
-              className="input input-bordered w-full mb-3 text-white"
-              value={date.toISOString().slice(0, 10)}
-            />
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label className="block text-sm font-semibold">From</label>
-                {/* "From" Time Select with the current time pre-selected */}
-                <select
-                  className="select select-bordered w-full text-white"
-                  value={timeModal} // Bind to the selected time
-                  onChange={(e) => {
-                    setTimeModal(e.target.value)
-                    setBookFrom(e.target.value)
-                  }} // Handle time change
-                >
-                  {allTimes.map((time, index) => (
-                    <option key={index} value={time}>
-                      {time}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex-1">
-                <label className="block text-sm font-semibold">To</label>
-                {/* "To" Time Select based on the selected "From" time */}
-                <select className="select select-bordered w-full text-white"
-                  value={timeModal + 1}>
-                  {allTimes.slice(allTimes.indexOf(timeModal) + 1).map((time) => (
-                    <option key={time} value={time}>
-                      {time}
-                    </option>
-                  ))}
-                </select>
+            <p className="text-sm">Scheduled Bookings</p>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">09:00–18:00</span>
+                <span className="text-gray-400">Maprang Saengarun</span>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-2">
-            <button className="btn btn-primary">Confirm Booking</button>
-            <button
-              className="btn btn-outline"
-              onClick={() => cancelBooking()}
-            >
-              Cancel Booking
-            </button>
+          <div className="flex justify-end items-center gap-4">
+            <button className="btn btn-outline text-white">Close and keep exploring</button>
+          
           </div>
         </form>
       </dialog>
 
+
       {/* Booking Success Modal */}
-  <dialog id="bookingSuccessModal" className="modal">
-    <div className="modal-box rounded-lg w-full max-w-md p-6 bg-green-600 text-white">
-      <div className="text-center">
-        <FaCheckCircle className="mx-auto text-6xl mb-4 text-white" />
-        <h3 className="text-2xl font-bold mb-2">Booking Successful!</h3>
-        
-        <div className="bg-green-700 rounded-lg p-4 mt-4">
-          <div className="flex justify-between mb-2">
-            <span className="font-semibold">Desk Number:</span>
-            <span>{bookingDetails.tableId}</span>
-          </div>
-          <div className="flex justify-between mb-2">
-            <span className="font-semibold">Date:</span>
-            <span>
-              {bookingDetails.date && 
-                bookingDetails.date.toLocaleDateString('en-US', { 
-                  weekday: 'short', 
-                  month: 'short', 
-                  day: 'numeric', 
-                  year: 'numeric' 
-                })
-              }
-            </span>
-          </div>
-          <div className="flex justify-between mb-2">
-            <span className="font-semibold">Time:</span>
-            <span>{bookingDetails.startTime} - {bookingDetails.endTime}</span>
+      <dialog id="bookingSuccessModal" className="modal">
+        <div className="modal-box rounded-lg w-full max-w-md p-6 bg-green-600 text-white">
+          <div className="text-center">
+            <FaCheckCircle className="mx-auto text-6xl mb-4 text-white" />
+            <h3 className="text-2xl font-bold mb-2">Booking Successful!</h3>
+
+            <div className="bg-green-700 rounded-lg p-4 mt-4">
+              <div className="flex justify-between mb-2">
+                <span className="font-semibold">Desk Number:</span>
+                <span>{bookingDetails.tableId}</span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span className="font-semibold">Date:</span>
+                <span>
+                  {bookingDetails.date &&
+                    bookingDetails.date.toLocaleDateString('en-US', {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })
+                  }
+                </span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span className="font-semibold">Time:</span>
+                <span>{bookingDetails.startTime} - {bookingDetails.endTime}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={closeSuccessModal}
+              className="btn btn-white mt-4 w-full"
+            >
+              Close
+            </button>
           </div>
         </div>
-        
-        <button 
-          onClick={closeSuccessModal} 
-          className="btn btn-white mt-4 w-full"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </dialog>
+      </dialog>
 
-      
+
     </div>
   );
 };
