@@ -164,16 +164,27 @@ const BookingList = ({
     onBookingSelect 
 }) => {
     const filteredData = data
-        .map((day) => ({
-            ...day,
-            bookings: day.bookings.filter((booking) =>
-                isMyBooking 
-                ? (booking.name?.toLowerCase() ?? "").includes(searchQuery.toLowerCase())
-                : (booking.name?.toLowerCase() ?? "").includes(searchQuery.toLowerCase()) || 
-                  (booking.stdID?.toLowerCase() ?? "").includes(searchQuery.toLowerCase())
-            ),
-        }))
-        .filter((day) => day.bookings.length > 0);
+    .map((day) => ({
+        ...day,
+        bookings: day.bookings.filter((booking) => {
+            const lowerSearchQuery = searchQuery.toLowerCase();
+    
+            // ตรวจสอบการค้นหาของแต่ละฟิลด์
+            const matchesName = (booking.name?.toLowerCase() ?? "").includes(lowerSearchQuery);
+            const matchesStdID = (booking.stdID?.toLowerCase() ?? "").includes(lowerSearchQuery);
+            const matchesNote = (booking.note?.toLowerCase() ?? "").includes(lowerSearchQuery);
+            const matchesDate = booking.date 
+                ? new Date(booking.date).toLocaleDateString('th-TH').includes(searchQuery)
+                : false;
+    
+            // เงื่อนไขการค้นหาตาม isMyBooking
+            return isMyBooking 
+                ? matchesName
+                : matchesName || matchesStdID || matchesNote || matchesDate;
+        }),
+    }))
+    .filter((day) => day.bookings.length > 0);
+    
 
     const bgClass = nightMode ? "bg-gray-900 text-gray-300" : "bg-white";
     const headerClass = nightMode ? "bg-red-900 text-gray-200" : "bg-red-700 text-white";

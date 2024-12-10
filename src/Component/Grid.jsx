@@ -139,23 +139,26 @@ const CoGrid = ({nightMode}) => {
         </h2>
 
         {/* Month Selector */}
-        <div className="mb-6 flex justify-center items-center">
-          <label className={`mr-3 font-medium ${nightMode ? 'text-gray-300' : 'text-gray-700'}`}>
-            เลือกเดือน:
-          </label>
-          <div className="relative">
-            <input
-              type="month"
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              className={`p-3 border-2 rounded-lg focus:ring-2 transition-all duration-300 ${
-                nightMode 
-                  ? 'bg-gray-800 border-gray-700 text-gray-200 focus:ring-indigo-600' 
-                  : 'border-indigo-200 text-gray-200 focus:ring-indigo-400 '
-              }`}
-            />
-          </div>
-        </div>
+<div className="mb-6 flex justify-center items-center">
+  <label
+    className={`mr-4 font-medium ${nightMode ? 'text-gray-300' : 'text-gray-700'}`}
+  >
+    เลือกเดือน:
+  </label>
+  <div className="relative">
+    <input
+      type="month"
+      value={selectedMonth}
+      onChange={(e) => setSelectedMonth(e.target.value)}
+      className={`p-3 border-2 rounded-lg focus:ring-2 transition-all duration-300 w-50 ${
+        nightMode 
+          ? 'bg-gray-800 border-gray-700 text-gray-200 focus:ring-indigo-600 focus:outline-none'
+          : 'bg-white border-gray-300 text-gray-900 focus:ring-indigo-400 focus:outline-none'
+      }`}
+    />
+  </div>
+</div>
+
 
         {/* Booking Grid */}
         <div 
@@ -177,7 +180,7 @@ const CoGrid = ({nightMode}) => {
               className={`font-bold text-center p-3  ${
                 nightMode 
                   ? 'bg-gray-700 text-gray-200' 
-                  : 'bg-red-600 text-gray-200'
+                  : 'bg-red-700 text-gray-200'
               }`}
             >
               วันที่
@@ -188,7 +191,7 @@ const CoGrid = ({nightMode}) => {
                 className={`font-bold text-center p-3 ${
                   nightMode 
                     ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
-                    : 'bg-red-600 text-gray-200 hover:bg-indigo-200'
+                    : 'bg-red-700 text-gray-200 hover:bg-indigo-200'
                 } transition-colors`}
               >
                 {desk}
