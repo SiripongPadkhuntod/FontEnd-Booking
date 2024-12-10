@@ -1,26 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
-// import { bookings } from './Month';
 
-// let bookings = [
-//     { name: "John Doe", Fromtime: "10:00", Totime: "18:00", table: "A1", note: "Team meeting", date: new Date("2024-12-08") },
-//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-29") },
-//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
-//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A2", note: "Client call", date: new Date("2024-11-15") },
-//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
-//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-//     { name: "Alice Brown", Fromtime: "11:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-//     { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") }, -
-//     { name: "David Black", Fromtime: "17:00", Totime: "18:00", table: "A1", note: "Review", date: new Date("2024-11-20") },
-//     { name: "Emma White", Fromtime: "09:00", Totime: "18:00", table: "A1", note: "Brainstorming", date: new Date("2024-02-29") },
-//     { name: "James Green", Fromtime: "13:00", Totime: "18:00", table: "A1", note: "Project Update", date: new Date("2024-03-01") },
-// ];
 
-const CircleButton = ({ cx, cy, tableNumber, onClick, disabled,tableID}) => {
-
+const CircleButton = ({ cx, cy, tableNumber, onClick, disabled, tableID, showBookingDetails }) => {
     const handleMouseEnter = (e) => { if (!disabled) e.target.setAttribute("fill", "#2E8B57") };
     const handleMouseLeave = (e) => { if (!disabled) e.target.setAttribute("fill", "#40AD0E") };
 
@@ -33,9 +15,12 @@ const CircleButton = ({ cx, cy, tableNumber, onClick, disabled,tableID}) => {
             stroke="#000"
             onClick={() => {
                 if (disabled) {
-                    document.getElementById('bookingModal2').showModal(); onClick(tableNumber,tableID);
+                    // เรียกฟังก์ชันที่รับข้อมูลจาก API และแสดง Modal
+                    showBookingDetails(tableNumber, tableID);
                 } else {
-                    document.getElementById('availabilityModal').showModal(); onClick(tableNumber,tableID);
+                    // Function when not disabled (normal behavior)
+                    document.getElementById('availabilityModal').showModal();
+                    onClick(tableNumber, tableID);
                 }
             }}
             onMouseEnter={handleMouseEnter}
@@ -43,29 +28,6 @@ const CircleButton = ({ cx, cy, tableNumber, onClick, disabled,tableID}) => {
         />
     );
 };
-
-// const fetchData = async () => {
-//     // กำหนดตัวแปร date ที่ต้องการกรองข้อมูล
-//     const currentDate = new Date().toISOString().split('T')[0]; // ใช้วันที่ปัจจุบัน
-//     const date = currentDate; // กำหนดตัวแปร date ให้เป็นวันที่ปัจจุบัน
-
-//     console.log(currentDate);
-
-//     try {
-//         const response = await API.get(`/reservations/day/${currentDate}`);
-//         console.log(response.data); // ดูข้อมูลที่ได้รับจาก API
-
-//         // เก็บข้อมูลจาก API ลงใน state ที่เหมาะสม
-//         const timeMap = response.data
-//             .filter(item => new Date(item.date).toDateString() === new Date(date).toDateString()) // กรองข้อมูลให้ตรงกับวัน
-//             .map(item => ({ disabled: isBetweenTimes(time, item.Fromtime, item.Totime), table: item.table }));
-
-//         const bookingTableSet = new Set(timeMap.filter(item => item.disabled).map(item => item.table));
-//         setBooking(bookingTableSet); // เก็บผลที่ได้ลงใน state booking
-//     } catch (error) {
-//         console.error("Error fetching data:", error);
-//     }
-// };
 
 
 
@@ -79,35 +41,56 @@ function isBetweenTimes(time, startTime, endTime) {
     const timeInMinutes = timeToMinutes(time);
     const startInMinutes = timeToMinutes(startTime);
     const endInMinutes = timeToMinutes(endTime);
-
-    // เช็คว่าเวลาที่กำหนดอยู่ระหว่างช่วงเริ่มต้นและสิ้นสุดหรือไม่
+    console.log(`Comparing time: ${timeInMinutes} with range ${startInMinutes} - ${endInMinutes}`);
     return timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes;
 }
 
-function MapSVG({ time, date, onSelectNumbertable,onSelectNumbertableID }) {
+
+
+function MapSVG({ time, date, onSelectNumbertable, onSelectNumbertableID }) {
 
     const [booking, setBooking] = useState(new Set());
     useEffect(() => {
         const Bookings = async () => {
             const currentDate = new Date().toISOString().split('T')[0]; // กำหนด currentDate เป็นวันที่ปัจจุบันในรูปแบบ yyyy-mm-dd
-            
+            console.log('Current Date:', currentDate);
+            console.log('Time from props:', time);
+            console.log('Date from props:', date);
             try {
                 const response = await API.get(`/reservations/day/${currentDate}`);
-                
+
                 // ตรวจสอบการตอบกลับจาก API
                 if (response && response.data) {
-                    // console.log(response.data); // ตรวจสอบข้อมูลที่ได้รับจาก API
-                    
+                    console.log(response.data); // ตรวจสอบข้อมูลที่ได้รับจาก API
+
                     // ประมวลผลข้อมูล
                     const timeMap = response.data
-                        .filter(item => new Date(item.date).toDateString() === new Date(date).toDateString()) 
-                        .map(item => ({ disabled: isBetweenTimes(time, item.Fromtime, item.Totime), table: item.table }));
+                        // .filter(item => {
+                        //     const reservationDate = new Date(item.reservation_date).toDateString();
+                        //     console.log("Checking date", reservationDate, date);
+                        //     return reservationDate === new Date(date).toDateString();
+                        // })
+                        // .map(item => {
+                        //     const disabled = isBetweenTimes(time, item.reservation_time_from, item.reservation_time_to);
+                        //     console.log(`Checking time for table ${item.table_number}:`, disabled);
+                        //     return { disabled, table: item.table_number };
+                        // });
+
+    
+                        .filter(item => new Date(item.reservation_date).toDateString() === new Date(date).toDateString())
+                        
+                        .map(item => ({ 
+                            disabled: isBetweenTimes(time, item.reservation_time_from, item.reservation_time_to), 
+                            table: item.table_number 
+                            
+                        }));
                     
+                        
+
                     const bookingTableSet = new Set(timeMap.filter(item => item.disabled).map(item => item.table));
                     setBooking(bookingTableSet);
                     console.log(bookingTableSet, date, time);
 
-                    
                 } else {
                     console.error("No data found in the response.");
                 }
@@ -115,26 +98,28 @@ function MapSVG({ time, date, onSelectNumbertable,onSelectNumbertableID }) {
                 console.error("Error fetching bookings:", error);
             }
         };
-        
+
         Bookings();
     }, [time, date]); // ใช้เวลาและวันที่ใน dependency
-    
 
-    const setNumbertable = (tableNumber,tableID) => {
+
+    const setNumbertable = (tableNumber, tableID) => {
         // const currentBooking = [...booking];
         // currentBooking.push(tableNumber)
         // setBooking(Array.from(new Set(currentBooking)))
         // Function to handle table selection, replace with your logic
         onSelectNumbertable(tableNumber)
         onSelectNumbertableID(tableID)
-        console.log('Selected table:', tableNumber,tableID);
-        return tableNumber,tableID;
+        console.log('Selected table:', tableNumber, tableID);
+        return tableNumber, tableID;
     };
 
-    const hasBooking = (tableName) => {
-        return booking.has(tableName); // เช็คว่ามีการจองหรือไม่
-    };
-    
+    const hasBooking = (tablename) => {
+        console.log('Booking Set:', booking);
+        return booking.has(tablename);
+      };
+
+
     return (
         <div>
             {JSON.stringify(date)}
@@ -186,18 +171,18 @@ function MapSVG({ time, date, onSelectNumbertable,onSelectNumbertableID }) {
 
                 {/* Reusable Circle Buttons */}
                 <g className="cursor-pointer">
-                    <CircleButton cx={228} cy={355} tableNumber="A6" tableID="10" onClick={setNumbertable} disabled={hasBooking('A6')} />
-                    <CircleButton cx={226} cy={164} tableNumber="A3" tableID="3" onClick={setNumbertable} disabled={hasBooking('A3')} />
-                    <CircleButton cx={464} cy={387} tableNumber="B1" tableID="6" onClick={setNumbertable} disabled={hasBooking('B1')} />
-                    <CircleButton cx={556} cy={387} tableNumber="B2" tableID="7" onClick={setNumbertable} disabled={hasBooking('B2')} />
-                    <CircleButton cx={539} cy={104} tableNumber="C1" tableID="8" onClick={setNumbertable} disabled={hasBooking('C1')} />
-                    <CircleButton cx={157} cy={354} tableNumber="A5" tableID="5" onClick={setNumbertable} disabled={hasBooking('A5')} />
-                    <CircleButton cx={157} cy={164} tableNumber="A2" tableID="2" onClick={setNumbertable} disabled={hasBooking('A2')} />
-                    <CircleButton cx={86} cy={354} tableNumber="A4"  tableID="4" onClick={setNumbertable} disabled={hasBooking('A4')} />
-                    <CircleButton cx={88} cy={164} tableNumber="A1"  tableID="1" onClick={setNumbertable} disabled={hasBooking('A1')} />
-                    <CircleButton cx={469} cy={104} tableNumber="C2" tableid="1" onClick={setNumbertable} disabled={hasBooking('C2')} />
+                    <CircleButton cx={228} cy={355} tableNumber="A06" tableID="10" onClick={setNumbertable} disabled={hasBooking('A06')} />
+                    <CircleButton cx={226} cy={164} tableNumber="A03" tableID="3" onClick={setNumbertable} disabled={hasBooking('A03')} />
+                    <CircleButton cx={464} cy={387} tableNumber="B01" tableID="6" onClick={setNumbertable} disabled={hasBooking('B01')} />
+                    <CircleButton cx={556} cy={387} tableNumber="B02" tableID="7" onClick={setNumbertable} disabled={hasBooking('B02')} />
+                    <CircleButton cx={539} cy={104} tableNumber="C01" tableID="8" onClick={setNumbertable} disabled={hasBooking('C01')} />
+                    <CircleButton cx={157} cy={354} tableNumber="A05" tableID="5" onClick={setNumbertable} disabled={hasBooking('A05')} />
+                    <CircleButton cx={157} cy={164} tableNumber="A02" tableID="2" onClick={setNumbertable} disabled={hasBooking('A02')} />
+                    <CircleButton cx={86} cy={354} tableNumber="A04" tableID="4" onClick={setNumbertable} disabled={hasBooking('A04')} />
+                    <CircleButton cx={88} cy={164} tableNumber="A01" tableID="1" onClick={setNumbertable} disabled={hasBooking('A01')} />
+                    <CircleButton cx={469} cy={104} tableNumber="C02" tableid="9" onClick={setNumbertable} disabled={hasBooking('C02')} />
                 </g>
-
+                
                 {/* Defining clip paths */}
                 <defs>
                     <clipPath id="a">
@@ -205,8 +190,10 @@ function MapSVG({ time, date, onSelectNumbertable,onSelectNumbertableID }) {
                     </clipPath>
                     {/* Other clipPaths */}
                 </defs>
+                
             </svg>
         </div>
+        
     );
 }
 

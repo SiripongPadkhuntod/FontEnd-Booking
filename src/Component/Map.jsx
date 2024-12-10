@@ -569,7 +569,7 @@ const CoMap = ({ nightMode,userid }) => {
         <form method="dialog" className="modal-box rounded-lg w-full max-w-md p-6 bg-gray-900 text-white">
           <h3 className="text-2xl font-bold mb-2">Desk A1</h3>
           <p className="text-gray-500 mb-6">Desk Number ##</p>
-
+          
           {/* Date & Time */}
           <div className="mb-4">
             <label className="block text-sm font-semibold mb-1">Date & Time</label>

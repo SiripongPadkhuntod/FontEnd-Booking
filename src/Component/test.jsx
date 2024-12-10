@@ -1,554 +1,162 @@
-import React, { useState, useEffect } from "react";
-import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
-// ข้อมูลตัวอย่าง
-export let bookings = [
-  { name: "John Doe", Fromtime: "10:00", Totime: "18:00", table: "A1", note: "Team meeting", date: new Date("2024-11-16") },
-  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-29") },
-  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
-  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A2", note: "Client call", date: new Date("2024-11-15") },
-  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
-  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-  { name: "Alice Brown", Fromtime: "11:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-  { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") }, -
-  { name: "David Black", Fromtime: "17:00", Totime: "18:00", table: "A1", note: "Review", date: new Date("2024-11-20") },
-  { name: "Emma White", Fromtime: "09:00", Totime: "18:00", table: "A1", note: "Brainstorming", date: new Date("2024-02-29") },
-  { name: "James Green", Fromtime: "13:00", Totime: "18:00", table: "A1", note: "Project Update", date: new Date("2024-03-01") },
+import React, { useEffect, useState } from 'react';
+// import { bookings } from './Month';
+
+let bookings = [
+    { name: "John Doe", Fromtime: "10:00", Totime: "18:00", table: "A1", note: "Team meeting", date: new Date("2024-12-08") },
+    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-29") },
+    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A2", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A3", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "11:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
+    { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") }, -
+    { name: "David Black", Fromtime: "17:00", Totime: "18:00", table: "A1", note: "Review", date: new Date("2024-11-20") },
+    { name: "Emma White", Fromtime: "09:00", Totime: "18:00", table: "A1", note: "Brainstorming", date: new Date("2024-02-29") },
+    { name: "James Green", Fromtime: "13:00", Totime: "18:00", table: "A1", note: "Project Update", date: new Date("2024-03-01") },
 ];
 
+const CircleButton = ({ cx, cy, tableNumber, onClick, disabled,tableID}) => {
 
-
-
-const CoMonth = () => {
-  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().split('T')[0].slice(0, 7));
-  const [showDetailView, setShowDetailView] = useState(false);
-  const [selectedDateBookings, setSelectedDateBookings] = useState([]);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [activeView, setActiveView] = useState('calendar'); // 'calendar' or 'bookings'
-  const [bookings, setBookings] = useState([]);
-  
-
-  // ข้อมูลตัวอย่าง
-  
-
-  const fetchData = async (test) => {
-    try {
-      const response = await API.get(`/reservations/${test}`);
-  
-      if (response.status === 200) {
-        const transformedData = transformData(response.data);
-        setBookings(transformedData);
-      } else {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      // Set default data in case of error
-      setBookings([
-        { name: "John Doe", Fromtime: "10:00", Totime: "18:00", table: "A1", note: "Team meeting", date: new Date("2024-11-16") },
-        { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-        // ... other default bookings
-      ]);
-    }
-  };
-  
-  const transformData = (apiData) => {
-
-    // Log ข้อมูลที่ได้จาก API
-    console.log(apiData);
-
-    return apiData.map(item => {
-        const formatTime = (time) => {
-            const [hours, minutes] = time.split(":"); // แยกชั่วโมงและนาทีจากเวลา
-            return `${hours}:${minutes}`;
-        };
-
-        return {
-            name: `${item.first_name} ${item.last_name}`,
-            Fromtime: formatTime(item.reservation_time_from), // ใช้ฟังก์ชัน formatTime
-            Totime: formatTime(item.reservation_time_to), // ใช้ฟังก์ชัน formatTime
-            table: item.table_number,
-            note: item.note,
-            date: new Date(item.reservation_date)
-        };
-    });
-};
-
-
-
-
-
-  // ฟังก์ชันต่างๆ
-  const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
-
-  const getDayInThai = (date) => {
-    const days = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
-    return days[date.getDay()];
-  };
-
-  const getMonthInThai = (monthIndex) => {
-    const months = [
-      "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-      "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-    ];
-    return months[monthIndex];
-  };
-
-  const renderBookingNames = (bookings) => {
-    if (bookings.length === 0) return <div className="text-gray-400">ว่าง</div>;
+    const handleMouseEnter = (e) => { if (!disabled) e.target.setAttribute("fill", "#2E8B57") };
+    const handleMouseLeave = (e) => { if (!disabled) e.target.setAttribute("fill", "#40AD0E") };
 
     return (
-      <div className="overflow-hidden">
-        {bookings.slice(0, 2).map((booking, index) => {
-          const firstName = booking.name.split(" ")[0];
-          return (
-            <div key={index} className="text-xs truncate">
-              <span className="font-medium">{firstName}</span>
-            </div>
-          );
-        })}
-        {bookings.length > 2 && (
-          <div className="text-xs text-red-500">+{bookings.length - 2}</div>
-        )}
-      </div>
+        <circle
+            cx={cx}
+            cy={cy}
+            r="14.5"
+            fill={disabled ? "#aaa" : "#40AD0E"}
+            stroke="#000"
+            onClick={() => {
+                if (disabled) {
+                    document.getElementById('bookingModal2').showModal(); onClick(tableNumber,tableID);
+                } else {
+                    document.getElementById('availabilityModal').showModal(); onClick(tableNumber,tableID);
+                }
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+        />
     );
-  };
+};
 
-  const getFirstDayOfMonth = (year, month) => {
-    const firstDay = new Date(year, month, 1);
-    return firstDay.getDay();
-  };
+function timeToMinutes(timeString) {
+    if (!timeString) return;
+    const [hours, minutes] = timeString.split(":").map(Number);
+    return hours * 60 + minutes;
+}
 
-  const getBookingsForDate = (year, month, day) => {
-    const date = new Date(year, month, day);
-    return bookings.filter(booking =>
-      booking.date.getFullYear() === date.getFullYear() &&
-      booking.date.getMonth() === date.getMonth() &&
-      booking.date.getDate() === date.getDate()
-    );
-  };
+function isBetweenTimes(time, startTime, endTime) {
+    const timeInMinutes = timeToMinutes(time);
+    const startInMinutes = timeToMinutes(startTime);
+    const endInMinutes = timeToMinutes(endTime);
 
-  const getGroupedBookingsForMonth = () => {
-    const selectedYear = parseInt(selectedMonth.split("-")[0], 10);
-    const selectedMonthIndex = parseInt(selectedMonth.split("-")[1], 10) - 1;
+    // เช็คว่าเวลาที่กำหนดอยู่ระหว่างช่วงเริ่มต้นและสิ้นสุดหรือไม่
+    return timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes;
+}
 
-    const filteredBookings = bookings
-      .filter(booking =>
-        booking.date.getFullYear() === selectedYear &&
-        booking.date.getMonth() === selectedMonthIndex
-      )
-      .sort((a, b) => a.date - b.date);
+function MapSVG({ time, date, onSelectNumbertable,onSelectNumbertableID }) {
 
-    const groupedBookings = filteredBookings.reduce((groups, booking) => {
-      const dateKey = booking.date.getDate();
-      if (!groups[dateKey]) {
-        groups[dateKey] = {
-          date: booking.date,
-          bookings: []
-        };
-      }
-      groups[dateKey].bookings.push(booking);
-      return groups;
-    }, {});
+    const [booking, setBooking] = useState(new Set());
+    useEffect(() => {
+        const timeMap = bookings
+            .filter(item => item.date?.getTime() === date?.getTime())
+            .map(item => ({ disabled: isBetweenTimes(time, item.Fromtime, item.Totime), table: item.table }))
+        const bookingTableSet = new Set(timeMap.filter(item => item.disabled).map(item => item.table))
+        setBooking(bookingTableSet)
+        console.log(bookingTableSet, date, time);
 
-    return Object.values(groupedBookings);
-  };
-
-  // การคำนวณวันที่ต่างๆ
-  const selectedYear = parseInt(selectedMonth.split("-")[0], 10);
-  const selectedMonthIndex = parseInt(selectedMonth.split("-")[1], 10) - 1;
-  const daysInMonth = getDaysInMonth(selectedYear, selectedMonthIndex);
-  const firstDayOfMonth = getFirstDayOfMonth(selectedYear, selectedMonthIndex);
-
-  const getLastDateOfPreviousMonth = (year, month) => {
-    const lastDate = new Date(year, month, 0);
-    return lastDate.getDate();
-  };
-
-  const previousMonthDateCount = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
-  const lastDateOfPreviousMonth = getLastDateOfPreviousMonth(selectedYear, selectedMonthIndex);
-
-  const previousMonthDates = Array.from(
-    { length: previousMonthDateCount },
-    (_, i) => lastDateOfPreviousMonth - previousMonthDateCount + i + 1
-  );
-
-  const nextMonthDateCount = (7 - ((daysInMonth + previousMonthDateCount) % 7)) % 7;
-  const nextMonthDates = Array.from({ length: nextMonthDateCount }, (_, i) => i + 1);
-
-  // ฟังก์ชันสำหรับการเปลี่ยนเดือน
-  const handlePrevMonth = () => {
-    const prevMonthDate = new Date(selectedMonth);
-    prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
-    setSelectedMonth(prevMonthDate.toISOString().split('T')[0].slice(0, 7));
-    fetchData(prevMonthDate.toISOString().split('T')[0].slice(0, 7));
-  };
-
-  const handleNextMonth = () => {
-    const nextMonthDate = new Date(selectedMonth);
-    nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
-    setSelectedMonth(nextMonthDate.toISOString().split('T')[0].slice(0, 7));
-    fetchData(nextMonthDate.toISOString().split('T')[0].slice(0, 7));
-  };
-
-  const handleDateClick = (year, month, day) => {
-    const dayBookings = getBookingsForDate(year, month, day);
-    setSelectedDateBookings(dayBookings);
-    setShowDetailView(true);
-  };
-
-  const handleselectMonth = (e) => {
-    setSelectedMonth(e.target.value);
-    fetchData(e.target.value);
-  };
-
-  // Responsive check
-  useEffect(() => {
-    fetchData(new Date().toISOString().split('T')[0].slice(0, 7));
-
-    const checkMobileView = () => {
-      setIsMobile(window.innerWidth <= 768);
+    }, [time, date])
+    const setNumbertable = (tableNumber,tableID) => {
+        // const currentBooking = [...booking];
+        // currentBooking.push(tableNumber)
+        // setBooking(Array.from(new Set(currentBooking)))
+        // Function to handle table selection, replace with your logic
+        onSelectNumbertable(tableNumber)
+        onSelectNumbertableID(tableID)
+        console.log('Selected table:', tableNumber,tableID);
+        return tableNumber,tableID;
     };
 
-    // Check on initial load
-    checkMobileView();
-
-    // Add event listener for window resize
-    window.addEventListener('resize', checkMobileView);
-
-    // Cleanup event listener
-    return () => window.removeEventListener('resize', checkMobileView);
-  }, []);
-
-  // Mobile Layout
-  // Mobile Layout
-  const renderMobileLayout = () => {
+    const hasBooking = (tableName) => {
+        return booking.has(tableName)
+    }
     return (
-      <div className="flex flex-col h-full ">
-        <div className="p-4">
-          <h2 className="text-xl font-bold mb-4 text-center text-black">Monthly Desk Booking</h2>
+        <div>
+            {JSON.stringify(date)}
+            <svg xmlns="http://www.w3.org/2000/svg" width="931" height="508" fill="none" viewBox="0 0 931 508" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <g clipPath="url(#a)">
+                    <path fill="#DCEAF7" stroke="#366286" strokeWidth="5" d="M2.5 505.5V2.5h711v503z" />
+                    <path fill="#DCEAF7" stroke="#366286" d="M710.525 339.484V161.597h4.975v177.887z" />
+                    <rect width="141" height="212" x="49.5" y="329.5" fill="#FCFCFC" stroke="#C0BECA" rx="14.5" transform="rotate(-90 49.5 329.5)" />
+                    <rect width="76" height="212" x="406.5" y="490.5" fill="#FCFCFC" stroke="#C0BECA" rx="14.5" transform="rotate(-90 406.5 490.5)" />
+                    <path fill="#D9D9D9" d="M302 503V382h32v121z" />
+                    <path fill="#fff" stroke="#C0BECA" d="M373.5 73.5v-64h239v64z" />
+                    <path fill="#fff" stroke="#C0BECA" d="M344.5 219.5V9.5h55v210z" />
+                    <path fill="#D9D9D9" stroke="#000" d="M227.5 56.5v-47h48v47z" />
+                    <path fill="#D9D9D9" stroke="#000" d="M289.5 56.5v-47h48v47z" />
+                    <path fill="#D9D9D9" stroke="#000" d="M108.5 333.5V363c0 8.008-6.492 14.5-14.5 14.5H79c-8.008 0-14.5-6.492-14.5-14.5v-29.5h44Z" />
+                    <path fill="#D9D9D9" d="M18 325V193h23v132z" />
+                    <path fill="#D9D9D9" stroke="#000" d="M150 377.5c-8.008 0-14.5-6.492-14.5-14.5v-29.5h44V363c0 8.008-6.492 14.5-14.5 14.5h-15Z" />
+                    <path fill="#D9D9D9" stroke="#000" d="M462 126.5c-8.008 0-14.5-6.492-14.5-14.5V82.5h44V112c0 8.008-6.492 14.5-14.5 14.5h-15Z" />
 
-          {/* Month selector */}
-          <div className="mb-4 flex justify-between items-center gap-2">
-            <button
-              onClick={handlePrevMonth}
-              className="p-2 border rounded-full bg-blue-500 text-white hover:bg-blue-600 transition duration-200 shadow-md"
-            >
-              &lt;
-            </button>
-            <input
-              type="month"
-              value={selectedMonth}
-              onChange={(e) => handleselectMonth(e)}
-              className="p-2 border rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 transition w-full"
-            />
-            <button
-              onClick={handleNextMonth}
-              className="p-2 border rounded-full bg-blue-500 text-white hover:bg-blue-600 transition duration-200 shadow-md"
-            >
-              &gt;
-            </button>
-          </div>
+                    <path fill="#D9D9D9" stroke="#000" d="M150 141.5c-8.008 0-14.5 6.492-14.5 14.5v29.5h44V156c0-8.008-6.492-14.5-14.5-14.5h-15Z" />
+                    <path fill="#D9D9D9" stroke="#000" d="M457 365.5c-8.008 0-14.5 6.492-14.5 14.5v29.5h44V380c0-8.008-6.492-14.5-14.5-14.5h-15Z" />
+                    <path fill="#D9D9D9" stroke="#000" d="M64.5 155v30.5h45V155c0-8.008-6.492-14.5-14.5-14.5H79c-8.008 0-14.5 6.492-14.5 14.5Z" />
+                    <path fill="#D9D9D9" stroke="#000" d="M218 140.5c-8.008 0-14.5 6.492-14.5 14.5v29.5h44V155c0-8.008-6.492-14.5-14.5-14.5h-15Z" />
+                    <path fill="#D9D9D9" stroke="#000" d="M549 365.5c-8.008 0-14.5 6.492-14.5 14.5v29.5h44V380c0-8.008-6.492-14.5-14.5-14.5h-15Z" />
+                    <path fill="#D9D9D9" stroke="#000" d="M220 377.5c-8.008 0-14.5-6.492-14.5-14.5v-29.5h44V363c0 8.008-6.492 14.5-14.5 14.5h-15Z" />
+                    <path fill="#D9D9D9" stroke="#000" d="M532 126.5c-8.008 0-14.5-6.492-14.5-14.5V82.5h44V112c0 8.008-6.492 14.5-14.5 14.5h-15Z" />
+                    <circle cx="458" cy="453" r="13" fill="#D9D9D9" />
+                    <g clipPath="url(#b)">
+                        <path fill="#374957" d="M467 458.25v-9.75a2.25 2.25 0 0 0-2.25-2.25h-13.5a2.25 2.25 0 0 0-2.25 2.25v9.75h8.25v.75h-3v1.5h7.5V459h-3v-.75H467Zm-16.5-9.75c0-.199.079-.39.22-.53a.747.747 0 0 1 .53-.22h13.5c.199 0 .39.079.53.22.141.14.22.331.22.53v8.25h-15v-8.25Z" />
+                    </g>
 
-          {/* Mobile view toggle */}
-          <div className="flex mb-4">
-            <button
-              className={`w-1/2 p-2 ${activeView === 'calendar' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-              onClick={() => setActiveView('calendar')}
-            >
-              ปฏิทิน
-            </button>
-            <button
-              className={`w-1/2 p-2 ${activeView === 'bookings' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-              onClick={() => setActiveView('bookings')}
-            >
-              รายการจอง
-            </button>
-          </div>
+                    <g clipPath="url(#c)">
+                        <path fill="#374957" d="M367.75 111.958h-1.583a3.168 3.168 0 0 0-3.167 3.167v4.75a3.17 3.17 0 0 0 3.167 3.167h1.583a3.962 3.962 0 0 0 3.958 3.958h3.959a3.962 3.962 0 0 0 3.958-3.958 2.375 2.375 0 0 0 2.375-2.375v-6.334a2.375 2.375 0 0 0-2.375-2.375 3.962 3.962 0 0 0-3.958-3.958h-3.959a3.962 3.962 0 0 0-3.958 3.958Zm-1.583 9.5a1.583 1.583 0 0 1-1.584-1.583v-4.75a1.584 1.584 0 0 1 1.584-1.583h1.583v7.916h-1.583Zm13.458-7.916a.79.79 0 0 1 .792.791v6.334a.791.791 0 0 1-.792.791h-3.167a.787.787 0 0 1-.559-.232.787.787 0 0 1-.232-.559v-6.334c0-.21.083-.411.232-.559a.787.787 0 0 1 .559-.232h3.167Zm-3.958-3.959a2.375 2.375 0 0 1 2.375 2.375h-1.584a2.375 2.375 0 0 0-2.375 2.375v6.334a2.375 2.375 0 0 0 2.375 2.375h1.584a2.375 2.375 0 0 1-2.375 2.375h-3.959a2.375 2.375 0 0 1-2.375-2.375v-11.084a2.375 2.375 0 0 1 2.375-2.375h3.959Z" />
+                        <path fill="#374957" d="M370.917 112.75v1.583a.79.79 0 0 0 .792.792.79.79 0 0 0 .791-.792v-1.583a.79.79 0 1 0-1.583 0Z" />
+                    </g>
+                    <circle cx="539" cy="42" r="13" fill="#D9D9D9" />
+                    <g clipPath="url(#d)">
+                        <path fill="#374957" d="M548 47.25V37.5a2.25 2.25 0 0 0-2.25-2.25h-13.5A2.25 2.25 0 0 0 530 37.5v9.75h8.25V48h-3v1.5h7.5V48h-3v-.75H548Zm-16.5-9.75a.749.749 0 0 1 .75-.75h13.5a.748.748 0 0 1 .75.75v8.25h-15V37.5Z" />
+                    </g>
+                    <circle cx="556" cy="453" r="13" fill="#D9D9D9" />
+                    <g clipPath="url(#e)">
+                        <path fill="#374957" d="M565 458.25v-9.75a2.25 2.25 0 0 0-2.25-2.25h-13.5a2.25 2.25 0 0 0-2.25 2.25v9.75h8.25v.75h-3v1.5h7.5V459h-3v-.75H565Zm-16.5-9.75c0-.199.079-.39.22-.53a.747.747 0 0 1 .53-.22h13.5c.199 0 .39.079.53.22.141.14.22.331.22.53v8.25h-15v-8.25Z" />
+                    </g>
+                    <path fill="#D9D9D9" d="M769 261v-27h64v27z" />
+                    <path fill="#D9D9D9" d="m719 247.5 50.25-29.012v58.024L719 247.5Z" />
+                    <path fill="#000" d="M756.826 254v-10.909h7.606v2.141h-4.97v2.237h4.581v2.147h-4.581v2.243h4.97V254h-7.606Zm18.542-10.909V254h-2.237l-4.342-6.296h-.069V254h-2.637v-10.909h2.27l4.293 6.285h.091v-6.285h2.631Zm1.301 2.141v-2.141h9.22v2.141h-3.307V254h-2.6v-8.768h-3.313ZM787.177 254v-10.909h4.507c.816 0 1.521.147 2.114.442.597.291 1.057.71 1.38 1.257.323.543.485 1.188.485 1.934 0 .756-.165 1.399-.496 1.928-.33.526-.799.927-1.406 1.204-.607.273-1.326.41-2.157.41h-2.85v-2.077h2.36c.397 0 .729-.052.996-.155.27-.106.474-.266.612-.479.139-.217.208-.494.208-.831 0-.338-.069-.616-.208-.837a1.248 1.248 0 0 0-.612-.5c-.27-.114-.602-.171-.996-.171h-1.3V254h-2.637Zm6.142-4.986 2.717 4.986h-2.877l-2.663-4.986h2.823Zm2.763-5.923h2.946l2.306 4.565h.096l2.307-4.565h2.945l-3.989 7.266V254h-2.621v-3.643l-3.99-7.266Z" />
+
+                </g>
+
+                {/* Reusable Circle Buttons */}
+                <g className="cursor-pointer">
+                    <CircleButton cx={228} cy={355} tableNumber="A6" tableID="1" onClick={setNumbertable} disabled={hasBooking('A6')} />
+                    <CircleButton cx={226} cy={164} tableNumber="A3" tableID="1" onClick={setNumbertable} disabled={hasBooking('A3')} />
+                    <CircleButton cx={464} cy={387} tableNumber="B1" tableID="1" onClick={setNumbertable} disabled={hasBooking('B1')} />
+                    <CircleButton cx={556} cy={387} tableNumber="B2" tableID="1" onClick={setNumbertable} disabled={hasBooking('B2')} />
+                    <CircleButton cx={539} cy={104} tableNumber="C1" tableID="1" onClick={setNumbertable} disabled={hasBooking('C1')} />
+                    <CircleButton cx={157} cy={354} tableNumber="A5" tableID="1" onClick={setNumbertable} disabled={hasBooking('A5')} />
+                    <CircleButton cx={157} cy={164} tableNumber="A2" tableID="1" onClick={setNumbertable} disabled={hasBooking('A2')} />
+                    <CircleButton cx={86} cy={354} tableNumber="A4"  tableID="1" onClick={setNumbertable} disabled={hasBooking('A4')} />
+                    <CircleButton cx={88} cy={164} tableNumber="A1"  tableID="1" onClick={setNumbertable} disabled={hasBooking('A1')} />
+                    <CircleButton cx={469} cy={104} tableNumber="C2" tableid="1" onClick={setNumbertable} disabled={hasBooking('C2')} />
+                </g>
+
+                {/* Defining clip paths */}
+                <defs>
+                    <clipPath id="a">
+                        <path fill="#fff" d="M0 508V0h931v508z" />
+                    </clipPath>
+                    {/* Other clipPaths */}
+                </defs>
+            </svg>
         </div>
-
-        {/* Calendar View */}
-        {activeView === 'calendar' && (
-          <div className="flex-grow overflow-auto px-2">
-            <div className="bg-gray-200 rounded-lg p-3">
-              <div className="grid grid-cols-7 gap-1 text-center">
-                {["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"].map((day, idx) => (
-                  <div key={idx} className="font-semibold text-xs p-1">{day}</div>
-                ))}
-
-                {/* Previous month dates */}
-                {previousMonthDates.map((date, index) => (
-                  <div key={`prev-${index}`} className="bg-white rounded-lg p-1 text-gray-400 text-xs h-16">
-                    <div className="font-medium">{date}</div>
-                  </div>
-                ))}
-
-                {/* Current month dates */}
-                {Array.from({ length: daysInMonth }).map((_, index) => {
-                  const dayBookings = getBookingsForDate(selectedYear, selectedMonthIndex, index + 1);
-                  return (
-                    <div
-                      key={`current-${index}`}
-                      className="bg-white rounded-lg h-16 p-1 cursor-pointer hover:bg-blue-100"
-                      onClick={() => handleDateClick(selectedYear, selectedMonthIndex, index + 1)}
-                    >
-                      <div className="font-medium text-xs">{index + 1}</div>
-                      <div className="overflow-hidden">
-                        {renderBookingNames(dayBookings)}
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* Next month dates */}
-                {nextMonthDates.map((date, index) => (
-                  <div key={`next-${index}`} className="bg-white rounded-lg h-16 p-1 text-gray-400 text-xs">
-                    <div className="font-medium">{date}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Bookings View */}
-        {activeView === 'bookings' && (
-          <div className="flex-grow overflow-hidden px-2">
-            <div className="space-y-4 p-3 h-full overflow-scroll">
-              {getGroupedBookingsForMonth().map((group, groupIndex) => (
-                <div key={groupIndex} className="bg-gray-50 p-4 rounded-lg">
-                  <div className="font-medium text-base text-blue-600 mb-3">
-                    วันที่ {group.date.getDate()} {getMonthInThai(group.date.getMonth())}
-                  </div>
-                  <div className="space-y-3">
-                    {group.bookings.map((booking, bookingIndex) => (
-                      <div key={bookingIndex} className="border-b border-gray-200 pb-2 last:border-b-0 last:pb-0">
-                        <div className="flex justify-between w-full">
-                          <div className="font-medium text-sm truncate">{booking.name}</div>
-                          <div className="font-medium text-sm ml-2">{booking.Fromtime} - {booking.Totime}</div>
-                        </div>
-                        {booking.note && (
-                          <div className="text-xs text-gray-600 mt-1 truncate">
-                            <span className="font-medium">หมายเหตุ: </span>{booking.note}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Detail View Modal for Mobile */}
-        {showDetailView && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg w-full max-w-md max-h-[80%] overflow-y-auto">
-              <div className="sticky top-0 bg-white p-4 flex justify-between items-center border-b">
-                <h3 className="text-lg font-semibold">รายละเอียดการจอง</h3>
-                <button
-                  onClick={() => setShowDetailView(false)}
-                  className="text-red-500 hover:bg-red-100 p-2 rounded-full"
-                >
-                  ปิด
-                </button>
-              </div>
-
-              <div className="p-4">
-                {selectedDateBookings.length === 0 ? (
-                  <div className="text-center text-gray-500">ไม่มีการจอง</div>
-                ) : (
-                  selectedDateBookings.map((booking, index) => (
-                    <div
-                      key={index}
-                      className="border-b border-gray-200 pb-3 mb-3 last:border-b-0 last:mb-0"
-                    >
-                      <div className="flex justify-between">
-                        <div className="font-medium">{booking.name}</div>
-                        <div className="text-sm text-gray-600">{booking.Fromtime}  -  {booking.Totime}</div>
-                      </div>
-                      {booking.note && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          หมายเหตุ: {booking.note}
-                        </div>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
     );
-  };
+}
 
-  // Desktop Layout
-  const renderDesktopLayout = () => {
-    return (
-      <div className="p-4 min-h-full">
-        <h2 className="text-xl font-bold mb-4 text-center text-black">Monthly Desk Booking</h2>
-
-        {/* เลือกเดือน */}
-        <div className="mb-4 flex justify-between items-center gap-2 ">
-          <button
-            onClick={handlePrevMonth}
-            className="p-2 border rounded-full bg-blue-500 text-white hover:bg-blue-600 transition duration-200 shadow-md"
-          >
-            &lt;
-          </button>
-          <div className="flex items-center gap-2">
-            <input
-              type="month"
-              value={selectedMonth}
-              onChange={(e) => handleselectMonth(e)}
-              className="p-2 border rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 transition w-full"
-            />
-          </div>
-          <button
-            onClick={handleNextMonth}
-            className="p-2 border rounded-full bg-blue-500 text-white hover:bg-blue-600 transition duration-200 shadow-md"
-          >
-            &gt;
-          </button>
-        </div>
-
-        {/* ลเอาท์สำหรับเดสก์ท็อป */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* ส่วนปฏิทิน */}
-          <div className="lg:col-span-2">
-            <div className={`bg-gray-200 rounded-lg p-5 max-h-[700px] min-h-[700px] drop-shadow-xl`}>
-              <div className="grid grid-cols-7 gap-1 text-center">
-                {["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"].map((day, idx) => (
-                  <div key={idx} className="font-semibold text-xs p-1">{day}</div>
-                ))}
-
-                {previousMonthDates.map((date, index) => (
-                  <div key={`prev-${index}`} className="bg-white rounded-lg p-1 text-gray-400 text-xs h-24">
-                    <div className="font-medium">{date}</div>
-                  </div>
-                ))}
-
-                {Array.from({ length: daysInMonth }).map((_, index) => {
-                  const dayBookings = getBookingsForDate(selectedYear, selectedMonthIndex, index + 1);
-                  return (
-                    <div
-                      key={`current-${index}`}
-                      className="bg-white rounded-lg h-24 p-1 cursor-pointer hover:bg-blue-100"
-                      onClick={() => handleDateClick(selectedYear, selectedMonthIndex, index + 1)}
-                    >
-                      <div className="font-medium text-xs">{index + 1}</div>
-                      <div className="overflow-hidden">
-                        {renderBookingNames(dayBookings)}
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {nextMonthDates.map((date, index) => (
-                  <div key={`next-${index}`} className="bg-white rounded-lg h-24 p-1 text-gray-400 text-xs">
-                    <div className="font-medium">{date}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* ส่วนแสดงรายละเอียดการจอง */}
-          <div className="bg-slate-600 rounded-lg p-5 shadow-lg overflow-y-hidden max-h-[700px] min-h-[700px] drop-shadow-2xl">
-            <h3 className="text-lg font-semibold mb-4 text-white">
-              การจองประจำเดือน {getMonthInThai(selectedMonthIndex)} {selectedYear}
-            </h3>
-
-            <div className="ml-2 space-y-4 overflow-y-auto max-h-[610px] min-h-[610px] rounded-lg">
-              {getGroupedBookingsForMonth().map((group, groupIndex) => (
-                <div key={groupIndex} className="bg-gray-50 p-4 rounded-lg">
-                  <div className="font-medium text-base text-blue-600 mb-3">
-                    วันที่ {group.date.getDate()} {getMonthInThai(group.date.getMonth())}
-                  </div>
-                  <div className="space-y-3">
-                    {group.bookings.map((booking, bookingIndex) => (
-                      <div key={bookingIndex} className="border-b border-gray-200 pb-2 last:border-b-0 last:pb-0">
-                        <div className="flex justify-between w-full">
-                          <div className="font-medium text-sm truncate">{booking.name}  | {booking.table}</div>
-                          <div className="font-medium text-sm ml-2">{booking.Fromtime} - {booking.Totime}  </div>
-                        </div>
-                        {/* {booking.note && (
-                          <div className="text-xs text-gray-600 mt-1 truncate">
-                            <span className="font-medium">หมายเหตุ: </span>{booking.note}
-                          </div>
-                        )} */}
-                        {/* {booking.table && ( */}
-                        <div className="flex justify-between text-xs text-gray-600 mt-1 truncate">
-                          <div className="text-xs text-gray-600 mt-1 truncate">
-                            <span className="font-medium">หมายเหตุ: </span>{booking.note}
-                          </div>
-                          <div className="text-xs text-gray-600 mt-1 truncate">
-                            {/* <span className="font-medium"></span>{booking.table} */}
-                          </div>
-                        </div>
-                        {/* )} */}
-
-
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Detail View Modal for Desktop */}
-        
-        {showDetailView && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg w-full max-w-md max-h-[80%] overflow-y-auto">
-              <div className="sticky top-0 bg-white p-4 flex justify-between items-center border-b">
-                <h3 className="text-lg font-semibold">รายละเอียดการจอง</h3>
-                <button
-                  onClick={() => setShowDetailView(false)}
-                  className="text-red-500 hover:bg-red-100 p-2 rounded-full"
-                >
-                  ปิด
-                </button>
-              </div>
-
-              <div className="p-4">
-                {selectedDateBookings.length === 0 ? (
-                  <div className="text-center text-gray-500">ไม่มีการจอง</div>
-                ) : (
-                  selectedDateBookings.map((booking, index) => (
-                    <div
-                      key={index}
-                      className="border-b border-gray-200 pb-3 mb-3 last:border-b-0 last:mb-0"
-                    >
-                      <div className="flex justify-between">
-                        <div className="font-medium">{booking.name}</div>
-                        <div className="text-sm text-gray-600">{booking.Fromtime}  -  {booking.Totime}</div>
-                      </div>
-                      {booking.note && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          หมายเหตุ: {booking.note}
-                        </div>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-
-  }
-
-  return isMobile ? renderMobileLayout() : renderDesktopLayout();
-
-};
-
-export default CoMonth;
+export default MapSVG;
