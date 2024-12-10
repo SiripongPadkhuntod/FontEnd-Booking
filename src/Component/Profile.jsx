@@ -4,7 +4,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import ErrorDisplay from './ErrorDisplay';
 import { TbPencilCancel } from "react-icons/tb";
 import Skeleton from 'react-loading-skeleton'; // นำเข้า Skeleton
-import CoAdmin from "../Component/adminconfig";
+import CoTableSetting from "../Component/TableSetting";
 
 import { FaEdit } from "react-icons/fa";
 import { RiImageEditFill } from "react-icons/ri";
@@ -449,42 +449,42 @@ function ProfilePage({ nightMode, useremail }) {
             />
 
             {/* Organization Section */}
-      <div>
-        <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Organization</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <input
-            type="text"
-            name="student_id"
-            placeholder="Student ID"
-            value={userData2.student_id || ''}
-            onChange={handleInputChange}
-            className={`w-full p-3 rounded-lg border border-gray-300 ${isEditing ? 'text-red-600' : 'text-gray-500'} ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}
-            readOnly={!isEditing}
-          />
-          <input
-            type="text"
-            name="department"
-            placeholder="Major"
-            value={userData2.department || ''}
-            onChange={handleInputChange}
-            className={`w-full p-3 rounded-lg border border-gray-300 ${isEditing ? 'text-red-600' : 'text-gray-500'} ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}
-            readOnly={!isEditing}
-          />
-        </div>
-      </div>
+            <div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Organization</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  name="student_id"
+                  placeholder="Student ID"
+                  value={userData2.student_id || ''}
+                  onChange={handleInputChange}
+                  className={`w-full p-3 rounded-lg border border-gray-300 ${isEditing ? 'text-red-600' : 'text-gray-500'} ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}
+                  readOnly={!isEditing}
+                />
+                <input
+                  type="text"
+                  name="department"
+                  placeholder="Major"
+                  value={userData2.department || ''}
+                  onChange={handleInputChange}
+                  className={`w-full p-3 rounded-lg border border-gray-300 ${isEditing ? 'text-red-600' : 'text-gray-500'} ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}
+                  readOnly={!isEditing}
+                />
+              </div>
+            </div>
 
-             {/* Save Button */}
-      {isEditing && (
-        <div className="flex justify-center">
-          <button
-            className="py-2 px-4 mt-6 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-all duration-300"
-            type="button"
-            onClick={handleSave}
-          >
-            Save all Changes
-          </button>
-        </div>
-      )}
+            {/* Save Button */}
+            {isEditing && (
+              <div className="flex justify-center">
+                <button
+                  className="py-2 px-4 mt-6 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-all duration-300"
+                  type="button"
+                  onClick={handleSave}
+                >
+                  Save all Changes
+                </button>
+              </div>
+            )}
           </form>
         </div>
       </CSSTransition>
@@ -513,7 +513,7 @@ function ProfilePage({ nightMode, useremail }) {
         <div
           className={`flex-1 p-10 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showTable ? '' : 'hidden'}`}
         >
-          <CoAdmin />
+          <CoTableSetting />
         </div>
       </CSSTransition>
     </TransitionGroup>

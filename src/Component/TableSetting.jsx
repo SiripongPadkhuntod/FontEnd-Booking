@@ -159,7 +159,7 @@ function AdminConfig() {
 
       {/* Maps Section */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        {[1, 2, 3].map((mapNum) => (
+        {[1, "Coming soon...", "Coming soon..."].map((mapNum) => (
           <div key={mapNum} className="flex flex-col items-center">
             <div className="w-full aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
               <MapPin size={48} className="text-gray-400" />

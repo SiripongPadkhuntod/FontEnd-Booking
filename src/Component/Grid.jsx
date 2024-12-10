@@ -151,7 +151,7 @@ const CoGrid = ({nightMode}) => {
               className={`p-3 border-2 rounded-lg focus:ring-2 transition-all duration-300 ${
                 nightMode 
                   ? 'bg-gray-800 border-gray-700 text-gray-200 focus:ring-indigo-600' 
-                  : 'border-indigo-200 text-gray-800 focus:ring-indigo-400'
+                  : 'border-indigo-200 text-gray-200 focus:ring-indigo-400 '
               }`}
             />
           </div>
@@ -174,10 +174,10 @@ const CoGrid = ({nightMode}) => {
           >
             {/* Header Row */}
             <div 
-              className={`font-bold text-center p-3 ${
+              className={`font-bold text-center p-3  ${
                 nightMode 
                   ? 'bg-gray-700 text-gray-200' 
-                  : 'bg-indigo-100 text-indigo-800'
+                  : 'bg-red-600 text-gray-200'
               }`}
             >
               วันที่
@@ -188,7 +188,7 @@ const CoGrid = ({nightMode}) => {
                 className={`font-bold text-center p-3 ${
                   nightMode 
                     ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
-                    : 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200'
+                    : 'bg-red-600 text-gray-200 hover:bg-indigo-200'
                 } transition-colors`}
               >
                 {desk}

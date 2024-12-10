@@ -1,21 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import { GrFormView, GrFormViewHide } from "react-icons/gr";
 import { CiMail } from "react-icons/ci";
 import { RiLockPasswordLine } from "react-icons/ri";
+import { MdDarkMode, MdLightMode } from "react-icons/md";
 import API from '../api';
 
-function Modal({ isOpen, message, submessage, onClose }) {
+function Modal({ isOpen, message, submessage, onClose, isDarkMode }) {
   if (!isOpen) return null;
   return (
-    <dialog className="modal modal-open">
-      <div className="modal-box bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white shadow-2xl rounded-2xl transform transition-all duration-300 ease-in-out scale-100 opacity-100">
+    <dialog className={`modal modal-open ${isDarkMode ? 'dark' : ''}`}>
+      <div className={`modal-box ${isDarkMode 
+        ? 'bg-gradient-to-r from-gray-800 via-gray-700 to-gray-900 text-white' 
+        : 'bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white'} 
+        shadow-2xl rounded-2xl transform transition-all duration-300 ease-in-out scale-100 opacity-100`}>
         <h3 className="font-bold text-3xl mb-4 text-center text-white drop-shadow-lg">{message}</h3>
-        <p className="py-4 text-center text-gray-100">{submessage}</p>
+        <p className={`py-4 text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-100'}`}>{submessage}</p>
         <div className="flex justify-center mt-6">
           <button
-            className="btn btn-outline btn-ghost text-white border-white hover:bg-white hover:text-purple-600 transition-colors duration-300 px-8"
+            className={`btn btn-outline btn-ghost text-white ${isDarkMode 
+              ? 'border-gray-500 hover:bg-gray-700' 
+              : 'border-white hover:bg-white hover:text-purple-600'} 
+              transition-colors duration-300 px-8`}
             onClick={onClose}
           >
             OK
@@ -34,9 +41,22 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [modalState, setModalState] = useState({ isOpen: false, message: "", submessage: "" });
   const navigate = useNavigate();
+
+  // Load dark mode preference from localStorage
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setIsDarkMode(savedDarkMode);
+  }, []);
+
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', newDarkMode.toString());
+  };
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
@@ -93,7 +113,25 @@ function Login() {
       if (res.status === 200) {
         localStorage.setItem('authToken', res.data.token);
         navigate("/home");
-      } else {
+      }
+      else if (res.status === 403) {
+        setModalState({
+          isOpen: true,
+          message: "Login Failed",
+          submessage: "Please use your RSU email to login.",
+        });
+      }
+
+      else if (res.status === 401) {
+        setModalState({
+          isOpen: true,
+          message: "Login Failed",
+          submessage: "Invalid email or password.",
+        });
+      }
+
+
+      else {
         setModalState({
           isOpen: true,
           message: "Login Failed",
@@ -101,36 +139,80 @@ function Login() {
         });
       }
     } catch (error) {
-      console.error("Error:", error);
-      setModalState({
-        isOpen: true,
-        message: "Connection Error",
-        submessage: "Unable to connect to the server.",
-      });
+      console.error("Error in API request:", error);
+      if (error.response && error.response.status === 403) {
+        console.log("403 Forbidden Error handled in catch.");
+        setModalState({
+          isOpen: true,
+          message: "Login Failed",
+          submessage: "Please use your RSU email to login.",
+        });
+      }
+      else if (error.response && error.response.status === 401) {
+        console.log("401 Unauthorized Error handled in catch.");
+        setModalState({
+          isOpen: true,
+          message: "Login Failed",
+          submessage: "Invalid email or password.",
+        });
+      }
+      else {
+        console.log("Other error in catch block.");
+        setModalState({
+          isOpen: true,
+          message: "Error",
+          submessage: "Unable to connect to the server. Please try again.",
+        });
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl bg-white shadow-2xl rounded-3xl overflow-hidden flex">
+    <div className={`min-h-screen ${isDarkMode 
+      ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-black' 
+      : 'bg-gradient-to-br from-purple-50 via-white to-pink-50'} 
+      flex items-center justify-center p-4`}>
+      <div className={`w-full max-w-4xl ${isDarkMode 
+        ? 'bg-gray-800 text-white' 
+        : 'bg-white'} 
+        shadow-2xl rounded-3xl overflow-hidden flex`}>
+        {/* Dark Mode Toggle */}
+        <button 
+          onClick={toggleDarkMode} 
+          className={`absolute top-4 right-4 z-10 p-2 rounded-full ${isDarkMode 
+            ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600' 
+            : 'bg-purple-100 text-purple-600 hover:bg-purple-200'} 
+            transition-colors duration-300`}
+        >
+          {isDarkMode ? <MdLightMode className="text-2xl" /> : <MdDarkMode className="text-2xl" />}
+        </button>
+
         {/* Login Form Section */}
         <div className="w-full md:w-1/2 p-12 flex flex-col justify-center">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-4">
+            <h1 className={`text-4xl font-bold ${isDarkMode 
+              ? 'text-white' 
+              : 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600'} 
+              mb-4`}>
               Welcome Back
             </h1>
-            <p className="text-gray-500">Sign in to continue to your account</p>
+            <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              Sign in to continue to your account
+            </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <CiMail className="text-xl text-gray-400" />
+                <CiMail className={`text-xl ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
               </div>
               <input
                 type="email"
                 placeholder="RSU Mail"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-300 
+                  ${isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500' 
+                    : 'border-gray-300 focus:ring-purple-500'}`}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -138,18 +220,24 @@ function Login() {
 
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <RiLockPasswordLine className="text-xl text-gray-400" />
+                <RiLockPasswordLine className={`text-xl ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
               </div>
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
+                className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-300 
+                  ${isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500' 
+                    : 'border-gray-300 focus:ring-purple-500'}`}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-purple-600 transition duration-300"
+                className={`absolute inset-y-0 right-0 pr-3 flex items-center ${isDarkMode 
+                  ? 'text-gray-400 hover:text-gray-200' 
+                  : 'text-gray-500 hover:text-purple-600'} 
+                  transition duration-300`}
                 onClick={togglePasswordVisibility}
               >
                 {showPassword ? <GrFormViewHide className="text-xl" /> : <GrFormView className="text-xl" />}
@@ -157,16 +245,31 @@ function Login() {
             </div>
 
             <div className="flex justify-between items-center">
-              <label className="flex items-center">
-                <input type="checkbox" className="mr-2 rounded focus:ring-purple-500" />
-                <span className="text-gray-600">Remember me</span>
+              <label className={`flex items-center ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                <input 
+                  type="checkbox" 
+                  className={`mr-2 rounded ${isDarkMode 
+                    ? 'focus:ring-gray-500 bg-gray-700 border-gray-600' 
+                    : 'focus:ring-purple-500'}`} 
+                />
+                <span>Remember me</span>
               </label>
-              <a href="#" className="text-purple-600 hover:underline">Forgot password?</a>
+              <a 
+                href="#" 
+                className={`${isDarkMode 
+                  ? 'text-gray-300 hover:text-white' 
+                  : 'text-purple-600 hover:underline'}`}
+              >
+                Forgot password?
+              </a>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:opacity-90 transition duration-300 transform hover:scale-[1.02] shadow-lg"
+              className={`w-full py-3 text-white rounded-lg hover:opacity-90 transition duration-300 transform hover:scale-[1.02] shadow-lg 
+                ${isDarkMode 
+                  ? 'bg-gradient-to-r from-gray-700 to-gray-900' 
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600'}`}
             >
               Sign In
             </button>
@@ -174,9 +277,9 @@ function Login() {
 
           <div className="mt-6 text-center">
             <div className="flex items-center justify-center space-x-4">
-              <div className="h-px bg-gray-300 w-full"></div>
-              <span className="text-gray-500">or</span>
-              <div className="h-px bg-gray-300 w-full"></div>
+              <div className={`h-px w-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-300'}`}></div>
+              <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>or</span>
+              <div className={`h-px w-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-300'}`}></div>
             </div>
 
             <div className="mt-4 flex justify-center">
@@ -187,8 +290,15 @@ function Login() {
               />
             </div>
 
-            <div className="mt-4 text-gray-600">
-              Don't have an account? <a href="/register" className="text-purple-600 hover:underline">Sign Up</a>
+            <div className={`mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Don't have an account? <a 
+                href="/register" 
+                className={`${isDarkMode 
+                  ? 'text-gray-300 hover:text-white' 
+                  : 'text-purple-600 hover:underline'}`}
+              >
+                Sign Up
+              </a>
             </div>
           </div>
         </div>
@@ -200,7 +310,9 @@ function Login() {
             alt="login background"
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-60"></div>
+          <div className={`absolute inset-0 ${isDarkMode 
+            ? 'bg-gradient-to-r from-gray-900 to-black opacity-70' 
+            : 'bg-gradient-to-r from-purple-600 to-pink-600 opacity-60'}`}></div>
           <div className="absolute inset-0 flex items-center justify-center text-center text-white p-8">
             <div>
               <h2 className="text-4xl font-bold mb-4">Hello, Friend!</h2>
@@ -216,6 +328,7 @@ function Login() {
         message={modalState.message}
         submessage={modalState.submessage}
         onClose={() => setModalState({ isOpen: false, message: "", submessage: "" })}
+        isDarkMode={isDarkMode}
       />
     </div>
   );

@@ -16,10 +16,20 @@ const CoMonth = ({nightMode }) => {
 
   // ข้อมูลตัวอย่าง
   
+  // Helper function to check if a date is today
+  const isToday = (year, month, day) => {
+    const today = new Date();
+    return (
+      today.getFullYear() === year &&
+      today.getMonth() === month &&
+      today.getDate() === day
+    );
+  };
 
-  const fetchData = async (test) => {
+
+  const fetchData = async (month) => {
     try {
-      const response = await API.get(`/reservations/${test}`);
+      const response = await API.get(`/reservations/${month}`);
   
       if (response.status === 200) {
         const transformedData = transformData(response.data);
@@ -207,6 +217,41 @@ const CoMonth = ({nightMode }) => {
   }, []);
 
   // Mobile Layout
+  const renderDateCell = (index, isCurrentMonth = true) => {
+    const day = isCurrentMonth ? index + 1 : null;
+    const dayBookings = isCurrentMonth 
+      ? getBookingsForDate(selectedYear, selectedMonthIndex, day) 
+      : [];
+    
+    const isTodayDate = isCurrentMonth && isToday(selectedYear, selectedMonthIndex, day);
+    
+    const cellClasses = `
+      bg-white 
+      rounded-lg 
+      h-24 
+      p-1 
+      ${isCurrentMonth ? 'cursor-pointer hover:bg-blue-100' : 'text-gray-400'}
+      ${isTodayDate ? 'border-4 border-red-500 font-bold' : ''}
+    `;
+
+    return (
+      <div
+        key={`${isCurrentMonth ? 'current' : 'other'}-${index}`}
+        className={cellClasses}
+        onClick={() => isCurrentMonth && handleDateClick(selectedYear, selectedMonthIndex, day)}
+      >
+        <div className="font-medium text-xs">{day}</div>
+        {isCurrentMonth && (
+          <div className="overflow-hidden">
+            {renderBookingNames(dayBookings)}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+ 
+
   // Mobile Layout
   const renderMobileLayout = () => {
     return (
@@ -263,42 +308,17 @@ const CoMonth = ({nightMode }) => {
         {activeView === 'calendar' && (
           <div className="flex-grow overflow-auto px-2">
             <div className="bg-gray-200 rounded-lg p-3">
-              <div className="grid grid-cols-7 gap-1 text-center">
-                {["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"].map((day, idx) => (
-                  <div key={idx} className="font-semibold text-xs p-1">{day}</div>
-                ))}
+            <div className="grid grid-cols-7 gap-1 text-center">
+          {["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"].map((day, idx) => (
+            <div key={idx} className="font-semibold text-xs p-1">{day}</div>
+          ))}
 
-                {/* Previous month dates */}
-                {previousMonthDates.map((date, index) => (
-                  <div key={`prev-${index}`} className="bg-white rounded-lg p-1 text-gray-400 text-xs h-16">
-                    <div className="font-medium">{date}</div>
-                  </div>
-                ))}
+          {previousMonthDates.map((date, index) => renderDateCell(date, false))}
 
-                {/* Current month dates */}
-                {Array.from({ length: daysInMonth }).map((_, index) => {
-                  const dayBookings = getBookingsForDate(selectedYear, selectedMonthIndex, index + 1);
-                  return (
-                    <div
-                      key={`current-${index}`}
-                      className="bg-white rounded-lg h-16 p-1 cursor-pointer hover:bg-blue-100"
-                      onClick={() => handleDateClick(selectedYear, selectedMonthIndex, index + 1)}
-                    >
-                      <div className="font-medium text-xs">{index + 1}</div>
-                      <div className="overflow-hidden">
-                        {renderBookingNames(dayBookings)}
-                      </div>
-                    </div>
-                  );
-                })}
+          {Array.from({ length: daysInMonth }).map((_, index) => renderDateCell(index))}
 
-                {/* Next month dates */}
-                {nextMonthDates.map((date, index) => (
-                  <div key={`next-${index}`} className="bg-white rounded-lg h-16 p-1 text-gray-400 text-xs">
-                    <div className="font-medium">{date}</div>
-                  </div>
-                ))}
-              </div>
+          {nextMonthDates.map((date, index) => renderDateCell(date, false))}
+        </div>
             </div>
           </div>
         )}
@@ -417,39 +437,17 @@ const CoMonth = ({nightMode }) => {
           {/* ส่วนปฏิทิน */}
           <div className="lg:col-span-2">
             <div className={`bg-gray-200 rounded-lg p-5 max-h-[700px] min-h-[700px] drop-shadow-xl`}>
-              <div className="grid grid-cols-7 gap-1 text-center">
-                {["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"].map((day, idx) => (
-                  <div key={idx} className="font-semibold text-xs p-1">{day}</div>
-                ))}
+            <div className="grid grid-cols-7 gap-1 text-center">
+          {["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"].map((day, idx) => (
+            <div key={idx} className="font-semibold text-xs p-1">{day}</div>
+          ))}
 
-                {previousMonthDates.map((date, index) => (
-                  <div key={`prev-${index}`} className="bg-white rounded-lg p-1 text-gray-400 text-xs h-24">
-                    <div className="font-medium">{date}</div>
-                  </div>
-                ))}
+          {previousMonthDates.map((date, index) => renderDateCell(date, false))}
 
-                {Array.from({ length: daysInMonth }).map((_, index) => {
-                  const dayBookings = getBookingsForDate(selectedYear, selectedMonthIndex, index + 1);
-                  return (
-                    <div
-                      key={`current-${index}`}
-                      className="bg-white rounded-lg h-24 p-1 cursor-pointer hover:bg-blue-100"
-                      onClick={() => handleDateClick(selectedYear, selectedMonthIndex, index + 1)}
-                    >
-                      <div className="font-medium text-xs">{index + 1}</div>
-                      <div className="overflow-hidden">
-                        {renderBookingNames(dayBookings)}
-                      </div>
-                    </div>
-                  );
-                })}
+          {Array.from({ length: daysInMonth }).map((_, index) => renderDateCell(index))}
 
-                {nextMonthDates.map((date, index) => (
-                  <div key={`next-${index}`} className="bg-white rounded-lg h-24 p-1 text-gray-400 text-xs">
-                    <div className="font-medium">{date}</div>
-                  </div>
-                ))}
-              </div>
+          {nextMonthDates.map((date, index) => renderDateCell(date, false))}
+        </div>
             </div>
           </div>
 

@@ -12,6 +12,13 @@ const CoDay = ({ nightMode }) => {
   const desks = ["A01", "A02", "A03", "A04", "A05", "A06", "B01", "B02", "C01", "C02"];
   const hours = Array.from({ length: 15 }, (_, i) => 8 + i);
 
+  const formatTime = (time) => {
+    const hours = Math.floor(time); // ชั่วโมง
+    const minutes = (time % 1) * 60; // นาที
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`; // รูปแบบ hh:mm
+  };
+  
+
   const getColor = (name, index, isNightMode) => {
     const lightColors = [
       { bg: "bg-blue-500/80 hover:bg-blue-500", text: "text-white" },
@@ -304,7 +311,8 @@ const CoDay = ({ nightMode }) => {
                             top: "50%",
                             transform: "translateY(-50%)",
                           }}
-                          title={`${booking.name} ${booking.start}:00 - ${booking.end}:00`}
+                          title={`${booking.name} ${formatTime(booking.start)} - ${formatTime(booking.end)}`}
+
                         >
                           <span className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
                             {booking.name}
