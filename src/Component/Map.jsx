@@ -4,7 +4,7 @@ import { faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import MapSVG from './MapSVG';
 import AdminConfigModal from './AdminModal';
 import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
-import { FaCheckCircle } from 'react-icons/fa'; // import ไอคอน
+import { FaCheckCircle , FaTimesCircle} from 'react-icons/fa'; // import ไอคอน
 
 import { GrCaretPrevious, GrCaretNext } from 'react-icons/gr'; // import ไอคอน
 import { FaRegWindowClose } from "react-icons/fa";
@@ -35,6 +35,7 @@ const CoMap = ({ nightMode, userid }) => {
   const [bookDate, setBookDate] = useState()
   const [bookFrom, setBookFrom] = useState()
   const [bookTo, setBookTo] = useState()
+  const [conflictdata, setConflictdata] = useState()
   // รวมเวลาทั้งหมดในที่เดียว
   const allTimes = [
     "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -93,17 +94,7 @@ const CoMap = ({ nightMode, userid }) => {
     document.getElementById('bookingModal').showModal(); // เปิด bookingModal
   };
 
-  // const fetchData = async () => {
-  //   // const date = new Date().toISOString().split('T')[0];
-  //   const currentDate = date.toISOString().split('T')[0];
-  //   console.log(currentDate);
-  //   try {
-  //     const response = await API.get(`/reservations/day/${currentDate}`);
-  //     console.log(response.data);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   }
-  // };
+
 
   const fetchData = async () => {
     // const date = new Date().toISOString().split('T')[0];
@@ -141,9 +132,12 @@ const CoMap = ({ nightMode, userid }) => {
       }
     };
 
+    // show bookingSuccessModal for testing
+    // document.getElementById('bookingConflictModal').showModal();
+
     window.addEventListener('resize', handleResize);
     handleResize();
-    fetchData()
+    // fetchData()
 
     return () => window.removeEventListener('resize', handleResize);
   }, [date]);
@@ -168,9 +162,6 @@ const CoMap = ({ nightMode, userid }) => {
   });
 
   const booking = async () => {
-
-
-
     let jsonData = {
       user_id: userid,
       table_id: TableID.toString(),
@@ -202,11 +193,23 @@ const CoMap = ({ nightMode, userid }) => {
         // Show success modal
         setBookingSuccess(true);
         document.getElementById('bookingSuccessModal').showModal();
-      } else {
+      }
+
+
+      else {
         console.error('Booking failed:', response.status, response.data);
       }
     } catch (err) {
-      console.error('Error occurred:', err.response ? err.response.data : err.message);
+      if (err.response && err.response.status === 409) {
+        // alert('Booking conflict: The selected time is already booked.');
+        setConflictdata(err.response.data);
+        console.log('Booking conflict:', err.response.data);
+        document.getElementById('bookingModal').close();
+        document.getElementById('bookingConflictModal').showModal();
+      }
+      else {
+        console.error('Error occurred:', err.response ? err.response.data : err.message);
+      }
     }
   };
 
@@ -264,6 +267,16 @@ const CoMap = ({ nightMode, userid }) => {
       setScale(Math.max(scale - zoomIntensity, 0.5));
     } else {
       setScale(Math.min(scale + zoomIntensity, 3));
+    }
+  };
+
+  const handleDateChange = (e) => {
+    const value = e.target.value;
+    if (value === "") {
+      // หาก input ถูกล้างค่า
+      setDate(new Date()); // ตั้งค่ากลับเป็นวันที่ปัจจุบัน
+    } else {
+      setDate(new Date(value));
     }
   };
 
@@ -412,7 +425,8 @@ const CoMap = ({ nightMode, userid }) => {
           <input
             type="date"
             value={date.toISOString().slice(0, 10)}
-            onChange={(e) => setDate(new Date(e.target.value))}
+            // onChange={(e) => setDate(new Date(e.target.value))}
+            onChange={handleDateChange}
             className="p-2 rounded-md border bg-gray-700 text-white"
           />
           {/* <button
@@ -612,45 +626,67 @@ const CoMap = ({ nightMode, userid }) => {
 
           <div className="flex justify-end items-center gap-4">
             <button className="btn btn-outline text-white">Close and keep exploring</button>
-          
+
           </div>
         </form>
       </dialog>
 
 
       {/* Booking Success Modal */}
-      <dialog id="bookingSuccessModal" className="modal">
-        <div className="modal-box rounded-lg w-full max-w-md p-6 bg-green-600 text-white">
+<dialog id="bookingSuccessModal" className="modal">
+  <div className="modal-box rounded-lg w-full max-w-md p-6 bg-green-600 text-white">
+    <div className="text-center">
+      <FaCheckCircle className="mx-auto text-6xl mb-4 text-white" />
+      <h3 className="text-2xl font-bold mb-2">Booking Successful!</h3>
+
+      <div className="bg-green-700 rounded-lg p-4 mt-4">
+        <div className="flex justify-between mb-2">
+          <span className="font-semibold">Desk Number:</span>
+          <span>{bookingDetails.tableId}</span>
+        </div>
+        <div className="flex justify-between mb-2">
+          <span className="font-semibold">Date:</span>
+          <span>
+            {bookingDetails.date &&
+              bookingDetails.date.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+          </span>
+        </div>
+        <div className="flex justify-between mb-2">
+          <span className="font-semibold">Time:</span>
+          <span>{bookingDetails.startTime} - {bookingDetails.endTime}</span>
+        </div>
+      </div>
+
+      <p className="mt-4">
+        The booking details have been sent to your email.
+      </p>
+
+      <button
+        onClick={closeSuccessModal}
+        className="btn btn-white mt-4 w-full"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</dialog>
+
+
+
+      {/* Modal conflict */}
+      <dialog id="bookingConflictModal" className="modal">
+        <div className="modal-box rounded-lg w-full max-w-md p-6 bg-red-600 text-white">
           <div className="text-center">
-            <FaCheckCircle className="mx-auto text-6xl mb-4 text-white" />
-            <h3 className="text-2xl font-bold mb-2">Booking Successful!</h3>
-
-            <div className="bg-green-700 rounded-lg p-4 mt-4">
-              <div className="flex justify-between mb-2">
-                <span className="font-semibold">Desk Number:</span>
-                <span>{bookingDetails.tableId}</span>
-              </div>
-              <div className="flex justify-between mb-2">
-                <span className="font-semibold">Date:</span>
-                <span>
-                  {bookingDetails.date &&
-                    bookingDetails.date.toLocaleDateString('en-US', {
-                      weekday: 'short',
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })
-                  }
-                </span>
-              </div>
-              <div className="flex justify-between mb-2">
-                <span className="font-semibold">Time:</span>
-                <span>{bookingDetails.startTime} - {bookingDetails.endTime}</span>
-              </div>
-            </div>
-
+            <FaTimesCircle className="mx-auto text-6xl mb-4 text-white" />
+            <h3 className="text-2xl font-bold mb-2">Booking Conflict!</h3>
+            <p className="text-sm text-gray-200">The selected time is already booked.</p>
             <button
-              onClick={closeSuccessModal}
+              onClick={() => document.getElementById('bookingConflictModal').close()}
               className="btn btn-white mt-4 w-full"
             >
               Close
@@ -658,6 +694,7 @@ const CoMap = ({ nightMode, userid }) => {
           </div>
         </div>
       </dialog>
+
 
 
     </div>

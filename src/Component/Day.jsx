@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Clock, Grid, User, Moon, Sun } from "lucide-react";
+import { Clock, Grid, User, Moon, Sun,MapPin,NotebookPen } from "lucide-react";
 import API from '../api';
 
 const CoDay = ({ nightMode }) => {
@@ -342,6 +342,8 @@ const CoDay = ({ nightMode }) => {
                           <span className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
                             {booking.name}
                           </span>
+
+                          
                         </div>
 
                       );

@@ -5,24 +5,47 @@ import { GrFormView, GrFormViewHide } from "react-icons/gr";
 import { CiMail } from "react-icons/ci";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
+import { FaCheckCircle , FaTimesCircle,FaExclamationCircle } from 'react-icons/fa'; // import ไอคอน
 import API from '../api';
 
 function Modal({ isOpen, message, submessage, onClose, isDarkMode }) {
   if (!isOpen) return null;
+
+  const isError = message?.toLowerCase().includes('error'); // ตรวจสอบ Error ทั่วไป
+  const isLoginFailed = message?.toLowerCase().includes('login failed'); // ตรวจสอบกรณี Login Failed
+
   return (
     <dialog className={`modal modal-open ${isDarkMode ? 'dark' : ''}`}>
-      <div className={`modal-box ${isDarkMode 
-        ? 'bg-gradient-to-r from-gray-800 via-gray-700 to-gray-900 text-white' 
-        : 'bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white'} 
-        shadow-2xl rounded-2xl transform transition-all duration-300 ease-in-out scale-100 opacity-100`}>
-        <h3 className="font-bold text-3xl mb-4 text-center text-white drop-shadow-lg">{message}</h3>
-        <p className={`py-4 text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-100'}`}>{submessage}</p>
-        <div className="flex justify-center mt-6">
+      <div className={`modal-box rounded-lg w-full max-w-md p-6 ${isDarkMode 
+        ? (isError || isLoginFailed ? 'bg-red-800 text-white' : 'bg-gray-800 text-white') 
+        : (isError || isLoginFailed ? 'bg-red-600 text-white' : 'bg-green-600 text-white')} shadow-2xl`}>
+        <div className="text-center">
+          {isError || isLoginFailed ? (
+            <FaExclamationCircle className="mx-auto text-6xl mb-4 text-white" />
+          ) : (
+            <FaCheckCircle className="mx-auto text-6xl mb-4 text-white" />
+          )}
+          <h3 className="text-2xl font-bold mb-2">
+            {message || (isDarkMode ? 'Login Successful!' : 'Welcome Back!')}
+          </h3>
+          <p className={`py-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-100'}`}>
+            {submessage || (isLoginFailed 
+              ? 'Your login attempt was unsuccessful. Please check your credentials and try again.' 
+              : isError 
+                ? 'Something went wrong. Please try again.' 
+                : (isDarkMode 
+                  ? 'You have successfully logged in.' 
+                  : 'Enjoy your session!'))}
+          </p>
+
           <button
-            className={`btn btn-outline btn-ghost text-white ${isDarkMode 
-              ? 'border-gray-500 hover:bg-gray-700' 
-              : 'border-white hover:bg-white hover:text-purple-600'} 
-              transition-colors duration-300 px-8`}
+            className={`btn btn-white mt-4 w-full ${isDarkMode 
+              ? (isError || isLoginFailed 
+                ? 'bg-red-700 text-white hover:bg-red-600' 
+                : 'bg-gray-700 text-white hover:bg-gray-600') 
+              : (isError || isLoginFailed 
+                ? 'hover:bg-red-500 hover:text-white' 
+                : 'hover:bg-green-500 hover:text-white')}`}
             onClick={onClose}
           >
             OK
@@ -36,6 +59,9 @@ function Modal({ isOpen, message, submessage, onClose, isDarkMode }) {
     </dialog>
   );
 }
+
+
+
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -148,12 +174,20 @@ function Login() {
           submessage: "Please use your RSU email to login.",
         });
       }
-      else if (error.response && error.response.status === 401) {
+      else if (error.response && error.response.status === 401 || error.response.status === 400) {
         console.log("401 Unauthorized Error handled in catch.");
         setModalState({
           isOpen: true,
           message: "Login Failed",
           submessage: "Invalid email or password.",
+        });
+      }
+      else if (error.response && error.response.status === 500) {
+        console.log("500 Internal Server Error handled in catch.");
+        setModalState({
+          isOpen: true,
+          message: "Login Failed",
+          submessage: "Internal server error. Please try again later.",
         });
       }
       else {

@@ -303,36 +303,44 @@ function ProfilePage({ nightMode, useremail }) {
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-all duration-300"
-          onMouseDown={() => setShowLogoutModal(false)} // Use mouseDown instead of click
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-all duration-300"
+    onClick={() => setShowLogoutModal(false)}
+  >
+    <div
+      className={`bg-white rounded-lg p-8 shadow-xl transition-all duration-300 transform ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'} scale-95 hover:scale-100`}
+      onClick={(e) => {
+        // หยุดการกระจายเหตุการณ์เพื่อป้องกันการปิด modal
+        e.stopPropagation();
+      }}
+    >
+      <h2 className="text-xl font-bold mb-4">Confirm Logout</h2>
+      <p className="mb-6">Are you sure you want to log out?</p>
+      <div className="flex justify-end space-x-4">
+        <button
+          onClick={(e) => {
+            // หยุดการกระจายเหตุการณ์และปิด modal
+            e.stopPropagation();
+            setShowLogoutModal(false);
+          }}
+          className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-all duration-300 transform hover:scale-105"
         >
-          <div
-            className={`bg-white rounded-lg p-8 shadow-xl transition-all duration-300 transform ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'} scale-95 hover:scale-100`}
-            onMouseDown={(e) => e.stopPropagation()} // Prevent closing modal body
-          >
-            <h2 className="text-xl font-bold mb-4">Confirm Logout</h2>
-            <p className="mb-6">Are you sure you want to log out?</p>
-            <div className="flex justify-end space-x-4">
-              <button
-                onMouseDown={(e) => {
-                  e.stopPropagation();
-                  setShowLogoutModal(false);
-                }}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-all duration-300 transform hover:scale-105"
-              >
-                Cancel
-              </button>
-              <button
-                onMouseDown={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          Cancel
+        </button>
+        <button
+          onClick={(e) => {
+            // หยุดการกระจายเหตุการณ์และออกจากระบบ
+            e.stopPropagation();
+            handleLogout();
+          }}
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
 
 
