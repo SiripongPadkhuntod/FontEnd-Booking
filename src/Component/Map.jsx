@@ -4,13 +4,15 @@ import { faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import MapSVG from './MapSVG';
 import AdminConfigModal from './AdminModal';
 import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
-import { FaCheckCircle , FaTimesCircle} from 'react-icons/fa'; // import ไอคอน
+import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'; // import ไอคอน
 
 import { GrCaretPrevious, GrCaretNext } from 'react-icons/gr'; // import ไอคอน
 import { FaRegWindowClose } from "react-icons/fa";
 
 
 const CoMap = ({ nightMode, userid }) => {
+  const [bookings, setBookings] = useState([]);
+  const [selectedTable, setSelectedTable] = useState(null);
   const [time, setTime] = useState("08:00");
   const [date, setDate] = useState(() => {
     const now = new Date();
@@ -94,7 +96,26 @@ const CoMap = ({ nightMode, userid }) => {
     document.getElementById('bookingModal').showModal(); // เปิด bookingModal
   };
 
+  const fetchBookingDetails = async () => {
+    try {
+      const currentDate = new Date().toISOString().split('T')[0];
+      const response = await API.get(`/reservations/day/${currentDate}`);
 
+      if (response.status === 200 && response.data) {
+        setBookings(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching booking details:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookingDetails();
+  }, []);
+
+  const handleTableSelect = (tableNumber) => {
+    setSelectedTable(tableNumber);
+  };
 
   const fetchData = async () => {
     // const date = new Date().toISOString().split('T')[0];
@@ -319,6 +340,7 @@ const CoMap = ({ nightMode, userid }) => {
       >
         {/* SVG Map content remains the same */}
         <MapSVG
+
           time={time}
           bookingTime={bookingTime}
           date={date}
@@ -528,15 +550,57 @@ const CoMap = ({ nightMode, userid }) => {
             </div>
           </div>
 
-          <div className="rounded-lg bg-gray-800 p-4">
-            <p className="font-semibold text-gray-300">Scheduled Booking (0.10 น.น.)</p>
-            <div className="flex items-center justify-between mt-2">
-              <p className="text-sm text-gray-300">
-                <span className="text-red-500 font-bold">🔴</span> 13:00 - 18:00
+          <div>
+      <div className="rounded-lg bg-gray-800 p-4 mt-4 max-w-md mx-auto">
+        <p className="font-semibold text-gray-300">การจองโต๊ะ</p>
+        {bookings.length === 0 ? (
+          <p className="text-sm text-gray-400">ไม่มีการจองในวันนี้</p>
+        ) : (
+          bookings.map((booking, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between mt-2 bg-gray-700 p-2 rounded"
+              onClick={() => handleTableSelect(booking.table_number)}
+            >
+              <div>
+                <p className="text-sm text-gray-300">
+                  <span className="text-red-500 font-bold">🔴</span>{' '}
+                  {booking.reservation_time_from} - {booking.reservation_time_to}
+                </p>
+                <p className="text-xs text-gray-400">โต๊ะ {booking.table_number}</p>
+              </div>
+              <p className="text-sm font-semibold text-gray-300">
+                {booking.first_name} {booking.last_name}
               </p>
-              <p className="text-sm font-semibold text-gray-300">Firstname Lastname</p>
             </div>
-          </div>
+          ))
+        )}
+      </div>
+
+      {selectedTable && (
+        <div className="rounded-lg bg-gray-800 p-4 mt-4 max-w-md mx-auto">
+          <p className="font-semibold text-gray-300">
+            การจองโต๊ะ {selectedTable}
+          </p>
+          {bookings.filter(booking => booking.table_number === selectedTable).map((booking, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between mt-2 bg-gray-700 p-2 rounded"
+            >
+              <div>
+                <p className="text-sm text-gray-300">
+                  <span className="text-red-500 font-bold">🔴</span>{' '}
+                  {booking.reservation_time_from} - {booking.reservation_time_to}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {booking.first_name} {booking.last_name}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
         </div>
       </dialog>
 
@@ -633,48 +697,48 @@ const CoMap = ({ nightMode, userid }) => {
 
 
       {/* Booking Success Modal */}
-<dialog id="bookingSuccessModal" className="modal">
-  <div className="modal-box rounded-lg w-full max-w-md p-6 bg-green-600 text-white">
-    <div className="text-center">
-      <FaCheckCircle className="mx-auto text-6xl mb-4 text-white" />
-      <h3 className="text-2xl font-bold mb-2">Booking Successful!</h3>
+      <dialog id="bookingSuccessModal" className="modal">
+        <div className="modal-box rounded-lg w-full max-w-md p-6 bg-green-600 text-white">
+          <div className="text-center">
+            <FaCheckCircle className="mx-auto text-6xl mb-4 text-white" />
+            <h3 className="text-2xl font-bold mb-2">Booking Successful!</h3>
 
-      <div className="bg-green-700 rounded-lg p-4 mt-4">
-        <div className="flex justify-between mb-2">
-          <span className="font-semibold">Desk Number:</span>
-          <span>{bookingDetails.tableId}</span>
-        </div>
-        <div className="flex justify-between mb-2">
-          <span className="font-semibold">Date:</span>
-          <span>
-            {bookingDetails.date &&
-              bookingDetails.date.toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })}
-          </span>
-        </div>
-        <div className="flex justify-between mb-2">
-          <span className="font-semibold">Time:</span>
-          <span>{bookingDetails.startTime} - {bookingDetails.endTime}</span>
-        </div>
-      </div>
+            <div className="bg-green-700 rounded-lg p-4 mt-4">
+              <div className="flex justify-between mb-2">
+                <span className="font-semibold">Desk Number:</span>
+                <span>{bookingDetails.tableId}</span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span className="font-semibold">Date:</span>
+                <span>
+                  {bookingDetails.date &&
+                    bookingDetails.date.toLocaleDateString('en-US', {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                </span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span className="font-semibold">Time:</span>
+                <span>{bookingDetails.startTime} - {bookingDetails.endTime}</span>
+              </div>
+            </div>
 
-      <p className="mt-4">
-        The booking details have been sent to your email.
-      </p>
+            <p className="mt-4">
+              The booking details have been sent to your email.
+            </p>
 
-      <button
-        onClick={closeSuccessModal}
-        className="btn btn-white mt-4 w-full"
-      >
-        Close
-      </button>
-    </div>
-  </div>
-</dialog>
+            <button
+              onClick={closeSuccessModal}
+              className="btn btn-white mt-4 w-full"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </dialog>
 
 
 
