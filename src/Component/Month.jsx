@@ -5,6 +5,7 @@ import { CSSTransition } from 'react-transition-group';
 
 
 
+
 const CoMonth = ({ nightMode }) => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().split('T')[0].slice(0, 7));
   const [showDetailView, setShowDetailView] = useState(false);
@@ -31,44 +32,46 @@ const CoMonth = ({ nightMode }) => {
     try {
       const response = await API.get(`/reservations/${month}`);
 
-      if (response.status === 200) {
+      if (response.data.status === 200) {
         const transformedData = transformData(response.data);
         setBookings(transformedData);
-      } else {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      } 
+      else if (response.data.status === 404) {
+        setBookings([]);
+        console.log("No bookings found for this month");
       }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      // Set default data in case of error
-      setBookings([
-        { name: "John Doe", Fromtime: "10:00", Totime: "18:00", table: "A1", note: "Team meeting", date: new Date("2024-11-16") },
-        { name: "Alice Brown", Fromtime: "15:00", Totime: "18:00", table: "A1", note: "Client call", date: new Date("2024-11-15") },
-        // ... other default bookings
-      ]);
+     
+    } catch (err) {
+        console.error("Error fetching data:", err);
+        setBookings([]);
     }
   };
 
   const transformData = (apiData) => {
-
     // Log ข้อมูลที่ได้จาก API
-    console.log(apiData);
-
-    return apiData.map(item => {
-      const formatTime = (time) => {
-        const [hours, minutes] = time.split(":"); // แยกชั่วโมงและนาทีจากเวลา
-        return `${hours}:${minutes}`;
-      };
-
-      return {
-        name: `${item.first_name} ${item.last_name}`,
-        Fromtime: formatTime(item.reservation_time_from), // ใช้ฟังก์ชัน formatTime
-        Totime: formatTime(item.reservation_time_to), // ใช้ฟังก์ชัน formatTime
-        table: item.table_number,
-        note: item.note,
-        date: new Date(item.reservation_date)
-      };
-    });
+    console.log("API Data:", apiData);
+  
+    // ตรวจสอบว่า apiData มีคีย์ 'data' และ 'data' เป็นอาร์เรย์หรือไม่
+    if (!apiData || !Array.isArray(apiData.data)) {
+      console.error("apiData ไม่ใช่อาร์เรย์หรือไม่มีคีย์ 'data':", apiData);
+      return []; // คืนค่าเป็นอาร์เรย์เปล่าเพื่อหลีกเลี่ยงข้อผิดพลาด
+    }
+  
+    const formatTime = (time) => {
+      const [hours, minutes] = time.split(":"); // แยกชั่วโมงและนาทีจากเวลา
+      return `${hours}:${minutes}`;
+    };
+  
+    return apiData.data.map(item => ({
+      name: `${item.first_name} ${item.last_name}`,
+      Fromtime: formatTime(item.reservation_time_from), // ใช้ฟังก์ชัน formatTime
+      Totime: formatTime(item.reservation_time_to), // ใช้ฟังก์ชัน formatTime
+      table: item.table_number,
+      note: item.note,
+      date: new Date(item.reservation_date)
+    }));
   };
+  
 
 
 
@@ -563,7 +566,7 @@ const CoMonth = ({ nightMode }) => {
                 focus:outline-none`}
             />
           </div>
-          
+
           <button
             onClick={handleNextMonth}
             className={`p-2 border rounded-full transition duration-200 shadow-md ${nightMode
@@ -602,136 +605,120 @@ const CoMonth = ({ nightMode }) => {
           </div>
 
           {/* ส่วนแสดงรายละเอียดการจอง */}
-<div className={`
-  ${nightMode 
-    ? 'bg-gradient-to-br from-slate-700 to-slate-800' 
-    : 'bg-gradient-to-br from-blue-100 to-blue-200'}
+          <div className={`
+  ${nightMode
+              ? 'bg-gradient-to-br from-slate-700 to-slate-800'
+              : 'bg-gradient-to-br from-blue-100 to-blue-200'}
   rounded-xl p-5 shadow-2xl overflow-hidden max-h-[700px] min-h-[700px] transition-colors duration-300
 `}>
-  <div className="flex items-center justify-between mb-4">
-    <h3 className={`
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`
       text-lg font-bold 
       ${nightMode ? 'text-white' : 'text-gray-800'} 
       flex items-center
     `}>
-      <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        className={`h-6 w-6 mr-2 ${nightMode ? 'text-blue-400' : 'text-blue-600'}`} 
-        fill="none" 
-        viewBox="0 0 24 24" 
-        stroke="currentColor"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-      การจองประจำเดือน {getMonthInThai(selectedMonthIndex)} {selectedYear}
-    </h3>
-  </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`h-6 w-6 mr-2 ${nightMode ? 'text-blue-400' : 'text-blue-600'}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                การจองประจำเดือน {getMonthInThai(selectedMonthIndex)} {selectedYear}
+              </h3>
+            </div>
 
-  <div className={`
+            <div className={`
     space-y-4 overflow-y-auto max-h-[610px] min-h-[610px] pr-2 
     ${nightMode ? 'custom-scrollbar-dark' : 'custom-scrollbar'}
   `}>
-    {getGroupedBookingsForMonth().length === 0 ? (
-      <div className={`
+              {getGroupedBookingsForMonth().length === 0 ? (
+                <div className={`
         text-center py-10 rounded-lg
-        ${nightMode 
-          ? 'bg-white/5 text-gray-400 border border-white/10' 
-          : 'bg-gray-100 text-gray-500'}
+        ${nightMode
+                    ? 'bg-white/5 text-gray-400 border border-white/10'
+                    : 'bg-gray-100 text-gray-500'}
       `}>
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          className={`h-12 w-12 mx-auto mb-4 ${nightMode ? 'text-gray-600' : 'text-gray-400'}`} 
-          fill="none" 
-          viewBox="0 0 24 24" 
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 005.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <p className="text-sm">ไม่มีการจองในเดือนนี้</p>
-      </div>
-    ) : (
-      getGroupedBookingsForMonth().map((group, groupIndex) => (
-        <div
-          key={groupIndex}
-          className={`
-            ${nightMode 
-              ? 'bg-white/10 backdrop-blur-sm border-white/20 hover:border-white/30' 
-              : 'bg-white shadow-sm border-gray-200 hover:shadow-md'}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`h-12 w-12 mx-auto mb-4 ${nightMode ? 'text-gray-600' : 'text-gray-400'}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 005.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-sm">ไม่มีการจองในเดือนนี้</p>
+                </div>
+              ) : (
+                getGroupedBookingsForMonth().map((group, groupIndex) => (
+                  <div
+                    key={groupIndex}
+                    className={`
+            ${nightMode
+                        ? 'bg-white/10 backdrop-blur-sm border-white/20 hover:border-white/30'
+                        : 'bg-white shadow-sm border-gray-200 hover:shadow-md'}
             rounded-lg border transition-all duration-300
           `}
-        >
-          <div className={`
+                  >
+                    <div className={`
             px-4 py-3 
-            ${nightMode 
-              ? 'border-b border-white/10' 
-              : 'border-b border-gray-100'}
+            ${nightMode
+                        ? 'border-b border-white/10'
+                        : 'border-b border-gray-100'}
           `}>
-            <div className={`
+                      <div className={`
               font-medium text-base 
               ${nightMode ? 'text-blue-300' : 'text-blue-600'}
             `}>
-              วันที่ {group.date.getDate()} {getMonthInThai(group.date.getMonth())}
-            </div>
-          </div>
-          <div className="p-4 space-y-3">
-            {group.bookings.map((booking, bookingIndex) => (
-              <div
-                key={bookingIndex}
-                className={`
-                  ${nightMode 
-                    ? 'bg-white/5 border-white/10 hover:bg-white/10' 
-                    : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}
+                        วันที่ {group.date.getDate()} {getMonthInThai(group.date.getMonth())}
+                      </div>
+                    </div>
+                    <div className="p-4 space-y-3">
+                      {group.bookings.map((booking, bookingIndex) => (
+                        <div
+                          key={bookingIndex}
+                          className={`
+                  ${nightMode
+                              ? 'bg-white/5 border-white/10 hover:bg-white/10'
+                              : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}
                   rounded-md p-3 border transition-all duration-300
                 `}
-              >
-                <div className="flex justify-between items-center mb-1">
-                  <div className={`
+                        >
+                          <div className="flex justify-between items-center mb-1">
+                            <div className={`
                     font-medium text-sm truncate flex-grow pr-2 
                     ${nightMode ? 'text-white' : 'text-gray-800'}
                   `}>
-                    {booking.name} | {booking.table}
-                  </div>
-                  <div className={`
+                              {booking.name} | {booking.table}
+                            </div>
+                            <div className={`
                     font-medium text-sm ml-2 flex-shrink-0
                     ${nightMode ? 'text-blue-300' : 'text-blue-600'}
                   `}>
-                    {booking.Fromtime} - {booking.Totime}
-                  </div>
-                </div>
-                {booking.note && (
-                  <div className={`
+                              {booking.Fromtime} - {booking.Totime}
+                            </div>
+                          </div>
+                          {booking.note && (
+                            <div className={`
                     text-xs mt-1 italic
                     ${nightMode ? 'text-gray-500' : 'text-gray-600'}
                   `}>
-                    หมายเหตุ: {booking.note}
+                              หมายเหตุ: {booking.note}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                )}
-              </div>
-            ))}
+                ))
+              )}
+            </div>
           </div>
         </div>
-      ))
-    )}
-  </div>
-</div>
-        </div>
 
-        {/* Optional: Add custom scrollbar styles */}
-        <style jsx>{`
-          .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-          }
-          .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.2);
-            border-radius: 3px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.3);
-          }
-        `}</style>
 
         {/* Detail View Modal for Desktop */}
 
@@ -775,7 +762,7 @@ const CoMonth = ({ nightMode }) => {
                             <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 mr-2 ${nightMode ? 'text-gray-400' : 'text-gray-600'}`} viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                             </svg>
-                            {booking.name} 
+                            {booking.name}
                             <span className="text-xs ml-2">{booking.table}</span>
                           </div>
                           <div className={`text-sm ${nightMode ? 'text-gray-300 bg-gray-900 border-gray-700' : 'text-gray-600 bg-white border-gray-200'} border px-2 py-1 rounded`}>

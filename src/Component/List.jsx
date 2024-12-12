@@ -145,8 +145,9 @@ const Header = ({
                                 : "bg-white focus:ring-red-500"
                             }`}
                         >
-                            <option value="desc">Newest First</option>
                             <option value="asc">Oldest First</option>
+                            <option value="desc">Newest First</option>
+                            
                         </select>
                         <Filter className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${nightMode ? "text-gray-500" : "text-gray-400"} w-5 h-5 pointer-events-none`} />
                     </div>

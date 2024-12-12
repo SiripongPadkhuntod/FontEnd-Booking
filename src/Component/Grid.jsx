@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, Clock, User, MapPin, Moon, Sun,NotebookPen } from 'lucide-react';
+import { Calendar, Clock, User, MapPin, Moon, Sun, NotebookPen } from 'lucide-react';
 import API from '../api';
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -26,38 +26,27 @@ const CoGrid = ({ nightMode }) => {
     try {
       const response = await API.get(`/reservations/${month}`);
 
-      if (response.status === 200) {
+      if (response.data.status === 200) {
         console.log("Data fetched successfully!", response.data);
         transformData(response.data);
-      } else {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      } else if (response.data.status === 404) {
+        console.log("No data found for the selected month");
+        setBookings([]);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
-  const fetchTable = async () => {
-    try {
-      const response = await API.get(`/tables`);
-      if (response.status === 200) {
-        console.log("Data fetched successfully!", response.data);
-        //เอาแค่ table_number
-        const desk = Array.isArray(response.data) ? response.data.map((item) => item.table_number) : [];
 
-        setDesks(desk);
-      } else {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-    } catch (error) {
-      console.error("Error fetching data:", error);
+  const transformData = (apiResponse) => {
+    // ตรวจสอบว่า apiResponse มีคีย์ 'data' และ 'data' เป็นอาร์เรย์หรือไม่
+    if (!apiResponse || !Array.isArray(apiResponse.data)) {
+      console.error("apiResponse ไม่ใช่อาร์เรย์หรือไม่มีคีย์ 'data':", apiResponse);
+      return; // หยุดการทำงานถ้าไม่มีคีย์ data หรือไม่ใช่อาร์เรย์
     }
-  };
-
-
-  const transformData = (data) => {
-    const transformedData = data.map((item) => ({
+  
+    const transformedData = apiResponse.data.map((item) => ({
       desk: item.table_number,
       name: `${item.first_name} ${item.last_name}`,
       timeform: item.reservation_time_from.slice(0, 5),
@@ -65,10 +54,11 @@ const CoGrid = ({ nightMode }) => {
       note: item.note,
       date: new Date(item.reservation_date),
     }));
-
-    console.log(transformedData);
+  
+    console.log("Transformed Data:", transformedData);
     setBookings(transformedData);
   };
+  
 
   const getDaysInMonth = (year, month) => {
     const days = [];
@@ -162,8 +152,8 @@ const CoGrid = ({ nightMode }) => {
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
                 className={`p-3 border-2 rounded-lg focus:ring-2 transition-all duration-300 w-50 ${nightMode
-                    ? 'bg-gray-800 border-gray-700 text-gray-200 focus:ring-indigo-600 focus:outline-none'
-                    : 'bg-white border-gray-300 text-gray-900 focus:ring-indigo-400 focus:outline-none'
+                  ? 'bg-gray-800 border-gray-700 text-gray-200 focus:ring-indigo-600 focus:outline-none'
+                  : 'bg-white border-gray-300 text-gray-900 focus:ring-indigo-400 focus:outline-none'
                   }`}
               />
             </div>
@@ -173,8 +163,8 @@ const CoGrid = ({ nightMode }) => {
           {/* Booking Grid */}
           <div
             className={`shadow-xl rounded-2xl border overflow-auto ${nightMode
-                ? 'bg-gray-800 border-gray-700'
-                : 'bg-white border-gray-200'
+              ? 'bg-gray-800 border-gray-700'
+              : 'bg-white border-gray-200'
               }`}
             style={{ maxHeight: "700px" }}
           >
@@ -187,8 +177,8 @@ const CoGrid = ({ nightMode }) => {
               {/* Header Row */}
               <div
                 className={`font-bold text-center p-3  ${nightMode
-                    ? 'bg-gray-700 text-gray-200'
-                    : 'bg-red-700 text-gray-200'
+                  ? 'bg-gray-700 text-gray-200'
+                  : 'bg-red-700 text-gray-200'
                   }`}
               >
                 วันที่
@@ -197,8 +187,8 @@ const CoGrid = ({ nightMode }) => {
                 <div
                   key={index}
                   className={`font-bold text-center p-3 ${nightMode
-                      ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                      : 'bg-red-700 text-gray-200 hover:bg-indigo-200'
+                    ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                    : 'bg-red-700 text-gray-200 hover:bg-indigo-200'
                     } transition-colors`}
                 >
                   {desk}
@@ -211,8 +201,8 @@ const CoGrid = ({ nightMode }) => {
                   {/* Date and Day */}
                   <div
                     className={`font-semibold text-left p-3 ${nightMode
-                        ? 'bg-gray-900 text-gray-300'
-                        : 'bg-gray-100 text-gray-700'
+                      ? 'bg-gray-900 text-gray-300'
+                      : 'bg-gray-100 text-gray-700'
                       }`}
                   >
                     {getDayInThai(date)} {date.getDate()}
@@ -226,8 +216,8 @@ const CoGrid = ({ nightMode }) => {
                       <div
                         key={`${index}-${deskIndex}`}
                         className={`w-full h-24 p-3 border-b border-r group relative ${nightMode
-                            ? 'bg-gray-800 hover:bg-gray-700 text-gray-300'
-                            : 'bg-white hover:bg-gray-50 text-gray-800'
+                          ? 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+                          : 'bg-white hover:bg-gray-50 text-gray-800'
                           } transition-colors`}
                       >
                         {renderBookingNames(bookingsForDeskAndDate)}
@@ -236,8 +226,8 @@ const CoGrid = ({ nightMode }) => {
                         {bookingsForDeskAndDate.length > 0 && (
                           <div
                             className={`absolute hidden group-hover:block border-2 shadow-lg rounded-lg p-4 z-50 w-72 ${nightMode
-                                ? 'bg-gray-700 border-gray-600 text-gray-200'
-                                : 'bg-white border-indigo-200 text-gray-800'
+                              ? 'bg-gray-700 border-gray-600 text-gray-200'
+                              : 'bg-white border-indigo-200 text-gray-800'
                               }`}
                             style={{
                               top: "50%",
@@ -269,7 +259,7 @@ const CoGrid = ({ nightMode }) => {
                                   <Clock size={14} className="mr-2" />
                                   {booking.timeform} - {booking.timeto}
                                 </div>
-                                
+
 
                                 {/* //table number */}
                                 <div

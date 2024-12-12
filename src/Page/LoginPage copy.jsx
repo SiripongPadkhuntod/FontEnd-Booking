@@ -5,7 +5,7 @@ import { GrFormView, GrFormViewHide } from "react-icons/gr";
 import { CiMail } from "react-icons/ci";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
-import { FaCheckCircle, FaTimesCircle, FaExclamationCircle } from 'react-icons/fa'; // import ไอคอน
+import { FaCheckCircle , FaTimesCircle,FaExclamationCircle } from 'react-icons/fa'; // import ไอคอน
 import API from '../api';
 
 function Modal({ isOpen, message, submessage, onClose, isDarkMode }) {
@@ -16,8 +16,8 @@ function Modal({ isOpen, message, submessage, onClose, isDarkMode }) {
 
   return (
     <dialog className={`modal modal-open ${isDarkMode ? 'dark' : ''}`}>
-      <div className={`modal-box rounded-lg w-full max-w-md p-6 ${isDarkMode
-        ? (isError || isLoginFailed ? 'bg-red-800 text-white' : 'bg-gray-800 text-white')
+      <div className={`modal-box rounded-lg w-full max-w-md p-6 ${isDarkMode 
+        ? (isError || isLoginFailed ? 'bg-red-800 text-white' : 'bg-gray-800 text-white') 
         : (isError || isLoginFailed ? 'bg-red-600 text-white' : 'bg-green-600 text-white')} shadow-2xl`}>
         <div className="text-center">
           {isError || isLoginFailed ? (
@@ -29,22 +29,22 @@ function Modal({ isOpen, message, submessage, onClose, isDarkMode }) {
             {message || (isDarkMode ? 'Login Successful!' : 'Welcome Back!')}
           </h3>
           <p className={`py-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-100'}`}>
-            {submessage || (isLoginFailed
-              ? 'Your login attempt was unsuccessful. Please check your credentials and try again.'
-              : isError
-                ? 'Something went wrong. Please try again.'
-                : (isDarkMode
-                  ? 'You have successfully logged in.'
+            {submessage || (isLoginFailed 
+              ? 'Your login attempt was unsuccessful. Please check your credentials and try again.' 
+              : isError 
+                ? 'Something went wrong. Please try again.' 
+                : (isDarkMode 
+                  ? 'You have successfully logged in.' 
                   : 'Enjoy your session!'))}
           </p>
 
           <button
-            className={`btn btn-white mt-4 w-full ${isDarkMode
-              ? (isError || isLoginFailed
-                ? 'bg-red-700 text-white hover:bg-red-600'
-                : 'bg-gray-700 text-white hover:bg-gray-600')
-              : (isError || isLoginFailed
-                ? 'hover:bg-red-500 hover:text-white'
+            className={`btn btn-white mt-4 w-full ${isDarkMode 
+              ? (isError || isLoginFailed 
+                ? 'bg-red-700 text-white hover:bg-red-600' 
+                : 'bg-gray-700 text-white hover:bg-gray-600') 
+              : (isError || isLoginFailed 
+                ? 'hover:bg-red-500 hover:text-white' 
                 : 'hover:bg-green-500 hover:text-white')}`}
             onClick={onClose}
           >
@@ -86,14 +86,11 @@ function Login() {
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
-  // ตรวจสอบว่า email และ password ไม่ว่าง
-  const isFormValid = email && password;
-
   const handleLoginGoogle = async (response) => {
     try {
       const res = await API.post('/api/auth/google', { token: response.credential });
       console.log("API Response:", res);
-
+  
       if (res.status === 403) {
         console.log("403 Forbidden: Non-RSU email used.");
         setModalState({
@@ -132,7 +129,7 @@ function Login() {
       }
     }
   };
-
+  
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -205,31 +202,31 @@ function Login() {
   };
 
   return (
-
-    <div className={`min-h-screen ${isDarkMode
-      ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-red-800'
-      : 'bg-gradient-to-br from-gray-200 via-gray-100 to-red-200'} 
+    <div className={`min-h-screen ${isDarkMode 
+      ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-black' 
+      : 'bg-gradient-to-br from-purple-50 via-white to-pink-50'} 
       flex items-center justify-center p-4`}>
-      <div className={`w-full max-w-6xl ${isDarkMode
-        ? 'bg-gray-800 text-white'
+      <div className={`w-full max-w-4xl ${isDarkMode 
+        ? 'bg-gray-800 text-white' 
         : 'bg-white'} 
         shadow-2xl rounded-3xl overflow-hidden flex`}>
         {/* Dark Mode Toggle */}
-        <button
-          onClick={toggleDarkMode}
-          className={`absolute top-4 right-4 z-10 p-2 rounded-full ${isDarkMode
-            ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600'
-            : 'bg-red-100 text-red-600 hover:bg-red-200'} 
-            transition-colors duration-300`}>
+        <button 
+          onClick={toggleDarkMode} 
+          className={`absolute top-4 right-4 z-10 p-2 rounded-full ${isDarkMode 
+            ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600' 
+            : 'bg-purple-100 text-purple-600 hover:bg-purple-200'} 
+            transition-colors duration-300`}
+        >
           {isDarkMode ? <MdLightMode className="text-2xl" /> : <MdDarkMode className="text-2xl" />}
         </button>
 
         {/* Login Form Section */}
         <div className="w-full md:w-1/2 p-12 flex flex-col justify-center">
           <div className="text-center mb-8">
-            <h1 className={`text-4xl font-bold ${isDarkMode
-              ? 'text-white'
-              : 'text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800'} 
+            <h1 className={`text-4xl font-bold ${isDarkMode 
+              ? 'text-white' 
+              : 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600'} 
               mb-4`}>
               Welcome Back
             </h1>
@@ -247,9 +244,9 @@ function Login() {
                 type="email"
                 placeholder="RSU Mail"
                 className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-300 
-                  ${isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white focus:ring-red-500'
-                    : 'border-gray-300 focus:ring-red-500'}`}
+                  ${isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500' 
+                    : 'border-gray-300 focus:ring-purple-500'}`}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -263,17 +260,17 @@ function Login() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-300 
-                  ${isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white focus:ring-red-500'
-                    : 'border-gray-300 focus:ring-red-500'}`}
+                  ${isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500' 
+                    : 'border-gray-300 focus:ring-purple-500'}`}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <button
                 type="button"
-                className={`absolute inset-y-0 right-0 pr-3 flex items-center ${isDarkMode
-                  ? 'text-gray-400 hover:text-gray-200'
-                  : 'text-gray-500 hover:text-red-600'} 
+                className={`absolute inset-y-0 right-0 pr-3 flex items-center ${isDarkMode 
+                  ? 'text-gray-400 hover:text-gray-200' 
+                  : 'text-gray-500 hover:text-purple-600'} 
                   transition duration-300`}
                 onClick={togglePasswordVisibility}
               >
@@ -283,19 +280,20 @@ function Login() {
 
             <div className="flex justify-between items-center">
               <label className={`flex items-center ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                <input
-                  type="checkbox"
-                  className={`mr-2 rounded ${isDarkMode
-                    ? 'focus:ring-red-500 bg-gray-700 border-gray-600'
-                    : 'focus:ring-red-500'}`}
+                <input 
+                  type="checkbox" 
+                  className={`mr-2 rounded ${isDarkMode 
+                    ? 'focus:ring-gray-500 bg-gray-700 border-gray-600' 
+                    : 'focus:ring-purple-500'}`} 
                 />
                 <span>Remember me</span>
               </label>
-              <a
-                href="#"
-                className={`${isDarkMode
-                  ? 'text-gray-300 hover:text-white'
-                  : 'text-red-600 hover:underline'}`}>
+              <a 
+                href="#" 
+                className={`${isDarkMode 
+                  ? 'text-gray-300 hover:text-white' 
+                  : 'text-purple-600 hover:underline'}`}
+              >
                 Forgot password?
               </a>
             </div>
@@ -303,9 +301,9 @@ function Login() {
             <button
               type="submit"
               className={`w-full py-3 text-white rounded-lg hover:opacity-90 transition duration-300 transform hover:scale-[1.02] shadow-lg 
-                ${isDarkMode
-                  ? 'bg-gradient-to-r from-gray-700 to-gray-900'
-                  : 'bg-gradient-to-r from-red-600 to-red-800'}`}
+                ${isDarkMode 
+                  ? 'bg-gradient-to-r from-gray-700 to-gray-900' 
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600'}`}
             >
               Sign In
             </button>
@@ -327,11 +325,12 @@ function Login() {
             </div>
 
             <div className={`mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              Don't have an account? <a
-                href="/register"
-                className={`${isDarkMode
-                  ? 'text-gray-300 hover:text-white'
-                  : 'text-red-600 hover:underline'}`}>
+              Don't have an account? <a 
+                href="/register" 
+                className={`${isDarkMode 
+                  ? 'text-gray-300 hover:text-white' 
+                  : 'text-purple-600 hover:underline'}`}
+              >
                 Sign Up
               </a>
             </div>
@@ -345,19 +344,13 @@ function Login() {
             alt="login background"
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className={`absolute inset-0 ${isDarkMode
-            ? 'bg-gradient-to-r from-gray-900 to-black opacity-70'
-            : 'bg-gradient-to-r from-red-600 to-red-800 opacity-60'}`}></div>
+          <div className={`absolute inset-0 ${isDarkMode 
+            ? 'bg-gradient-to-r from-gray-900 to-black opacity-70' 
+            : 'bg-gradient-to-r from-purple-600 to-pink-600 opacity-60'}`}></div>
           <div className="absolute inset-0 flex items-center justify-center text-center text-white p-8">
             <div>
-
-              {/* <h2 className="text-4xl font-bold mb-4">Hello, Friend!</h2> */}
-              {/* <p className="text-lg">Enter your personal details and start your journey with us</p> */} 
-              <img
-                src="src\assets\login.jpg"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-
+              <h2 className="text-4xl font-bold mb-4">Hello, Friend!</h2>
+              <p className="text-lg">Enter your personal details and start your journey with us</p>
             </div>
           </div>
         </div>
@@ -372,7 +365,6 @@ function Login() {
         isDarkMode={isDarkMode}
       />
     </div>
-
   );
 }
 

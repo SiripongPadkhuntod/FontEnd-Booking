@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
-
-// const [currentDate, setCurrentDate] = useState(new Date());
-
+import API from '../api';
 
 const CircleButton = ({ cx, cy, tableNumber, onClick, disabled, tableID, showBookingDetails }) => {
     const handleMouseEnter = (e) => { if (!disabled) e.target.setAttribute("fill", "#2E8B57") };
@@ -17,26 +14,15 @@ const CircleButton = ({ cx, cy, tableNumber, onClick, disabled, tableID, showBoo
             stroke="#000"
             onClick={() => {
                 if (disabled) {
-                    // เรียกฟังก์ชันที่รับข้อมูลจาก API และแสดง Modal
-                    // showBookingDetails(tableNumber, tableID);
-
+                   
                     document.getElementById('bookingModalDetail').showModal();
                     onClick(tableNumber, tableID);
 
                 } else {
-                    // Function when not disabled (normal behavior)
+             
                     document.getElementById('availabilityModal').showModal();
                     onClick(tableNumber, tableID);
-                    //เช็คว่าต้องเป็นวันที่ปัจจุบันหรือไม่
-                    //ถ้าเป็นวันที่ปัจจุบันให้เปิด modal สำหรับการจองโต๊ะ
-                    //ถ้าไม่ใช่ให้แสดงข้อมูลการจองโต๊ะ
-                    // if (new Date().toISOString().split('T')[0] === new Date().toISOString().split('T')[0]) {
-                    //     document.getElementById('availabilityModal').showModal();
-                    //     onClick(tableNumber, tableID);
-                    // } else {
-                    //     document.getElementById('bookingModalDetail').showModal();
-                    //     onClick(tableNumber, tableID);
-                    // }
+                
                 }
             }}
             onMouseEnter={handleMouseEnter}

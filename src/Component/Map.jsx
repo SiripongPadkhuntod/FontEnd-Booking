@@ -553,28 +553,32 @@ const CoMap = ({ nightMode, userid }) => {
           <div>
       <div className="rounded-lg bg-gray-800 p-4 mt-4 max-w-md mx-auto">
         <p className="font-semibold text-gray-300">การจองโต๊ะ</p>
-        {bookings.length === 0 ? (
-          <p className="text-sm text-gray-400">ไม่มีการจองในวันนี้</p>
-        ) : (
-          bookings.map((booking, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between mt-2 bg-gray-700 p-2 rounded"
-              onClick={() => handleTableSelect(booking.table_number)}
-            >
-              <div>
-                <p className="text-sm text-gray-300">
-                  <span className="text-red-500 font-bold">🔴</span>{' '}
-                  {booking.reservation_time_from} - {booking.reservation_time_to}
-                </p>
-                <p className="text-xs text-gray-400">โต๊ะ {booking.table_number}</p>
-              </div>
-              <p className="text-sm font-semibold text-gray-300">
-                {booking.first_name} {booking.last_name}
-              </p>
-            </div>
-          ))
-        )}
+        {Array.isArray(bookings) ? (
+  bookings.length === 0 ? (
+    <p className="text-sm text-gray-400">ไม่มีการจองในวันนี้</p>
+  ) : (
+    bookings.map((booking, index) => (
+      <div
+        key={index}
+        className="flex items-center justify-between mt-2 bg-gray-700 p-2 rounded"
+        onClick={() => handleTableSelect(booking.table_number)}
+      >
+        <div>
+          <p className="text-sm text-gray-300">
+            <span className="text-red-500 font-bold">🔴</span>{' '}
+            {booking.reservation_time_from} - {booking.reservation_time_to}
+          </p>
+          <p className="text-xs text-gray-400">โต๊ะ {booking.table_number}</p>
+        </div>
+        <p className="text-sm font-semibold text-gray-300">
+          {booking.first_name} {booking.last_name}
+        </p>
+      </div>
+    ))
+  )
+) : (
+  <p className="text-sm text-gray-400">ไม่มีข้อมูลการจองที่ถูกต้อง</p>
+)}
       </div>
 
       {selectedTable && (
