@@ -273,7 +273,7 @@ function ProfilePage({ nightMode, useremail }) {
               <span className="w-8 h-8">⚙️</span>
               <div className="flex flex-col ml-2">
                 <div className="text-left font-semibold">Admin Setting</div>
-                <div className="text-left text-sm text-gray-500">Manage your personal calendar</div>
+                <div className="text-left text-sm text-gray-500">Manage Administrative Settings</div>
               </div>
             </button>
 
@@ -289,7 +289,7 @@ function ProfilePage({ nightMode, useremail }) {
               <span className="w-8 h-8">⚙️</span>
               <div className="flex flex-col ml-2">
                 <div className="text-left font-semibold">Table Setting</div>
-                <div className="text-left text-sm text-gray-500">Manage your personal calendar</div>
+                <div className="text-left text-sm text-gray-500">Set Up Table Preferences</div>
               </div>
             </button>
           </div>
@@ -488,9 +488,9 @@ function ProfilePage({ nightMode, useremail }) {
       {/* Calendar Section */}
       <CSSTransition key="calendar-section" timeout={500} classNames="fade">
         <div
-          className={`flex-1 p-10 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showCalendar ? '' : 'hidden'}`}
+          className={`flex-1  ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showCalendar ? '' : 'hidden'}`}
         >
-          <CoAdmin/>
+          <CoAdmin nightMode={nightMode}/>
         </div>
 
 
@@ -500,9 +500,9 @@ function ProfilePage({ nightMode, useremail }) {
       {/* TableConfig Section */}
       <CSSTransition key="TableConfig" timeout={500} classNames="fade">
         <div
-          className={`flex-1 p-10 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showTable ? '' : 'hidden'}`}
+          className={`flex-1 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showTable ? '' : 'hidden'}`}
         >
-          <CoTableSetting />
+          <CoTableSetting nightMode={nightMode}/>
         </div>
       </CSSTransition>
     </TransitionGroup>

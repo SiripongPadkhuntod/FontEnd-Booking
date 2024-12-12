@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Lock, Unlock, MapPin } from 'lucide-react';
 
-function AdminConfig() {
+function AdminConfig({nightMode}) {
   const [desks, setDesks] = useState([
     { desk: 'A01', status: 'LOCKED', from: '09:00', to: '16:00' },
     { desk: 'A02', status: 'LOCKED', from: '09:00', to: '16:00' },
@@ -135,7 +135,7 @@ function AdminConfig() {
 
   // Desktop view
   return (
-    <div className="bg-gray-100 min-h-full p-6">
+    <div className=" min-h-full p-10">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-gray-800">Admin Config</h1>

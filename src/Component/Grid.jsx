@@ -12,10 +12,6 @@ const CoGrid = ({ nightMode }) => {
   const [bookings, setBookings] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().split('T')[0].slice(0, 7));
 
-
-
-
-
   useEffect(() => {
     // fetchTable();
     fetchData(selectedMonth);
@@ -45,7 +41,7 @@ const CoGrid = ({ nightMode }) => {
       console.error("apiResponse ไม่ใช่อาร์เรย์หรือไม่มีคีย์ 'data':", apiResponse);
       return; // หยุดการทำงานถ้าไม่มีคีย์ data หรือไม่ใช่อาร์เรย์
     }
-  
+
     const transformedData = apiResponse.data.map((item) => ({
       desk: item.table_number,
       name: `${item.first_name} ${item.last_name}`,
@@ -54,11 +50,11 @@ const CoGrid = ({ nightMode }) => {
       note: item.note,
       date: new Date(item.reservation_date),
     }));
-  
+
     console.log("Transformed Data:", transformedData);
     setBookings(transformedData);
   };
-  
+
 
   const getDaysInMonth = (year, month) => {
     const days = [];

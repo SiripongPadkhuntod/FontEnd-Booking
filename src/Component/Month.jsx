@@ -47,6 +47,16 @@ const CoMonth = ({ nightMode }) => {
     }
   };
 
+  const handleDateChange = (e) => {
+    const value = e.target.value;
+    if (value === "") {
+      // หาก input ถูกล้างค่า
+      setDate(new Date()); // ตั้งค่ากลับเป็นวันที่ปัจจุบัน
+    } else {
+      setDate(new Date(value));
+    }
+  };
+
   const transformData = (apiData) => {
     // Log ข้อมูลที่ได้จาก API
     console.log("API Data:", apiData);
@@ -200,6 +210,8 @@ const CoMonth = ({ nightMode }) => {
     setSelectedMonth(e.target.value);
     fetchData(e.target.value);
   };
+
+  
 
   // Responsive check
   useEffect(() => {

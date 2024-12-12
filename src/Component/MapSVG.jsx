@@ -110,7 +110,6 @@ function MapSVG({ time, date, onSelectNumbertable, onSelectNumbertableID }) {
     };
 
     const hasBooking = (tablename) => {
-
         return booking.has(tablename);
     };
 
