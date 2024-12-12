@@ -13,7 +13,7 @@ import { FaRegWindowClose } from "react-icons/fa";
 
 const CoMap = ({ nightMode, userid }) => {
   const [bookings, setBookings] = useState([]);
-  const [selectedTableID, setSelectedTable] = useState(null);
+  const [selectedTable, setSelectedTable] = useState(null);
   const [time, setTime] = useState("08:00");
   const [date, setDate] = useState(() => {
     const now = new Date();
@@ -39,7 +39,14 @@ const CoMap = ({ nightMode, userid }) => {
   const [bookFrom, setBookFrom] = useState()
   const [bookTo, setBookTo] = useState()
   const [conflictdata, setConflictdata] = useState()
-  // รวมเวลาทั้งหมดในที่เดียว
+  const [sortedBooking, setSortedBooking] = useState([])
+
+  useEffect(() => {
+    const sortedReservations = bookings.sort((a, b) => a.reservation_time_from.localeCompare(b.reservation_time_from)).filter(item => numbertable === item.table_number);
+    console.log('sortedBooking',sortedBooking);
+    
+    setSortedBooking(sortedReservations)
+  }, [bookings,numbertable])
   const allTimes = [
     "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
     "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
@@ -93,6 +100,7 @@ const CoMap = ({ nightMode, userid }) => {
       const response = await API.get(`/reservations/day/${currentDate}`);
       if (response.status === 200 && response.data) {
         setBookings(response.data);
+        
         console.log('Booking details fetched:', bookings);
       }
     } catch (error) {
@@ -104,7 +112,7 @@ const CoMap = ({ nightMode, userid }) => {
 
   useEffect(() => {
     fetchBookingDetails();
-  }, [date, time]);
+  }, []);
 
 
   const fetchData = async () => {
@@ -133,7 +141,12 @@ const CoMap = ({ nightMode, userid }) => {
     }
   };
 
-
+  const renderSchedule = (item,index) => {
+    return <div className="flex items-center gap-2" key={index}>
+      <span className="font-semibold">{item.reservation_time_from}–{item.reservation_time_to}</span>
+      <span className="text-gray-400">{item.first_name} {item.last_name}</span>
+    </div>
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -306,8 +319,6 @@ const CoMap = ({ nightMode, userid }) => {
     setSelectedTable(tableNumber); // เก็บค่า tableNumber ลงใน state
     console.log('Selected table stop:', tableNumber);
   };
-
-
 
   return (
     <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode
@@ -655,10 +666,7 @@ const CoMap = ({ nightMode, userid }) => {
           <div className="mb-4">
             <p className="text-sm">Scheduled Bookings</p>
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">09:00–18:00</span>
-                <span className="text-gray-400">Maprang Saengarun</span>
-              </div>
+              {sortedBooking.length > 0 ?sortedBooking.map(renderSchedule): 'Empty Bookings'}
             </div>
           </div>
 
