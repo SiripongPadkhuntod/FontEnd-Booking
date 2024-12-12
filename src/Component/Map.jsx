@@ -48,14 +48,6 @@ const CoMap = ({ nightMode, userid }) => {
 
 
 
-
-  const getSelectedTimeIndex = (selectedTime) => {
-
-    const [hours, minutes] = selectedTime.split(':').map(Number);
-    const selectedTimeIndex = (hours - 8) * 2 + (minutes === 30 ? 1 : 0);
-    return selectedTimeIndex;
-  };
-
   const [showMore, setShowMore] = useState(false);
 
   // การเริ่มต้นการลาก
@@ -78,17 +70,6 @@ const CoMap = ({ nightMode, userid }) => {
 
   // การหยุดการลาก
   const handleDragEnd = () => setIsDragging(false);
-
-  // การซูมเข้า/ออก
-  // const handleWheelZoom = (e) => {
-  //   e.preventDefault();
-  //   const zoomIntensity = 0.1;
-  //   if (e.deltaY > 0) {
-  //     setScale(Math.max(scale - zoomIntensity, 0.5));
-  //   } else {
-  //     setScale(Math.min(scale + zoomIntensity, 3));
-  //   }
-  // };
 
   const handleBook = () => {
     setBookingTime(selectedTime); // ส่งเวลาที่เลือกไปที่ bookingModal
@@ -152,9 +133,6 @@ const CoMap = ({ nightMode, userid }) => {
         setScale(0.5);
       }
     };
-
-    // show bookingSuccessModal for testing
-    // document.getElementById('bookingConflictModal').showModal();
 
     window.addEventListener('resize', handleResize);
     handleResize();
@@ -240,26 +218,6 @@ const CoMap = ({ nightMode, userid }) => {
     fetchData();
     //refresh page
     window.location.reload();
-  };
-
-
-
-  const handleTouchStart = (e) => {
-    const touch = e.touches[0];
-    setIsDragging(true);
-    setStartX(touch.clientX - offsetX);
-    setStartY(touch.clientY - offsetY);
-  };
-
-  const handleTouchMove = (e) => {
-    if (!isDragging) return;
-    const touch = e.touches[0];
-    setOffsetX(touch.clientX - startX);
-    setOffsetY(touch.clientX - startY);
-  };
-
-  const handleTouchEnd = () => {
-    setIsDragging(false);
   };
 
   const handleMouseDown = (e) => {

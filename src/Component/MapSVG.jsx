@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import API from '../api';
+import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
+
 
 const CircleButton = ({ cx, cy, tableNumber, onClick, disabled, tableID, showBookingDetails }) => {
     const handleMouseEnter = (e) => { if (!disabled) e.target.setAttribute("fill", "#2E8B57") };
@@ -14,15 +15,15 @@ const CircleButton = ({ cx, cy, tableNumber, onClick, disabled, tableID, showBoo
             stroke="#000"
             onClick={() => {
                 if (disabled) {
-                   
+
                     document.getElementById('bookingModalDetail').showModal();
                     onClick(tableNumber, tableID);
 
                 } else {
-             
+  
                     document.getElementById('availabilityModal').showModal();
                     onClick(tableNumber, tableID);
-                
+ 
                 }
             }}
             onMouseEnter={handleMouseEnter}
@@ -109,14 +110,13 @@ function MapSVG({ time, date, onSelectNumbertable, onSelectNumbertableID }) {
     };
 
     const hasBooking = (tablename) => {
-        // console.log('Booking Set:', booking);
+
         return booking.has(tablename);
     };
 
 
     return (
         <div>
-            {JSON.stringify(date)}
             <svg xmlns="http://www.w3.org/2000/svg" width="931" height="508" fill="none" viewBox="0 0 931 508" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <g clipPath="url(#a)">
                     <path fill="#DCEAF7" stroke="#366286" strokeWidth="5" d="M2.5 505.5V2.5h711v503z" />
