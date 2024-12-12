@@ -57,7 +57,7 @@ function isBetweenTimes(time, startTime, endTime) {
     const timeInMinutes = timeToMinutes(time);
     const startInMinutes = timeToMinutes(startTime);
     const endInMinutes = timeToMinutes(endTime);
-    console.log(`Comparing time: ${timeInMinutes} with range ${startInMinutes} - ${endInMinutes}`);
+    // console.log(`Comparing time: ${timeInMinutes} with range ${startInMinutes} - ${endInMinutes}`);
     return timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes;
 }
 
