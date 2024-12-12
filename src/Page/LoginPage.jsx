@@ -322,7 +322,7 @@ function Login() {
               <GoogleLogin
                 onSuccess={handleLoginGoogle}
                 onError={() => console.log('Login Failed')}
-                className="w-full md:w-auto"
+                className={`w-full md:w-auto ${isDarkMode ? 'bg-gray-700' : 'bg-gray-300'}`}
               />
             </div>
 

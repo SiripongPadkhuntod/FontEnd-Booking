@@ -5,6 +5,7 @@ import ErrorDisplay from './ErrorDisplay';
 import { TbPencilCancel } from "react-icons/tb";
 import Skeleton from 'react-loading-skeleton'; // นำเข้า Skeleton
 import CoTableSetting from "../Component/TableSetting";
+import CoAdmin from "../Component/AdminSetting";
 
 import { FaEdit } from "react-icons/fa";
 import { RiImageEditFill } from "react-icons/ri";
@@ -489,14 +490,7 @@ function ProfilePage({ nightMode, useremail }) {
         <div
           className={`flex-1 p-10 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showCalendar ? '' : 'hidden'}`}
         >
-          <h3 className="text-xl font-semibold mb-4">Admin Setting</h3>
-          <div className="text-center text-gray-500">
-
-            <p>กำลังพัฒนา ^_^</p>
-            <p>Coming soon...</p>
-          </div>
-
-          {/* <CoAdmin/> */}
+          <CoAdmin/>
         </div>
 
 
