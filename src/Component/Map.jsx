@@ -2,13 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import MapSVG from './MapSVG';
-import AdminConfigModal from './AdminModal';
+
 import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'; // import ไอคอน
 
 import { GrCaretPrevious, GrCaretNext } from 'react-icons/gr'; // import ไอคอน
 import { FaRegWindowClose } from "react-icons/fa";
-import { json } from 'react-router-dom';
+
 
 
 const CoMap = ({ nightMode, userid }) => {
@@ -100,11 +100,11 @@ const CoMap = ({ nightMode, userid }) => {
     }
   };
 
-  
+
 
   useEffect(() => {
     fetchBookingDetails();
-  }, [date,time]);
+  }, [date, time]);
 
 
   const fetchData = async () => {
@@ -305,7 +305,9 @@ const CoMap = ({ nightMode, userid }) => {
   const handleTableSelection = (tableNumber) => {
     setSelectedTable(tableNumber); // เก็บค่า tableNumber ลงใน state
     console.log('Selected table stop:', tableNumber);
-};
+  };
+
+
 
   return (
     <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode

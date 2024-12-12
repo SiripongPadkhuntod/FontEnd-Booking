@@ -11,6 +11,7 @@ import { FaEdit } from "react-icons/fa";
 import { RiImageEditFill } from "react-icons/ri";
 import { Save } from 'lucide-react';
 import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้\
+import { CheckCircle, XCircle } from 'lucide-react';
 function ProfilePage({ nightMode, useremail }) {
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -102,7 +103,7 @@ function ProfilePage({ nightMode, useremail }) {
     try {
       setLoading(true);
       const response = await API.get(`/users/email/${useremail}`);
-      
+
       if (response.status === 200) {
         const userData = response.data;
         setUserData(userData);
@@ -239,8 +240,12 @@ function ProfilePage({ nightMode, useremail }) {
               {userData?.first_name} {userData?.last_name || 'Firstname Lastname'}
             </h2>
             <div className="flex justify-start gap-1 mt-3">
-              <div className="badge badge-primary">{userData.role}</div>
-              <div className="badge badge-secondary">{userData.status}</div>
+              <div className="badge badge-primary">
+                {userData.role.charAt(0).toUpperCase() + userData.role.slice(1).toLowerCase()}
+              </div>
+              <div className="badge badge-secondary">
+                {userData.status.charAt(0).toUpperCase() + userData.status.slice(1).toLowerCase()}
+              </div>
             </div>
           </div>
 
@@ -297,7 +302,7 @@ function ProfilePage({ nightMode, useremail }) {
 
           {/* Logout Button - Centered on desktop */}
           <button
-            onClick={() => setShowLogoutModal(true)}
+            onClick= {() => document.getElementById('confirmModal1').showModal()}
             className="hidden lg:flex mt-auto w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors max-w-xs mx-auto justify-center"
           >
             Logout
@@ -345,6 +350,8 @@ function ProfilePage({ nightMode, useremail }) {
           </div>
         </div>
       )}
+
+
 
 
 
@@ -490,7 +497,7 @@ function ProfilePage({ nightMode, useremail }) {
         <div
           className={`flex-1  ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showCalendar ? '' : 'hidden'}`}
         >
-          <CoAdmin nightMode={nightMode}/>
+          <CoAdmin nightMode={nightMode} />
         </div>
 
 
@@ -502,10 +509,34 @@ function ProfilePage({ nightMode, useremail }) {
         <div
           className={`flex-1 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showTable ? '' : 'hidden'}`}
         >
-          <CoTableSetting nightMode={nightMode}/>
+          <CoTableSetting nightMode={nightMode} />
         </div>
       </CSSTransition>
+      <dialog id="confirmModal1" className="modal">
+        <div className={`${nightMode ? 'bg-gray-800' : 'bg-gradient-to-r from-red-500 to-gray-600'} modal-box rounded-lg w-full sm:w-auto p-6`}>
+          <h3 className="text-lg font-semibold mb-4 text-white flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-400" /> Confirm Role Change
+          </h3>
+          <p className="text-white mb-6">Are you sure you want to log out?</p>
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={ handleLogout }
+              className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700"
+            >
+              Logout
+            </button>
+            <button
+              onClick={() => document.getElementById('confirmModal1').close()}
+              className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </dialog>
     </TransitionGroup>
+
+
 
 
   );

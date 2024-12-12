@@ -17,8 +17,9 @@ import { IoGrid } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { CiBoxList } from "react-icons/ci";
 import { MdCalendarMonth } from "react-icons/md";
-import { IoMdClose } from "react-icons/io";
+import { IoMdClose , IoMdSettings } from "react-icons/io";
 import { RiMenu3Fill } from "react-icons/ri";
+
 
 const Home = () => {
   const colorSchemes = {
@@ -58,14 +59,14 @@ const Home = () => {
         navigate("/");
         return;
       }
-  
+
       try {
         const response = await API.post("/verifyToken", {}, {
           headers: {
             "Authorization": `Bearer ${token}`,
           },
         });
-  
+
         if (response.status === 200 && response.data?.user?.email) {
           setEmail(response.data.user.email);
           setRole(response.data.user.role);
@@ -76,13 +77,13 @@ const Home = () => {
         navigate("/");
       }
     };
-  
+
     const fetchUserData = async () => {
       if (!email) return;
-  
+
       try {
         const response = await API.get(`/users/email/${email}`);
-  
+
         if (response.status === 200) {
           const data = response.data;
           setFirstname(data.first_name);
@@ -95,15 +96,15 @@ const Home = () => {
         console.error("Error:", error.message);
       }
     };
-  
+
     fetchTokenData();
     fetchUserData();
   }, [navigate, email]);
 
   const renderComponent = () => {
     switch (activeComponent) {
-      case "Map": return <CoMap nightMode={isNightMode} userid={userid}/>;
-      case "Profile": return <CoProfile nightMode={isNightMode} useremail={email} />;
+      case "Map": return <CoMap nightMode={isNightMode} userid={userid} />;
+      case "Setting": return <CoProfile nightMode={isNightMode} useremail={email} />;
       case "List": return <CoList fullname={first_name + " " + last_name} nightMode={isNightMode} />;
       case "Grid": return <CoGrid nightMode={isNightMode} />;
       case "Month": return <CoMonth nightMode={isNightMode} />;
@@ -118,7 +119,7 @@ const Home = () => {
     { id: "Month", icon: MdCalendarMonth, label: "Month" },
     { id: "Grid", icon: IoGrid, label: "Grid" },
     { id: "List", icon: CiBoxList, label: "List" },
-    { id: "Profile", icon: CgProfile, label: "Profile" }
+    { id: "Setting", icon: IoMdSettings, label: "Setting" }
   ];
 
   const currentColorScheme = isNightMode ? colorSchemes.dark : colorSchemes.light;
@@ -152,11 +153,11 @@ const Home = () => {
         <div className="flex items-center space-x-2">
           <span className="text-sm font-medium">{first_name} {last_name}</span>
           <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center">
-          {imageUrl ? (
-                <img src={imageUrl} alt="Profile" className="w-full h-full rounded-full object-cover" />
-              ) : (
-                <span>{first_name?.[0]}{last_name?.[0]}</span>
-              )}
+            {imageUrl ? (
+              <img src={imageUrl} alt="Profile" className="w-full h-full rounded-full object-cover" />
+            ) : (
+              <span>{first_name?.[0]}{last_name?.[0]}</span>
+            )}
           </div>
         </div>
       </div>
@@ -179,59 +180,59 @@ const Home = () => {
         <div className="h-full flex flex-col p-5 space-y-4">
           {/* Profile Section */}
           <div className="hidden md:flex items-center space-x-6 mb-6">
-  <div className="w-14 h-14 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105">
-    {imageUrl ? (
-      <img src={imageUrl} alt="Profile" className="w-full h-full rounded-full object-cover" />
-    ) : (
-      <span className="font-semibold text-xl">{first_name?.[0]}{last_name?.[0]}</span>
-    )}
-  </div>
+            <div className="w-14 h-14 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105">
+              {imageUrl ? (
+                <img src={imageUrl} alt="Profile" className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <span className="font-semibold text-xl">{first_name?.[0]}{last_name?.[0]}</span>
+              )}
+            </div>
 
-  <div>
-    <div className="font-bold text-lg text-gray-800">{first_name} {last_name}</div>
-    <div className="badge badge-primary text-sm font-medium text-white uppercase mt-1">{role || 'Admin'}</div>
-  </div>
-</div>
+            <div>
+              <div className="font-bold text-lg text-gray-800">{first_name} {last_name}</div>
+              <div className="badge badge-primary text-sm font-medium text-white uppercase mt-1">{role || 'Admin'}</div>
+            </div>
+          </div>
 
 
           {/* Menu Items */}
           <nav className="space-y-2 flex-grow">
-  {menuItems.map((item) => (
-    <button
-      key={item.id}
-      className={`
+            {menuItems.map((item) => (
+              <button
+                key={item.id}
+                className={`
         w-full p-3 rounded-lg flex items-center transition-all duration-200 ease-in-out
         ${activeComponent === item.id
-          ? `${currentColorScheme.activeItem} transform scale-105`
-          : 'hover:bg-blue-500 dark:hover:bg-blue-600 hover:text-white dark:hover:text-white'}
+                    ? `${currentColorScheme.activeItem} transform scale-105`
+                    : 'hover:bg-blue-500 dark:hover:bg-blue-600 hover:text-white dark:hover:text-white'}
       `}
-      onClick={() => {
-        setActiveComponent(item.id);
-        setIsMenuOpen(false);
-      }}
-    >
-      <item.icon className="mr-4 text-lg" />
-      <span className="font-medium">{item.label}</span>
-    </button>
-  ))}
-</nav>
+                onClick={() => {
+                  setActiveComponent(item.id);
+                  setIsMenuOpen(false);
+                }}
+              >
+                <item.icon className="mr-4 text-lg" />
+                <span className="font-medium">{item.label}</span>
+              </button>
+            ))}
+          </nav>
 
 
           {/* Footer */}
           <div className="mt-auto space-y-4 pb-4">
-  <button
-    onClick={() => setIsNightMode(!isNightMode)}
-    className={`
+            <button
+              onClick={() => setIsNightMode(!isNightMode)}
+              className={`
       w-full p-3 rounded-lg flex items-center justify-center transition-all duration-300 ease-in-out
       ${isNightMode
-        ? 'bg-gray-700 text-yellow-400 shadow-lg hover:scale-105'
-        : 'bg-gray-100 text-gray-800 shadow-md hover:scale-105'}
+                  ? 'bg-gray-700 text-yellow-400 shadow-lg hover:scale-105'
+                  : 'bg-gray-100 text-gray-800 shadow-md hover:scale-105'}
     `}
-  >
-    {isNightMode ? <HiSun className="mr-2 text-xl" /> : <HiMoon className="mr-2 text-xl" />}
-    <span className="font-medium">{isNightMode ? 'Light Mode' : 'Dark Mode'}</span>
-  </button>
-</div>
+            >
+              {isNightMode ? <HiSun className="mr-2 text-xl" /> : <HiMoon className="mr-2 text-xl" />}
+              <span className="font-medium">{isNightMode ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
+          </div>
 
         </div>
       </div>

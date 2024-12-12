@@ -179,11 +179,14 @@ const BookingList = ({
             const matchesDate = booking.date 
                 ? new Date(booking.date).toLocaleDateString('th-TH').includes(searchQuery)
                 : false;
+            const matchesDesk = (booking.desk?.toLowerCase() ?? "").includes(lowerSearchQuery);  // ค้นหาหมายเลขโต๊ะ
+            const matchesTime = (booking.timeform?.toLowerCase() ?? "").includes(lowerSearchQuery) || 
+                                (booking.timeto?.toLowerCase() ?? "").includes(lowerSearchQuery);  // ค้นหาเวลา
     
             // เงื่อนไขการค้นหาตาม isMyBooking
             return isMyBooking 
                 ? matchesName
-                : matchesName || matchesStdID || matchesNote || matchesDate;
+                : matchesName || matchesStdID || matchesNote || matchesDate || matchesDesk || matchesTime;  // เพิ่ม matchesTime
         }),
     }))
     .filter((day) => day.bookings.length > 0);
@@ -238,6 +241,8 @@ const BookingList = ({
         </div>
     );
 };
+
+
 
 
 const BookingApp = ({ fullname, nightMode }) => {
