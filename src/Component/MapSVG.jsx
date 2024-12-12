@@ -103,11 +103,11 @@ function MapSVG({ time, date, onSelectNumbertable, onSelectNumbertableID }) {
 
 
     const setNumbertable = (tableNumber, tableID) => {
-        onSelectNumbertable(tableNumber)
-        onSelectNumbertableID(tableID)
+        onSelectNumbertable(tableNumber);  // ตั้งค่าหมายเลขโต๊ะใน Map.jsx
+        onSelectNumbertableID(tableID);
         console.log('Selected table:', tableNumber, tableID);
-        return tableNumber, tableID;
     };
+    
 
     const hasBooking = (tablename) => {
 
