@@ -13,7 +13,7 @@ import { json } from 'react-router-dom';
 
 const CoMap = ({ nightMode, userid }) => {
   const [bookings, setBookings] = useState([]);
-  const [selectedTable, setSelectedTable] = useState();
+  const [selectedTableID, setSelectedTable] = useState(null);
   const [time, setTime] = useState("08:00");
   const [date, setDate] = useState(() => {
     const now = new Date();
@@ -89,9 +89,8 @@ const CoMap = ({ nightMode, userid }) => {
 
   const fetchBookingDetails = async () => {
     try {
-      const currentDate = new Date().toISOString().split('T')[0];
+      const currentDate = date.toISOString().split('T')[0];
       const response = await API.get(`/reservations/day/${currentDate}`);
-
       if (response.status === 200 && response.data) {
         setBookings(response.data);
         console.log('Booking details fetched:', bookings);
@@ -105,13 +104,8 @@ const CoMap = ({ nightMode, userid }) => {
 
   useEffect(() => {
     fetchBookingDetails();
-    console.log('fetchBookingDetails  :' + JSON.stringify(bookings));
-  }, []);
+  }, [date,time]);
 
-  const handleTableSelect = (tableNumber) => {
-
-    setSelectedTable(tableNumber);
-  };
 
   const fetchData = async () => {
     // const date = new Date().toISOString().split('T')[0];
@@ -138,6 +132,23 @@ const CoMap = ({ nightMode, userid }) => {
       }
     }
   };
+
+
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+      if (window.innerWidth <= 768 && scale === 1) {
+        setScale(0.5);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    // fetchData()
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, [date]);
 
 
 
@@ -207,6 +218,7 @@ const CoMap = ({ nightMode, userid }) => {
         // Show success modal
         setBookingSuccess(true);
         document.getElementById('bookingSuccessModal').showModal();
+        fetchBookingDetails();
       }
 
 
@@ -324,10 +336,9 @@ const CoMap = ({ nightMode, userid }) => {
           time={time}
           bookingTime={bookingTime}
           date={date}
-          numbertable={numbertable} // ส่งค่า numbertable ไปยัง MapSVG
-          tableID={TableID} 
-          onSelectNumbertable={setNumbertable} 
-          onSelectNumbertableID={setTableID}
+          numbertable={numbertable}
+          onSelectNumbertable={setNumbertable}
+          onSelectNumbertableID={setTableID}    // ส่ง setTableID
           nightMode={nightMode}
           setBookingTime={setBookingTime}
           setDisplayTime={setDisplayTime}
@@ -532,22 +543,18 @@ const CoMap = ({ nightMode, userid }) => {
             </div>
           </div>
 
-          <div>
-            <div className="rounded-lg bg-gray-800 p-4 mt-4 max-w-md mx-auto">
-              <p className="font-semibold text-gray-300">การจองโต๊ะ</p>
-              {Array.isArray(bookings) ? (
-                console.log('Booking length :', bookings.length),
-                bookings.length === 0 ? (
-                  <p className="text-sm text-gray-400">ไม่มีการจองในวันนี้</p>
-                ) : (
-                  bookings.filter(booking => booking.tableID == selectedTable).map((booking, index)  => (
-                    console.log('index:'+ index + ' | booking:', booking.table_id + ' | selectedTable:', TableID  ),
-                    console.log('TableID:', TableID),
-                    <div
-                      key={index}
-                      className="flex items-center justify-between mt-2 bg-gray-700 p-2 rounded"
-                      onClick={() => handleTableSelect(booking.table_number)}
-                    >
+          <div className="rounded-lg bg-gray-800 p-4 mt-4 max-w-md mx-auto">
+            <p className="font-semibold text-gray-300">การจองโต๊ะ</p>
+            {Array.isArray(bookings) ? (
+              console.log(bookings),
+              bookings.length == 0 ? (
+                <p className="text-sm text-gray-400">ไม่มีการจองในวันนี้</p>
+              ) : (
+                // กรองข้อมูลเฉพาะโต๊ะที่เลือก
+                bookings
+                  .filter(booking => TableID && booking.table_id == TableID) // กรองเฉพาะโต๊ะที่เลือก
+                  .map((booking, index) => (
+                    <div key={index} className="flex items-center justify-between mt-2 bg-gray-700 p-2 rounded">
                       <div>
                         <p className="text-sm text-gray-300">
                           <span className="text-red-500 font-bold">🔴</span>{' '}
@@ -560,36 +567,12 @@ const CoMap = ({ nightMode, userid }) => {
                       </p>
                     </div>
                   ))
-                )
-              ) : (
-                <p className="text-sm text-gray-400">ไม่มีข้อมูลการจองที่ถูกต้อง</p>
-              )}
-            </div>
-
-            {selectedTable && (
-              <div className="rounded-lg bg-gray-800 p-4 mt-4 max-w-md mx-auto">
-                <p className="font-semibold text-gray-300">
-                  การจองโต๊ะ555555 {selectedTable}
-                </p>
-                {bookings.filter(booking => booking.table_number === selectedTable).map((booking, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between mt-2 bg-gray-700 p-2 rounded"
-                  >
-                    <div>
-                      <p className="text-sm text-gray-300">
-                        <span className="text-red-500 font-bold">🔴</span>{' '}
-                        {booking.reservation_time_from} - {booking.reservation_time_to}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {booking.first_name} {booking.last_name}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              )
+            ) : (
+              <p className="text-sm text-gray-400">ไม่มีข้อมูลการจองที่ถูกต้อง</p>
             )}
           </div>
+
         </div>
       </dialog>
 
