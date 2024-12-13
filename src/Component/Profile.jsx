@@ -535,10 +535,6 @@ function ProfilePage({ nightMode, useremail }) {
         </div>
       </dialog>
     </TransitionGroup>
-
-
-
-
   );
 }
 

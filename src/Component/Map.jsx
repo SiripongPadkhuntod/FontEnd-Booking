@@ -7,7 +7,10 @@ import API from '../api'; // ถ้าใช้ axios แบบที่เร�
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'; // import ไอคอน
 
 import { GrCaretPrevious, GrCaretNext } from 'react-icons/gr'; // import ไอคอน
-import { FaRegWindowClose } from "react-icons/fa";
+
+import { FaChair, FaRegWindowClose, FaCalendarAlt, FaClock, FaUser, FaExclamationCircle, FaArrowLeft, FaCalendarCheck, FaCheck, FaTimes } from "react-icons/fa";
+import { IoMdPeople } from "react-icons/io";
+
 
 
 
@@ -40,13 +43,24 @@ const CoMap = ({ nightMode, userid }) => {
   const [bookTo, setBookTo] = useState()
   const [conflictdata, setConflictdata] = useState()
   const [sortedBooking, setSortedBooking] = useState([])
+  const [bookingNote, setBookingNote] = useState("");
+
+
 
   useEffect(() => {
-    const sortedReservations = bookings.sort((a, b) => a.reservation_time_from.localeCompare(b.reservation_time_from)).filter(item => numbertable === item.table_number);
-    console.log('sortedBooking',sortedBooking);
-    
-    setSortedBooking(sortedReservations)
-  }, [bookings,numbertable])
+    if (Array.isArray(bookings)) {
+      const sortedReservations = bookings
+        .sort((a, b) => a.reservation_time_from.localeCompare(b.reservation_time_from))
+        .filter(item => numbertable === item.table_number);
+        
+      setSortedBooking(sortedReservations);
+    } else {
+      console.error("bookings is not an array", bookings);
+    }
+  }, [bookings, numbertable]);
+  
+
+
   const allTimes = [
     "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
     "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
@@ -81,14 +95,6 @@ const CoMap = ({ nightMode, userid }) => {
 
   const handleBook = () => {
     setBookingTime(selectedTime); // ส่งเวลาที่เลือกไปที่ bookingModal
-    console.log('Booking selectedTime:', selectedTime);
-    console.log('Booking selectedTable:', selectedTable);
-    console.log('Booking numbertable:', numbertable);
-    console.log('Booking TableID:', TableID);
-    console.log('Booking date:', date);
-    console.log('Booking time:', time);
-    // booking.tableID == numbertable
-    console.log('Booking bookings:', JSON.stringify(bookings));
 
     document.getElementById('availabilityModal').close(); // ปิด availabilityModal
     document.getElementById('bookingModal').showModal(); // เปิด bookingModal
@@ -100,7 +106,7 @@ const CoMap = ({ nightMode, userid }) => {
       const response = await API.get(`/reservations/day/${currentDate}`);
       if (response.status === 200 && response.data) {
         setBookings(response.data);
-        
+
         console.log('Booking details fetched:', bookings);
       }
     } catch (error) {
@@ -109,41 +115,9 @@ const CoMap = ({ nightMode, userid }) => {
   };
 
 
-
-  useEffect(() => {
-    fetchBookingDetails();
-  }, []);
-
-
-  const fetchData = async () => {
-    // const date = new Date().toISOString().split('T')[0];
-    const currentDate = date.toISOString().split('T')[0];
-    console.log(currentDate);
-    try {
-      const currentDate = date.toISOString().split('T')[0];
-      console.log(currentDate);
-
-      const response = await API.get(`/reservations/day/${currentDate}`);
-
-      if (response.status === 200) {
-        console.log('Data fetched:', response.data);
-        // setInitialTimes(response.data);
-      } else {
-        console.log('Failed to fetch data:', response.status, response.data);
-      }
-    } catch (error) {
-      // กรองเฉพาะ 404 และไม่ log error อื่นๆ
-      if (error.response && error.response.status === 404) {
-        console.log("No data found for the selected date.");
-      } else {
-        console.log("An unexpected error occurred." + error); // แสดงข้อความสำหรับข้อผิดพลาดอื่น ๆ
-      }
-    }
-  };
-
-  const renderSchedule = (item,index) => {
+  const renderSchedule = (item, index) => {
     return <div className="flex items-center gap-2" key={index}>
-      <span className="font-semibold">{item.reservation_time_from}–{item.reservation_time_to}</span>
+      <span className="font-semibold">{item.reservation_time_from.substring(0, 5)} – {item.reservation_time_to.substring(0, 5)}</span>
       <span className="text-gray-400">{item.first_name} {item.last_name}</span>
     </div>
   }
@@ -158,24 +132,7 @@ const CoMap = ({ nightMode, userid }) => {
 
     window.addEventListener('resize', handleResize);
     handleResize();
-    // fetchData()
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, [date]);
-
-
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-      if (window.innerWidth <= 768 && scale === 1) {
-        setScale(0.5);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    // fetchData()
+    fetchBookingDetails();
 
     return () => window.removeEventListener('resize', handleResize);
   }, [date]);
@@ -204,8 +161,9 @@ const CoMap = ({ nightMode, userid }) => {
       user_id: userid,
       table_id: TableID.toString(),
       reservation_date: bookDate.toISOString(),
-      starttime: bookFrom,
-      endtime: bookTo,
+      starttime: timeModal,
+      endtime: timeModalTo,
+      note : bookingNote,
       roomid: 1,
     };
 
@@ -258,6 +216,8 @@ const CoMap = ({ nightMode, userid }) => {
     // fetchData();
     //refresh page
     window.location.reload();
+    // setSelectedTime(0);
+    
   };
 
   const handleMouseDown = (e) => {
@@ -275,6 +235,10 @@ const CoMap = ({ nightMode, userid }) => {
   const cancelBooking = () => {
     document.getElementById('bookingModal').close();
     setTimeModal(displayTime);
+    //clear booking note
+    setBookingNote("");
+    
+
   };
 
   const handleMouseUp = () => setIsDragging(false);
@@ -333,7 +297,8 @@ const CoMap = ({ nightMode, userid }) => {
         onTouchStart={isMobile ? handleDragStart : undefined}
         onTouchMove={isMobile ? handleDragMove : undefined}
         onTouchEnd={isMobile ? handleDragEnd : undefined}
-        onTableSelect={handleTableSelection}
+        // onTableSelect={handleTableSelection}
+
         onWheel={handleWheelZoom}
         onMouseLeave={() => setIsDragging(false)}
         className="w-full h-full bg-center"
@@ -343,7 +308,6 @@ const CoMap = ({ nightMode, userid }) => {
           touchAction: 'none',
         }}
       >
-        {/* SVG Map content remains the same */}
         <MapSVG
 
           time={time}
@@ -357,10 +321,6 @@ const CoMap = ({ nightMode, userid }) => {
           setDisplayTime={setDisplayTime}
           setSelectedTime={setSelectedTime}
           handleTimeChange={handleTimeChange}
-          // currentDate={date}
-
-          // initialTimes={initialTimes}
-          // moreTimes={moreTimes}
           showMore={showMore}
           setShowMore={setShowMore}
           getSliderValueFromTime={getSliderValueFromTime}
@@ -412,10 +372,17 @@ const CoMap = ({ nightMode, userid }) => {
         </div>
       </div>
 
+
+
       {/* Desktop controls */}
-      <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 ${isMobile ? 'hidden' : 'flex'} flex-col md:flex-row items-center p-6 space-x-6 rounded-lg shadow-lg ${nightMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-100 text-black'}`}>
+      <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 ${isMobile ? 'hidden' : 'flex'} flex-col md:flex-row items-center p-6 space-x-6 rounded-lg shadow-lg ${nightMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-100 text-black'} shadow-md rounded-lg p-4 mb-6  `}>
+
+        {/* <div className={`${bgClass} min-h-screen py-4 sm:py-8 px-2 sm:px-6 lg:px-8 transition-colors duration-300 ${nightMode
+            ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
+            : 'bg-gradient-to-b from-blue-100 to-blue-200'
+            }`}></div> */}
         {/* Time Selector */}
-        <div className="flex items-center">
+        <div className="flex items-center ">
           <label className="font-semibold mr-2">Time:</label>
           <input
             type="range"
@@ -431,12 +398,7 @@ const CoMap = ({ nightMode, userid }) => {
 
         {/* Date Selector */}
         <div className="flex items-center space-x-4">
-          {/* <button
-            onClick={() => setDate(new Date(date.setDate(date.getDate() - 1)))}
-            className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700 shadow-md"
-          >
-            <GrCaretPrevious size={20} />
-          </button> */}
+
 
           <button
             onClick={() => setDate(new Date(date.setDate(date.getDate() - 1)))}
@@ -453,16 +415,11 @@ const CoMap = ({ nightMode, userid }) => {
           <input
             type="date"
             value={date.toISOString().slice(0, 10)}
-            // onChange={(e) => setDate(new Date(e.target.value))}
+
             onChange={handleDateChange}
             className="p-2 rounded-md border bg-gray-700 text-white"
           />
-          {/* <button
-            onClick={() => setDate(new Date(date.setDate(date.getDate() + 1)))}
-            className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700 shadow-md"
-          >
-            <GrCaretNext size={20} />
-          </button> */}
+
 
           <button
             onClick={() => setDate(new Date(date.setDate(date.getDate() + 1)))}
@@ -529,9 +486,9 @@ const CoMap = ({ nightMode, userid }) => {
           </div>
 
           <div className="mb-6">
-            <p className="font-semibold mb-2 text-gray-300">Other available time</p>
+            <p className="font-semibold mb-2 text-gray-300">Other available times</p>
             <div className="flex flex-wrap gap-2">
-              {/* ให้เอาเวลาจากเวลาที่เลือกมาแสดงแค่ 6 ช่อง ที่เหลื่อให้เป็น more */}
+              {/* Show only 6 time slots from the selected time, others will go to "More" */}
               {allTimes.slice(selectedTime, selectedTime + 7).map((time) => (
                 <button
                   key={time}
@@ -542,7 +499,7 @@ const CoMap = ({ nightMode, userid }) => {
                   {time}
                 </button>
               ))}
-              {/* ปุ่ม more ให้เป็น dropdown */}
+              {/* Dropdown for "More" times */}
               <div className="dropdown dropdown-right ">
                 <div tabIndex={0} role="button" className="btn btn btn-outline btn-sm text-gray-300">MORE</div>
                 <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
@@ -557,23 +514,22 @@ const CoMap = ({ nightMode, userid }) => {
           </div>
 
           <div className="rounded-lg bg-gray-800 p-4 mt-4 max-w-md mx-auto">
-            <p className="font-semibold text-gray-300">การจองโต๊ะ</p>
+            <p className="font-semibold text-gray-300">Table Reservations</p>
             {Array.isArray(bookings) ? (
-              console.log(bookings),
-              bookings.length == 0 ? (
-                <p className="text-sm text-gray-400">ไม่มีการจองในวันนี้</p>
-              ) : (
-                // กรองข้อมูลเฉพาะโต๊ะที่เลือก
+              // console.log('bookingsLength =', bookings.length),
+              bookings.length == 0 ? ( <p className="text-sm text-gray-400">No reservations for today</p> ) 
+              : (
+                // Filter data to show only for the selected table
                 bookings
-                  .filter(booking => TableID && booking.table_id == TableID) // กรองเฉพาะโต๊ะที่เลือก
+                  .filter(booking => TableID && booking.table_id == TableID) // Filter for the selected table
                   .map((booking, index) => (
                     <div key={index} className="flex items-center justify-between mt-2 bg-gray-700 p-2 rounded">
                       <div>
                         <p className="text-sm text-gray-300">
                           <span className="text-red-500 font-bold">🔴</span>{' '}
-                          {booking.reservation_time_from} - {booking.reservation_time_to}
+                          {booking.reservation_time_from.substring(0, 5)} - {booking.reservation_time_to.substring(0, 5)}
                         </p>
-                        <p className="text-xs text-gray-400">โต๊ะ {booking.table_number}</p>
+                        <p className="text-xs text-gray-400">Table {booking.table_number}</p>
                       </div>
                       <p className="text-sm font-semibold text-gray-300">
                         {booking.first_name} {booking.last_name}
@@ -582,39 +538,44 @@ const CoMap = ({ nightMode, userid }) => {
                   ))
               )
             ) : (
-              <p className="text-sm text-gray-400">ไม่มีข้อมูลการจองที่ถูกต้อง</p>
+              <p className="text-sm text-gray-400">No valid reservation data</p>
             )}
           </div>
-
         </div>
       </dialog>
 
 
+
       {/* Booking Modal */}
       <dialog id="bookingModal" className="modal">
-        <form method="dialog" className="modal-box rounded-lg w-full max-w-md p-6 bg-gray-900 text-white">
-          <h3 className="text-2xl font-bold mb-2">NEW BOOKING</h3>
-          <p className="text-gray-500 mb-6">Desk Number ##</p>
+        <form method="dialog" className="modal-box rounded-lg w-full max-w-md p-6 bg-gray-900 dark:bg-gray-800 text-white dark:text-gray-300">
+          {/* Header */}
+          <h3 className="text-2xl font-bold mb-2 flex items-center">
+            <FaCalendarCheck className="mr-2 text-green-400 dark:text-green-300" /> NEW BOOKING
+          </h3>
+          <p className="text-gray-500 mb-6 flex items-center">
+            <FaChair className="mr-2 text-blue-400 dark:text-blue-300" /> Desk Number {numbertable}
+          </p>
 
+          {/* Date & Time Section */}
           <div className="mb-4">
             <label className="block text-sm font-semibold mb-1">Date & Time</label>
             <input
               type="date"
-              className="input input-bordered w-full mb-3 text-black"
-              onChange={(e) => setBookDate(e.target.value)}
-              value={bookDate?.toISOString().slice(0, 10)}
+              className="input input-bordered w-full mb-3 text-black dark:text-white dark:bg-gray-700"
+              onChange={handleDateChange}
+              value={bookDate ? bookDate.toISOString().split('T')[0] : ''} // Ensure value is in 'YYYY-MM-DD' format
             />
             <div className="flex gap-2">
               <div className="flex-1">
                 <label className="block text-sm font-semibold">From</label>
-                {/* "From" Time Select with the current time pre-selected */}
                 <select
-                  className="select select-bordered w-full text-black"
-                  value={timeModal} // Bind to the selected time
+                  className="select select-bordered w-full text-black dark:text-white dark:bg-gray-700"
+                  value={timeModal}
                   onChange={(e) => {
-                    setBookFrom(e.target.value)
-                    setTimeModal(e.target.value)
-                  }} // Handle time change
+                    setBookFrom(e.target.value);
+                    setTimeModal(e.target.value);
+                  }}
                 >
                   {allTimes.map((time, index) => (
                     <option key={index} value={time}>
@@ -625,14 +586,13 @@ const CoMap = ({ nightMode, userid }) => {
               </div>
               <div className="flex-1">
                 <label className="block text-sm font-semibold">To</label>
-                {/* "To" Time Select based on the selected "From" time */}
                 <select
-                  className="select select-bordered w-full text-black"
+                  className="select select-bordered w-full text-black dark:text-white dark:bg-gray-700"
                   value={timeModalTo}
                   onChange={(e) => {
-                    setBookTo(e.target.value)
-                    setTimeModalTo(e.target.value)
-                  }} // Handle time change
+                    setBookTo(e.target.value);
+                    setTimeModalTo(e.target.value);
+                  }}
                 >
                   {allTimes.slice(allTimes.indexOf(timeModal) + 1).map((time, index) => (
                     <option key={index} value={time}>
@@ -644,18 +604,31 @@ const CoMap = ({ nightMode, userid }) => {
             </div>
           </div>
 
+          {/* Booking Details Section */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold mb-1">Booking Details</label>
+            <textarea
+              className="textarea textarea-bordered w-full text-black dark:text-white dark:bg-gray-700"
+              rows="4"
+              placeholder="Enter booking details or special instructions..."
+              onChange={(e) => setBookingNote(e.target.value)}
+              value={bookingNote || ""}
+            />
+          </div>
 
+          {/* Action Buttons */}
           <div className="flex justify-end gap-2">
-            <button className="btn btn-primary" onClick={booking}>Confirm Booking</button>
-            <button
-              className="btn btn-outline"
-              onClick={() => cancelBooking()}
-            >
-              Cancel Booking
+            <button className="btn btn-primary flex items-center" onClick={booking}>
+              <FaCheck className="mr-2" /> Confirm Booking
+            </button>
+            <button className="btn btn-outline flex items-center" onClick={() => cancelBooking()}>
+              <FaTimes className="mr-2" /> Cancel Booking
             </button>
           </div>
         </form>
       </dialog>
+
+
 
       {/* User Booking Modal */}
       <dialog id="bookingModalDetail" className="modal">
@@ -666,13 +639,14 @@ const CoMap = ({ nightMode, userid }) => {
           <div className="mb-4">
             <p className="text-sm">Scheduled Bookings</p>
             <div className="flex flex-col gap-2">
-              {sortedBooking.length > 0 ?sortedBooking.map(renderSchedule): 'Empty Bookings'}
+              {sortedBooking.length > 0 ? sortedBooking.map(renderSchedule) : 'Empty Bookings'}
             </div>
           </div>
 
           <div className="flex justify-end items-center gap-4">
-            <button className="btn btn-outline text-white">Close and keep exploring</button>
-
+            <button className="btn btn-outline text-white flex items-center">
+              <FaArrowLeft className="mr-2" /> Close and keep exploring
+            </button>
           </div>
         </form>
       </dialog>
@@ -688,7 +662,7 @@ const CoMap = ({ nightMode, userid }) => {
             <div className="bg-green-700 rounded-lg p-4 mt-4">
               <div className="flex justify-between mb-2">
                 <span className="font-semibold">Desk Number:</span>
-                <span>{bookingDetails.tableId}</span>
+                <span>{numbertable}</span>
               </div>
               <div className="flex justify-between mb-2">
                 <span className="font-semibold">Date:</span>
@@ -704,7 +678,7 @@ const CoMap = ({ nightMode, userid }) => {
               </div>
               <div className="flex justify-between mb-2">
                 <span className="font-semibold">Time:</span>
-                <span>{bookingDetails.startTime} - {bookingDetails.endTime}</span>
+                <span>{timeModal} - {timeModalTo}</span>
               </div>
             </div>
 

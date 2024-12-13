@@ -217,17 +217,6 @@ const CoDay = ({ nightMode }) => {
                 day: 'numeric',
               })}
             </span>
-
-            {/* ปุ่มเปลี่ยนวันที่ */}
-            {/* <button
-              onClick={() => handleDateChange(1)}
-              className={`btn p-3 sm:p-2 rounded-full ${nightMode
-                ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                : 'bg-red-800 text-white hover:bg-red-800'} transition-colors duration-300`}
-            >
-              →
-            </button> */}
-
             <button
             onClick={() => handleDateChange(1)}
             className={`p-2 border rounded-full transition duration-200 shadow-md ${nightMode
@@ -308,7 +297,7 @@ const CoDay = ({ nightMode }) => {
 
                     {deskBookings.map((booking, bookingIdx) => {
                       const startTime = Math.max(8, booking.start); // คำนวณเวลาที่เริ่ม (ไม่ต่ำกว่า 9)
-                      const endTime = Math.min(22, booking.end); // คำนวณเวลาที่จบ (ไม่เกิน 18)
+                      const endTime = Math.min(22, booking.end); // คำนวณเวลาที่จบ (ไม่เกิน 22)
 
                       // คำนวณตำแหน่งบนกริด
                       const gridStart = (startTime - 8) * (100 / hours.length);

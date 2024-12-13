@@ -4,16 +4,21 @@ import { th } from "date-fns/locale";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import API from '../api';
-import { motion,AnimatePresence  } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 registerLocale("th", th);
 
-const BookingDetailModal = ({ booking, nightMode, onClose }) => {
+const BookingDetailModal = ({ booking, nightMode, onClose, onDelete , fullname  }) => {
     if (!booking) return null;
+    console.log(fullname);
+    console.log(booking);
 
     const bgClass = nightMode ? "bg-gray-900 text-gray-300" : "bg-white text-gray-900";
     const cardBgClass = nightMode ? "bg-gray-800" : "bg-gray-100";
     const buttonBgClass = nightMode ? "bg-blue-600 hover:bg-blue-500" : "bg-blue-500 hover:bg-blue-400";
+
+    // ตรวจสอบว่าเป็นการจองของผู้ใช้หรือไม่
+    const isMyBooking = booking.name === fullname;
 
     return (
         <motion.div
@@ -28,47 +33,49 @@ const BookingDetailModal = ({ booking, nightMode, onClose }) => {
                 exit={{ scale: 0.8 }}
                 className={`w-full max-w-lg rounded-lg ${bgClass} p-8 relative shadow-2xl`}
             >
-                {/* ปุ่มปิด */}
-                <button 
-                    onClick={onClose} 
+                <button
+                    onClick={onClose}
                     className={`absolute top-4 right-4 text-3xl font-bold ${nightMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-800 hover:text-gray-900'}`}
                 >
                     ×
                 </button>
 
-                {/* หัวข้อ Booking */}
                 <h2 className="text-3xl font-semibold text-center mb-8">Booking Details</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Seat Number */}
-                    <div className={`p-4 rounded-lg ${cardBgClass}`}>
+                    <div className={`p-4 rounded-lg ${cardBgClass} max-w-full`}>
                         <label className="text-sm font-medium text-gray-500">Seat Number</label>
                         <p className="text-lg font-semibold">{booking.desk}</p>
                     </div>
-
-                    {/* Date & Time */}
-                    <div className={`p-4 rounded-lg ${cardBgClass}`}>
+                    <div className={`p-4 rounded-lg ${cardBgClass} max-w-full`}>
                         <label className="text-sm font-medium text-gray-500">Date & Time</label>
-                        <p className="text-lg font-semibold">{booking.date} - {booking.timeform}</p>
+                        <p className="text-sm font-semibold">{booking.date}</p>
+                        <p className="text-sm font-semibold">{booking.timeform} - {booking.timeto}</p>
                     </div>
-
-                    {/* Booker Name */}
-                    <div className={`p-4 rounded-lg ${cardBgClass}`}>
+                    <div className={`p-4 rounded-lg ${cardBgClass} max-w-full`}>
                         <label className="text-sm font-medium text-gray-500">Booker Name</label>
                         <p className="text-lg font-semibold">{booking.stdID ? `${booking.stdID} ${booking.name}` : booking.name}</p>
                     </div>
-
-                    {/* Notes */}
-                    <div className={`p-4 rounded-lg ${cardBgClass}`}>
+                    <div className={`p-4 rounded-lg ${cardBgClass} max-w-full`}>
                         <label className="text-sm font-medium text-gray-500">Notes</label>
-                        <p className="text-lg italic">{booking.note || "No additional notes"}</p>
+                        <p className="text-lg italic break-words">{booking.note || "No additional notes"}</p>
                     </div>
                 </div>
 
-                {/* ปุ่ม Close */}
+                {isMyBooking && (
+                    <div className="mt-6 text-center">
+                        <button
+                            onClick={() => onDelete(booking.id)}
+                            className={`py-3 px-8 rounded-full text-lg font-semibold bg-red-600 hover:bg-red-500 text-white`}
+                        >
+                            Cancel Booking
+                        </button>
+                    </div>
+                )}
+
                 <div className="mt-8 text-center">
-                    <button 
-                        onClick={onClose} 
+                    <button
+                        onClick={onClose}
                         className={`py-3 px-8 rounded-full text-lg font-semibold ${buttonBgClass} text-white`}
                     >
                         Close
@@ -79,13 +86,16 @@ const BookingDetailModal = ({ booking, nightMode, onClose }) => {
     );
 };
 
-const Header = ({ 
-    activeTab, 
-    setActiveTab, 
-    searchQuery, 
-    setSearchQuery, 
-    setSortOrder, 
-    nightMode 
+
+
+
+const Header = ({
+    activeTab,
+    setActiveTab,
+    searchQuery,
+    setSearchQuery,
+    setSortOrder,
+    nightMode
 }) => {
     const bgClass = nightMode ? "bg-gray-800 text-gray-200" : "bg-white";
     const cardClass = nightMode ? "bg-gray-900 text-gray-300" : "bg-white";
@@ -97,29 +107,27 @@ const Header = ({
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
                 <div className="flex space-x-2 sm:space-x-4 w-full sm:w-auto">
                     <button
-                        className={`flex-1 sm:flex-none flex items-center justify-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${
-                            activeTab === "all" 
-                            ? `${nightMode ? "bg-red-900 text-white" : "bg-red-700 text-white"} shadow-md` 
-                            : `${nightMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"} ${hoverClass}`
-                        }`}
+                        className={`flex-1 sm:flex-none flex items-center justify-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${activeTab === "all"
+                                ? `${nightMode ? "bg-red-900 text-white" : "bg-red-700 text-white"} shadow-md`
+                                : `${nightMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"} ${hoverClass}`
+                            }`}
                         onClick={() => setActiveTab("all")}
                     >
                         <Users className="w-4 h-4" />
                         <span className="hidden sm:inline">All Bookings</span>
                     </button>
                     <button
-                        className={`flex-1 sm:flex-none flex items-center justify-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${
-                            activeTab === "my" 
-                            ? `${nightMode ? "bg-red-900 text-white" : "bg-red-700 text-white"} shadow-md` 
-                            : `${nightMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"} ${hoverClass}`
-                        }`}
+                        className={`flex-1 sm:flex-none flex items-center justify-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${activeTab === "my"
+                                ? `${nightMode ? "bg-red-900 text-white" : "bg-red-700 text-white"} shadow-md`
+                                : `${nightMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"} ${hoverClass}`
+                            }`}
                         onClick={() => setActiveTab("my")}
                     >
                         <Calendar className="w-4 h-4" />
                         <span className="hidden sm:inline">My Bookings</span>
                     </button>
                 </div>
-                
+
                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 space-x-0 sm:space-x-4 w-full sm:w-auto">
                     <div className="relative flex-grow">
                         <input
@@ -127,29 +135,27 @@ const Header = ({
                             placeholder="Search bookings..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className={`w-full pl-10 pr-4 py-2 border ${borderClass} rounded-lg focus:ring-2 ${
-                                nightMode 
-                                ? "bg-gray-800 text-gray-200 focus:ring-red-900" 
-                                : "bg-white focus:ring-red-500"
-                            } transition-all`}
+                            className={`w-full pl-10 pr-4 py-2 border ${borderClass} rounded-lg focus:ring-2 ${nightMode
+                                    ? "bg-gray-800 text-gray-200 focus:ring-red-900"
+                                    : "bg-white focus:ring-red-500"
+                                } transition-all`}
                         />
                         <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${nightMode ? "text-gray-500" : "text-gray-400"} w-5 h-5`} />
                     </div>
-                    
+
                     <div className="relative flex-grow">
                         <select
                             onChange={(e) => setSortOrder(e.target.value)}
-                            className={`appearance-none w-full pl-4 pr-10 py-2 border ${borderClass} rounded-lg ${
-                                nightMode 
-                                ? "bg-gray-800 text-gray-200 focus:ring-red-900" 
-                                : "bg-white focus:ring-red-500"
-                            }`}
+                            className={`appearance-none w-full pl-4 pr-10 py-2 border ${borderClass} rounded-lg ${nightMode
+                                    ? "bg-gray-800 text-gray-200 focus:ring-red-900"
+                                    : "bg-white focus:ring-red-500"
+                                }`}
                         >
                             <option value="asc">Oldest First</option>
                             <option value="desc">Newest First</option>
-                            
-                            
-                            
+
+
+
                         </select>
                         <Filter className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${nightMode ? "text-gray-500" : "text-gray-400"} w-5 h-5 pointer-events-none`} />
                     </div>
@@ -159,38 +165,38 @@ const Header = ({
     );
 };
 
-const BookingList = ({ 
-    searchQuery, 
-    data, 
-    isMyBooking = false, 
+const BookingList = ({
+    searchQuery,
+    data,
+    isMyBooking = false,
     nightMode,
-    onBookingSelect 
+    onBookingSelect
 }) => {
     const filteredData = data
-    .map((day) => ({
-        ...day,
-        bookings: day.bookings.filter((booking) => {
-            const lowerSearchQuery = searchQuery.toLowerCase();
-    
-            // ตรวจสอบการค้นหาของแต่ละฟิลด์
-            const matchesName = (booking.name?.toLowerCase() ?? "").includes(lowerSearchQuery);
-            const matchesStdID = (booking.stdID?.toLowerCase() ?? "").includes(lowerSearchQuery);
-            const matchesNote = (booking.note?.toLowerCase() ?? "").includes(lowerSearchQuery);
-            const matchesDate = booking.date 
-                ? new Date(booking.date).toLocaleDateString('th-TH').includes(searchQuery)
-                : false;
-            const matchesDesk = (booking.desk?.toLowerCase() ?? "").includes(lowerSearchQuery);  // ค้นหาหมายเลขโต๊ะ
-            const matchesTime = (booking.timeform?.toLowerCase() ?? "").includes(lowerSearchQuery) || 
-                                (booking.timeto?.toLowerCase() ?? "").includes(lowerSearchQuery);  // ค้นหาเวลา
-    
-            // เงื่อนไขการค้นหาตาม isMyBooking
-            return isMyBooking 
-                ? matchesName
-                : matchesName || matchesStdID || matchesNote || matchesDate || matchesDesk || matchesTime;  // เพิ่ม matchesTime
-        }),
-    }))
-    .filter((day) => day.bookings.length > 0);
-    
+        .map((day) => ({
+            ...day,
+            bookings: day.bookings.filter((booking) => {
+                const lowerSearchQuery = searchQuery.toLowerCase();
+
+                // ตรวจสอบการค้นหาของแต่ละฟิลด์
+                const matchesName = (booking.name?.toLowerCase() ?? "").includes(lowerSearchQuery);
+                const matchesStdID = (booking.stdID?.toLowerCase() ?? "").includes(lowerSearchQuery);
+                const matchesNote = (booking.note?.toLowerCase() ?? "").includes(lowerSearchQuery);
+                const matchesDate = booking.date
+                    ? new Date(booking.date).toLocaleDateString('th-TH').includes(searchQuery)
+                    : false;
+                const matchesDesk = (booking.desk?.toLowerCase() ?? "").includes(lowerSearchQuery);  // ค้นหาหมายเลขโต๊ะ
+                const matchesTime = (booking.timeform?.toLowerCase() ?? "").includes(lowerSearchQuery) ||
+                    (booking.timeto?.toLowerCase() ?? "").includes(lowerSearchQuery);  // ค้นหาเวลา
+
+                // เงื่อนไขการค้นหาตาม isMyBooking
+                return isMyBooking
+                    ? matchesName
+                    : matchesName || matchesStdID || matchesNote || matchesDate || matchesDesk || matchesTime;  // เพิ่ม matchesTime
+            }),
+        }))
+        .filter((day) => day.bookings.length > 0);
+
 
     const bgClass = nightMode ? "bg-gray-900 text-gray-300" : "bg-white";
     const headerClass = nightMode ? "bg-red-900 text-gray-200" : "bg-red-700 text-white";
@@ -213,7 +219,7 @@ const BookingList = ({
                         </div>
                         {day.bookings.map((booking, idx) => {
                             // Add date to the booking object for details modal
-                            const bookingWithDate = {...booking, date: day.date};
+                            const bookingWithDate = { ...booking, date: day.date };
                             return (
                                 <motion.div
                                     key={idx}
@@ -230,8 +236,11 @@ const BookingList = ({
                                         {booking.stdID ? `${booking.stdID} ${booking.name}` : booking.name || "—"}
                                     </div>
                                     <div className="p-2 sm:p-4 flex items-center justify-center">
-                                        {booking.note ? booking.note : "—"}
+                                        {booking.note ?
+                                            (booking.note.length > 20 ? `${booking.note.slice(0, 20)}...` : booking.note)
+                                            : "—"}
                                     </div>
+
                                 </motion.div>
                             );
                         })}
@@ -246,6 +255,7 @@ const BookingList = ({
 
 
 const BookingApp = ({ fullname, nightMode }) => {
+    
     const [activeTab, setActiveTab] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [sortOrder, setSortOrder] = useState("asc");
@@ -256,9 +266,27 @@ const BookingApp = ({ fullname, nightMode }) => {
         try {
             const response = await API.get("/reservations/all");
             const transformedData = transformData(response.data, sortOrder);
+            console.log(transformedData);
+
             setData(transformedData);
         } catch (error) {
             console.error("Error fetching data:", error);
+        }
+    };
+
+    const handleDeleteBooking = async (bookingID) => {
+        try {
+            // 
+            console.log("Delete booking with ID:", bookingID);
+            const response = await API.put(`/reservations/cancel`, { reservation_id: bookingID });
+            console.log(response);
+            if (response.status.data === 200) {
+                fetchData();
+                setSelectedBooking(null);
+            }
+            
+        } catch (error) {
+            console.error("Error deleting booking:", error);
         }
     };
 
@@ -287,6 +315,7 @@ const BookingApp = ({ fullname, nightMode }) => {
                 name: `${item.first_name} ${item.last_name}`,
                 stdID: item.student_id,
                 note: item.note,
+                id: item.reservation_id,  
             });
 
             return acc;
@@ -299,13 +328,8 @@ const BookingApp = ({ fullname, nightMode }) => {
         });
     };
 
-    const bgClass = nightMode ? "bg-gray-900 text-gray-200" : "bg-gray-100 text-gray-900";
-
     return (
-        <div className={`${bgClass} min-h-screen py-4 sm:py-8 px-2 sm:px-6 lg:px-8 transition-colors duration-300 ${nightMode
-            ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
-            : 'bg-gradient-to-b from-blue-100 to-blue-200'
-            }`}>
+        <div className={`${nightMode ? "bg-gray-900 text-gray-200" : "bg-gray-100 text-gray-900"} min-h-screen py-4 sm:py-8 px-2 sm:px-6 lg:px-8 transition-colors duration-300`}>
             <div className="max-w-7xl mx-auto">
                 <Header
                     activeTab={activeTab}
@@ -315,19 +339,21 @@ const BookingApp = ({ fullname, nightMode }) => {
                     setSortOrder={setSortOrder}
                     nightMode={nightMode}
                 />
-                <BookingList 
-                    searchQuery={activeTab === "all" ? searchQuery : fullname} 
-                    data={data} 
+                <BookingList
+                    searchQuery={activeTab === "all" ? searchQuery : fullname}
+                    data={data}
                     isMyBooking={activeTab === "my"}
                     nightMode={nightMode}
                     onBookingSelect={setSelectedBooking}
                 />
                 <AnimatePresence>
                     {selectedBooking && (
-                        <BookingDetailModal 
-                            booking={selectedBooking} 
+                        <BookingDetailModal
+                            booking={selectedBooking}
                             nightMode={nightMode}
                             onClose={() => setSelectedBooking(null)}
+                            onDelete={handleDeleteBooking}
+                            fullname={fullname}  // Make sure fullname is passed here as well
                         />
                     )}
                 </AnimatePresence>
@@ -335,5 +361,4 @@ const BookingApp = ({ fullname, nightMode }) => {
         </div>
     );
 };
-
 export default BookingApp;
