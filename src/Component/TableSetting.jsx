@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { Lock, Unlock, MapPin } from 'lucide-react';
+import { Lock, Unlock, MapPin, Calendar } from 'lucide-react';
 
 function AdminConfig({nightMode}) {
   const [desks, setDesks] = useState([
-    { desk: 'A01', status: 'LOCKED', from: '09:00', to: '16:00' },
-    { desk: 'A02', status: 'LOCKED', from: '09:00', to: '16:00' },
-    { desk: 'A03', status: 'LOCKED', from: '09:00', to: '16:00' },
-    { desk: 'A04', status: 'LOCKED', from: '09:00', to: '16:00' },
-    { desk: 'A05', status: 'LOCKED', from: '09:00', to: '16:00' },
-    { desk: 'A06', status: 'LOCKED', from: '09:00', to: '16:00' },
-    { desk: 'A07', status: 'LOCKED', from: '09:00', to: '16:00' },
-    { desk: 'A08', status: 'LOCKED', from: '09:00', to: '16:00' },
-    { desk: 'A09', status: 'LOCKED', from: '09:00', to: '16:00' },
+    { desk: 'A01', status: 'LOCKED', from: '2024-03-15', to: '2024-03-15', timeFrom: '09:00', timeTo: '16:00' },
+    { desk: 'A02', status: 'LOCKED', from: '2024-03-15', to: '2024-03-15', timeFrom: '09:00', timeTo: '16:00' },
+    { desk: 'A03', status: 'LOCKED', from: '2024-03-15', to: '2024-03-15', timeFrom: '09:00', timeTo: '16:00' },
+    { desk: 'A04', status: 'LOCKED', from: '2024-03-15', to: '2024-03-15', timeFrom: '09:00', timeTo: '16:00' },
+    { desk: 'A05', status: 'LOCKED', from: '2024-03-15', to: '2024-03-15', timeFrom: '09:00', timeTo: '16:00' },
+    { desk: 'A06', status: 'LOCKED', from: '2024-03-15', to: '2024-03-15', timeFrom: '09:00', timeTo: '16:00' },
+    { desk: 'A07', status: 'LOCKED', from: '2024-03-15', to: '2024-03-15', timeFrom: '09:00', timeTo: '16:00' },
+    { desk: 'A08', status: 'LOCKED', from: '2024-03-15', to: '2024-03-15', timeFrom: '09:00', timeTo: '16:00' },
+    { desk: 'A09', status: 'LOCKED', from: '2024-03-15', to: '2024-03-15', timeFrom: '09:00', timeTo: '16:00' },
   ]);
 
   const [selectedDesk, setSelectedDesk] = useState(desks[0]);
@@ -44,7 +44,6 @@ function AdminConfig({nightMode}) {
       status: prev.status === 'LOCKED' ? 'UNLOCKED' : 'LOCKED',
     }));
   };
-
   // Mobile view rendering
   if (isMobileView) {
     return (
@@ -79,8 +78,9 @@ function AdminConfig({nightMode}) {
                     {desk.status}
                   </div>
                 </div>
-                <div className="text-sm text-gray-500">
-                  {desk.from} - {desk.to}
+                <div className="text-sm text-gray-500 text-right">
+                  <div>{desk.fromDate} - {desk.toDate}</div>
+                  <div>{desk.timeFrom} - {desk.timeTo}</div>
                 </div>
               </div>
             ))}
@@ -98,24 +98,46 @@ function AdminConfig({nightMode}) {
                   readOnly
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-sm text-gray-600">From</label>
-                  <input
-                    type="time"
-                    value={selectedDesk.from}
-                    onChange={(e) => setSelectedDesk({ ...selectedDesk, from: e.target.value })}
-                    className="w-full p-2 border border-gray-300 rounded-lg"
-                  />
+              <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-sm text-gray-600">Start Date</label>
+                    <input
+                      type="date"
+                      value={selectedDesk.fromDate}
+                      onChange={(e) => setSelectedDesk({ ...selectedDesk, fromDate: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">End Date</label>
+                    <input
+                      type="date"
+                      value={selectedDesk.toDate}
+                      onChange={(e) => setSelectedDesk({ ...selectedDesk, toDate: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-lg"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="text-sm text-gray-600">To</label>
-                  <input
-                    type="time"
-                    value={selectedDesk.to}
-                    onChange={(e) => setSelectedDesk({ ...selectedDesk, to: e.target.value })}
-                    className="w-full p-2 border border-gray-300 rounded-lg"
-                  />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-sm text-gray-600">From</label>
+                    <input
+                      type="time"
+                      value={selectedDesk.timeFrom}
+                      onChange={(e) => setSelectedDesk({ ...selectedDesk, timeFrom: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">To</label>
+                    <input
+                      type="time"
+                      value={selectedDesk.timeTo}
+                      onChange={(e) => setSelectedDesk({ ...selectedDesk, timeTo: e.target.value })}
+                      className="w-full p-2 border border-gray-300 rounded-lg"
+                    />
+                  </div>
                 </div>
               </div>
               <button
@@ -135,7 +157,7 @@ function AdminConfig({nightMode}) {
 
   // Desktop view
   return (
-    <div className=" min-h-full p-10">
+    <div className="min-h-full p-10">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-gray-800">Admin Config</h1>
@@ -159,9 +181,8 @@ function AdminConfig({nightMode}) {
 
       {/* Maps Section */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-      {[1, "Coming soon...", "Coming soon..."].map((mapNum, index) => (
-  <div key={`map-${index}`} className="flex flex-col items-center">
-
+        {[1, "Coming soon...", "Coming soon..."].map((mapNum, index) => (
+          <div key={`map-${index}`} className="flex flex-col items-center">
             <div className="w-full aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
               <MapPin size={48} className="text-gray-400" />
             </div>
@@ -185,13 +206,33 @@ function AdminConfig({nightMode}) {
                 readOnly
               />
             </div>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm text-gray-600">Start Date</label>
+                <input
+                  type="date"
+                  value={selectedDesk.fromDate}
+                  onChange={(e) => setSelectedDesk({ ...selectedDesk, fromDate: e.target.value })}
+                  className="w-full mt-1 p-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600">End Date</label>
+                <input
+                  type="date"
+                  value={selectedDesk.toDate}
+                  onChange={(e) => setSelectedDesk({ ...selectedDesk, toDate: e.target.value })}
+                  className="w-full mt-1 p-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm text-gray-600">From</label>
                 <input
                   type="time"
-                  value={selectedDesk.from}
-                  onChange={(e) => setSelectedDesk({ ...selectedDesk, from: e.target.value })}
+                  value={selectedDesk.timeFrom}
+                  onChange={(e) => setSelectedDesk({ ...selectedDesk, timeFrom: e.target.value })}
                   className="w-full mt-1 p-2 border border-gray-300 rounded-lg"
                 />
               </div>
@@ -199,8 +240,8 @@ function AdminConfig({nightMode}) {
                 <label className="block text-sm text-gray-600">To</label>
                 <input
                   type="time"
-                  value={selectedDesk.to}
-                  onChange={(e) => setSelectedDesk({ ...selectedDesk, to: e.target.value })}
+                  value={selectedDesk.timeTo}
+                  onChange={(e) => setSelectedDesk({ ...selectedDesk, timeTo: e.target.value })}
                   className="w-full mt-1 p-2 border border-gray-300 rounded-lg"
                 />
               </div>
@@ -233,33 +274,34 @@ function AdminConfig({nightMode}) {
               <thead>
                 <tr className="bg-gray-100 border-b">
                   <th className="py-3 px-4 text-left text-gray-600">Desk</th>
+                  <th className="py-3 px-4 text-left text-gray-600">Start Date</th>
+                  <th className="py-3 px-4 text-left text-gray-600">End Date</th>
                   <th className="py-3 px-4 text-left text-gray-600">Time</th>
                   <th className="py-3 px-4 text-left text-gray-600">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {desks.map((desk) => (
-                  <tr
-                    key={desk.desk}
+                  <tr 
+                    key={desk.desk} 
                     onClick={() => handleRowClick(desk)}
-                    className={`cursor-pointer hover:bg-gray-50 ${
-                      desk.desk === selectedDesk.desk ? 'bg-gray-200' : ''
-                    }`}
+                    className={`cursor-pointer ${desk.desk === selectedDesk.desk ? 'bg-gray-100' : 'bg-white'}`}
                   >
                     <td className="py-3 px-4">{desk.desk}</td>
-                    <td className="py-3 px-4 text-gray-600">
-                      {desk.from} - {desk.to}
-                    </td>
-                    <td
-                      className={`py-3 px-4 font-semibold ${
-                        desk.status === 'LOCKED' ? 'text-red-600' : 'text-green-600'
-                      }`}
-                    >
-                      {desk.status}
+                    <td className="py-3 px-4">{desk.from}</td>
+                    <td className="py-3 px-4">{desk.to}</td>
+                    <td className="py-3 px-4">{desk.timeFrom} - {desk.timeTo}</td>
+                    <td className="py-3 px-4">
+                      <span className={desk.status === 'LOCKED' ? 'text-red-600' : 'text-green-600'}>
+                        {desk.status}
+                      </span>
                     </td>
                   </tr>
                 ))}
               </tbody>
+
+                  
+                  
             </table>
           </div>
         </div>
@@ -267,5 +309,4 @@ function AdminConfig({nightMode}) {
     </div>
   );
 }
-
 export default AdminConfig;

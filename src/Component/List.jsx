@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, Search, Filter, Users, Info } from 'lucide-react';
+import { Calendar, Search, Filter, Users, Info, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { th } from "date-fns/locale";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -7,6 +7,97 @@ import API from '../api';
 import { motion, AnimatePresence } from "framer-motion";
 
 registerLocale("th", th);
+
+
+const ConfirmationModal = ({ isOpen, onConfirm, onCancel, nightMode }) => {
+    if (!isOpen) return null;
+
+    const bgClass = nightMode ? "bg-gray-900 text-gray-300" : "bg-white text-gray-900";
+    const cardBgClass = nightMode ? "bg-gray-800" : "bg-gray-100";
+    const buttonBgClass = nightMode ? "bg-blue-600 hover:bg-blue-500" : "bg-blue-500 hover:bg-blue-400";
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4"
+        >
+            <motion.div
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.8 }}
+                className={`w-full max-w-md rounded-lg ${bgClass} p-8 relative shadow-2xl text-center`}
+            >
+                <AlertTriangle className="mx-auto w-16 h-16 text-yellow-500 mb-4" />
+
+                <h2 className="text-2xl font-semibold mb-4 text-yellow-600">
+                    Confirm Cancellation
+                </h2>
+
+                <p className="mb-6">Are you sure you want to cancel this booking? This action cannot be undone.</p>
+
+                <div className="flex justify-center space-x-4">
+                    <button
+                        onClick={onCancel}
+                        className={`py-3 px-8 rounded-full text-lg font-semibold ${nightMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"} text-gray-800`}
+                    >
+                        No, Keep Booking
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        className="py-3 px-8 rounded-full text-lg font-semibold bg-red-600 hover:bg-red-500 text-white"
+                    >
+                        Yes, Cancel Booking
+                    </button>
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+};
+
+const FeedbackModal = ({ isOpen, type, message, onClose, nightMode }) => {
+    if (!isOpen) return null;
+
+    const bgClass = nightMode ? "bg-gray-900 text-gray-300" : "bg-white text-gray-900";
+    const cardBgClass = nightMode ? "bg-gray-800" : "bg-gray-100";
+    const buttonBgClass = nightMode ? "bg-blue-600 hover:bg-blue-500" : "bg-blue-500 hover:bg-blue-400";
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4"
+        >
+            <motion.div
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.8 }}
+                className={`w-full max-w-md rounded-lg ${bgClass} p-8 relative shadow-2xl text-center`}
+            >
+                {type === 'success' ? (
+                    <CheckCircle className="mx-auto w-16 h-16 text-green-500 mb-4" />
+                ) : (
+                    <XCircle className="mx-auto w-16 h-16 text-red-500 mb-4" />
+                )}
+
+                <h2 className={`text-2xl font-semibold mb-4 ${type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                    {type === 'success' ? 'Cancellation Successful' : 'Cancellation Failed'}
+                </h2>
+
+                <p className="mb-6">{message}</p>
+
+                <button
+                    onClick={onClose}
+                    className={`py-3 px-8 rounded-full text-lg font-semibold ${buttonBgClass} text-white`}
+                >
+                    Close
+                </button>
+            </motion.div>
+        </motion.div>
+    );
+};
 
 const BookingDetailModal = ({ booking, nightMode, onClose, onDelete , fullname  }) => {
     if (!booking) return null;
@@ -255,19 +346,26 @@ const BookingList = ({
 
 
 const BookingApp = ({ fullname, nightMode }) => {
-    
     const [activeTab, setActiveTab] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [sortOrder, setSortOrder] = useState("asc");
     const [data, setData] = useState([]);
     const [selectedBooking, setSelectedBooking] = useState(null);
+    const [confirmationModal, setConfirmationModal] = useState({
+        isOpen: false,
+        bookingId: null
+    });
+    const [feedbackModal, setFeedbackModal] = useState({
+        isOpen: false,
+        type: 'success',
+        message: ''
+    });
+
 
     const fetchData = async () => {
         try {
             const response = await API.get("/reservations/all");
             const transformedData = transformData(response.data, sortOrder);
-            console.log(transformedData);
-
             setData(transformedData);
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -276,18 +374,43 @@ const BookingApp = ({ fullname, nightMode }) => {
 
     const handleDeleteBooking = async (bookingID) => {
         try {
-            // 
-            console.log("Delete booking with ID:", bookingID);
             const response = await API.put(`/reservations/cancel`, { reservation_id: bookingID });
-            console.log(response);
-            if (response.status.data === 200) {
+            
+            if (response.status === 200 || response.status.data === 200) {
                 fetchData();
                 setSelectedBooking(null);
+                setConfirmationModal({ isOpen: false, bookingId: null });
+                setFeedbackModal({
+                    isOpen: true,
+                    type: 'success',
+                    message: 'Your booking has been successfully cancelled.'
+                });
+            } else {
+                throw new Error('Unexpected response');
             }
-            
         } catch (error) {
             console.error("Error deleting booking:", error);
+            setConfirmationModal({ isOpen: false, bookingId: null });
+            setFeedbackModal({
+                isOpen: true,
+                type: 'error',
+                message: error.response?.data?.message || 'Unable to cancel booking. Please try again later.'
+            });
         }
+    };
+
+    const openConfirmationModal = (bookingId) => {
+        setConfirmationModal({
+            isOpen: true,
+            bookingId: bookingId
+        });
+    };
+
+    const closeConfirmationModal = () => {
+        setConfirmationModal({
+            isOpen: false,
+            bookingId: null
+        });
     };
 
     useEffect(() => {
@@ -352,8 +475,25 @@ const BookingApp = ({ fullname, nightMode }) => {
                             booking={selectedBooking}
                             nightMode={nightMode}
                             onClose={() => setSelectedBooking(null)}
-                            onDelete={handleDeleteBooking}
-                            fullname={fullname}  // Make sure fullname is passed here as well
+                            onDelete={openConfirmationModal}
+                            fullname={fullname}
+                        />
+                    )}
+                    {confirmationModal.isOpen && (
+                        <ConfirmationModal
+                            isOpen={confirmationModal.isOpen}
+                            onConfirm={() => handleDeleteBooking(confirmationModal.bookingId)}
+                            onCancel={closeConfirmationModal}
+                            nightMode={nightMode}
+                        />
+                    )}
+                    {feedbackModal.isOpen && (
+                        <FeedbackModal
+                            isOpen={feedbackModal.isOpen}
+                            type={feedbackModal.type}
+                            message={feedbackModal.message}
+                            onClose={() => setFeedbackModal({ ...feedbackModal, isOpen: false })}
+                            nightMode={nightMode}
                         />
                     )}
                 </AnimatePresence>
@@ -361,4 +501,5 @@ const BookingApp = ({ fullname, nightMode }) => {
         </div>
     );
 };
+
 export default BookingApp;

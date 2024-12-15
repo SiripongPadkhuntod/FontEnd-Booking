@@ -55,7 +55,7 @@ const CoMap = ({ nightMode, userid }) => {
         
       setSortedBooking(sortedReservations);
     } else {
-      console.error("bookings is not an array", bookings);
+      console.log("bookings is not an array");
     }
   }, [bookings, numbertable]);
   
