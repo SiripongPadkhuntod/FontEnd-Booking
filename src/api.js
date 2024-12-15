@@ -5,14 +5,14 @@ import axios from 'axios';
 // });
 
 //HTTP
-// export default axios.create({
-//   baseURL: `http://kazuyaserver.thddns.net:6867/`
-// });
+export default axios.create({
+  baseURL: `http://kazuyaserver.thddns.net:6867/`
+});
 
 //HTTPS
-export default axios.create({
-  baseURL: `https://kazuyaserver.thddns.net:6867/`
-});
+// export default axios.create({
+//   baseURL: `https://kazuyaserver.thddns.net:6867/`
+// });
 
 // export default axios.create({
 //   baseURL: `http://localhost:3000/`
