@@ -6,7 +6,7 @@ import axios from 'axios';
 
 
 export default axios.create({
-  baseURL: `http://kazuyaserver.thddns.net:6867/`
+  baseURL: `https://kazuyaserver.thddns.net:6867/`
 });
 
 // export default axios.create({
