@@ -1,15 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
-import MapSVG from './MapSVG';
-
-import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'; // import ไอคอน
-
 import { GrCaretPrevious, GrCaretNext } from 'react-icons/gr'; // import ไอคอน
+import { FaChair, FaRegWindowClose, FaArrowLeft, FaCalendarCheck, FaCheck, FaTimes } from "react-icons/fa";
+import MapSVG from './MapSVG';
+import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
 
-import { FaChair, FaRegWindowClose, FaCalendarAlt, FaClock, FaUser, FaExclamationCircle, FaArrowLeft, FaCalendarCheck, FaCheck, FaTimes } from "react-icons/fa";
-import { IoMdPeople } from "react-icons/io";
 
 
 
@@ -20,9 +17,12 @@ const CoMap = ({ nightMode, userid }) => {
   const [time, setTime] = useState("08:00");
   const [date, setDate] = useState(() => {
     const now = new Date();
-    now.setUTCHours(0, 0, 0, 0);
+    const timezoneOffset = 7 * 60; // เวลาในประเทศไทย UTC+7
+    now.setMinutes(now.getMinutes() + now.getTimezoneOffset() + timezoneOffset);
+    now.setUTCHours(0, 0, 0, 0); 
     return now;
   });
+  
   const [bookingTime, setBookingTime] = useState("");
   const mapRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -103,11 +103,11 @@ const CoMap = ({ nightMode, userid }) => {
   const fetchBookingDetails = async () => {
     try {
       const currentDate = date.toISOString().split('T')[0];
-      const response = await API.get(`/reservations/day/${currentDate}`);
-      if (response.status === 200 && response.data) {
-        setBookings(response.data);
+      const response = await API.get(`/reservations?day=${currentDate}`);
+      if (response.data.status === 200 && response.data) {
+        setBookings(response.data.data);
 
-        console.log('Booking details fetched:', bookings);
+        // console.log('Booking details fetched:', bookings);
       }
     } catch (error) {
       console.error('Error fetching booking details:', error);
@@ -279,10 +279,6 @@ const CoMap = ({ nightMode, userid }) => {
   }, [date, time])
 
 
-  const handleTableSelection = (tableNumber) => {
-    setSelectedTable(tableNumber); // เก็บค่า tableNumber ลงใน state
-    console.log('Selected table stop:', tableNumber);
-  };
 
   return (
     <div className={`w-full h-full relative rounded-lg overflow-hidden ${nightMode
@@ -309,7 +305,6 @@ const CoMap = ({ nightMode, userid }) => {
         }}
       >
         <MapSVG
-
           time={time}
           bookingTime={bookingTime}
           date={date}
@@ -376,11 +371,6 @@ const CoMap = ({ nightMode, userid }) => {
 
       {/* Desktop controls */}
       <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 ${isMobile ? 'hidden' : 'flex'} flex-col md:flex-row items-center p-6 space-x-6 rounded-lg shadow-lg ${nightMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-100 text-black'} shadow-md rounded-lg p-4 mb-6  `}>
-
-        {/* <div className={`${bgClass} min-h-screen py-4 sm:py-8 px-2 sm:px-6 lg:px-8 transition-colors duration-300 ${nightMode
-            ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
-            : 'bg-gradient-to-b from-blue-100 to-blue-200'
-            }`}></div> */}
         {/* Time Selector */}
         <div className="flex items-center ">
           <label className="font-semibold mr-2">Time:</label>

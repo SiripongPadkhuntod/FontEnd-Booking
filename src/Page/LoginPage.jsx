@@ -92,7 +92,7 @@ function Login() {
   const handleLoginGoogle = async (response) => {
     try {
       const res = await API.post('/api/auth/google', { token: response.credential });
-      console.log("API Response:", res);
+      // console.log("API Response:", res);
 
       if (res.status === 403) {
         console.log("403 Forbidden: Non-RSU email used.");
@@ -102,7 +102,7 @@ function Login() {
           submessage: "Please use your RSU email to login.",
         });
       } else if (res.status === 200) {
-        console.log("Login successful:", res.data);
+        // console.log("Login successful:", res.data);
         localStorage.setItem('authToken', res.data.token);
         navigate("/home");
       } else {
@@ -136,31 +136,42 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+  
+    // ฟังก์ชันตรวจสอบว่าเป็น email หรือไม่
+    const isEmail = (email) => /\S+@\S+\.\S+/.test(email);
+  
+    let loginData = {};
+  
+    if (isEmail(email)) {
+      // หากเป็น email, ใช้ email และ password
+      loginData = { email: email.toLowerCase(), password };
+    } else {
+      // หากไม่ใช่ email, ให้ถือว่าเป็น username
+      loginData = { username: email, password };
+    }
+  
+    console.log("Login data:", loginData); // สำหรับดีบัก
+  
     try {
-      const res = await API.post("/login/email", { email, password });
-
+      // เรียก API สำหรับล็อกอิน
+      const res = await API.post("/login", loginData);
+  
       if (res.status === 200) {
         localStorage.setItem('authToken', res.data.token);
         navigate("/home");
-      }
-      else if (res.status === 403) {
+      } else if (res.status === 403) {
         setModalState({
           isOpen: true,
           message: "Login Failed",
           submessage: "Please use your RSU email to login.",
         });
-      }
-
-      else if (res.status === 401) {
+      } else if (res.status === 401) {
         setModalState({
           isOpen: true,
           message: "Login Failed",
-          submessage: "Invalid email or password.",
+          submessage: "Invalid email/username or password.",
         });
-      }
-
-
-      else {
+      } else {
         setModalState({
           isOpen: true,
           message: "Login Failed",
@@ -169,32 +180,27 @@ function Login() {
       }
     } catch (error) {
       console.error("Error in API request:", error);
-      if (error.response && error.response.status === 403) {
-        console.log("403 Forbidden Error handled in catch.");
-        setModalState({
-          isOpen: true,
-          message: "Login Failed",
-          submessage: "Please use your RSU email to login.",
-        });
-      }
-      else if (error.response && error.response.status === 401 || error.response.status === 400) {
-        console.log("401 Unauthorized Error handled in catch.");
-        setModalState({
-          isOpen: true,
-          message: "Login Failed",
-          submessage: "Invalid email or password.",
-        });
-      }
-      else if (error.response && error.response.status === 500) {
-        console.log("500 Internal Server Error handled in catch.");
-        setModalState({
-          isOpen: true,
-          message: "Login Failed",
-          submessage: "Internal server error. Please try again later.",
-        });
-      }
-      else {
-        console.log("Other error in catch block.");
+      if (error.response) {
+        if (error.response.status === 403) {
+          setModalState({
+            isOpen: true,
+            message: "Login Failed",
+            submessage: "Please use your RSU email to login.",
+          });
+        } else if (error.response.status === 401 || error.response.status === 400) {
+          setModalState({
+            isOpen: true,
+            message: "Login Failed",
+            submessage: "Invalid email/username or password.",
+          });
+        } else if (error.response.status === 500) {
+          setModalState({
+            isOpen: true,
+            message: "Login Failed",
+            submessage: "Internal server error. Please try again later.",
+          });
+        }
+      } else {
         setModalState({
           isOpen: true,
           message: "Error",
@@ -203,6 +209,11 @@ function Login() {
       }
     }
   };
+  
+
+  
+  
+
 
   return (
 
@@ -244,16 +255,17 @@ function Login() {
                 <CiMail className={`text-xl ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
               </div>
               <input
-                type="email"
-                placeholder="RSU Mail"
+                type="text" // ใช้ 'text' เพื่อรองรับทั้ง email และ username
+                placeholder={email ? "RSU Mail" : "Username"} // เปลี่ยน placeholder ตามค่า email
                 className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition duration-300 
-                  ${isDarkMode
+                    ${isDarkMode
                     ? 'bg-gray-700 border-gray-600 text-white focus:ring-red-500'
                     : 'border-gray-300 focus:ring-red-500'}`}
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)} // ใช้ 'email' สำหรับจัดเก็บค่าผู้ใช้
               />
             </div>
+
 
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -352,7 +364,7 @@ function Login() {
             <div>
 
               {/* <h2 className="text-4xl font-bold mb-4">Hello, Friend!</h2> */}
-              {/* <p className="text-lg">Enter your personal details and start your journey with us</p> */} 
+              {/* <p className="text-lg">Enter your personal details and start your journey with us</p> */}
               <img
                 src="src\assets\login.jpg"
                 className="absolute inset-0 w-full h-full object-cover"

@@ -30,7 +30,7 @@ const CoMonth = ({ nightMode }) => {
 
   const fetchData = async (month) => {
     try {
-      const response = await API.get(`/reservations/${month}`);
+      const response = await API.get(`/reservations?month=${month}`);
 
       if (response.data.status === 200) {
         const transformedData = transformData(response.data);
@@ -59,7 +59,7 @@ const CoMonth = ({ nightMode }) => {
 
   const transformData = (apiData) => {
     // Log ข้อมูลที่ได้จาก API
-    console.log("API Data:", apiData);
+    // console.log("API Data:", apiData);
   
     // ตรวจสอบว่า apiData มีคีย์ 'data' และ 'data' เป็นอาร์เรย์หรือไม่
     if (!apiData || !Array.isArray(apiData.data)) {

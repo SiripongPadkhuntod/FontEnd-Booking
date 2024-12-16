@@ -17,7 +17,7 @@ import { IoGrid } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { CiBoxList } from "react-icons/ci";
 import { MdCalendarMonth } from "react-icons/md";
-import { IoMdClose , IoMdSettings } from "react-icons/io";
+import { IoMdClose, IoMdSettings } from "react-icons/io";
 import { RiMenu3Fill } from "react-icons/ri";
 
 
@@ -49,6 +49,18 @@ const Home = () => {
   const [role, setRole] = useState(null);
   const [userid, setUserId] = useState(null);
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState("");
+
+  const openModal = (content) => {
+    setModalContent(content);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalContent("");
+  };
 
   // Existing useEffect and fetchUserData methods remain the same...
   useEffect(() => {
@@ -82,13 +94,14 @@ const Home = () => {
       if (!email) return;
 
       try {
-        const response = await API.get(`/users/email/${email}`);
+        const response = await API.get(`/users?id=${userid}`);
 
         if (response.status === 200) {
-          const data = response.data;
+          const data = response.data.data;
           setFirstname(data.first_name);
           setLastname(data.last_name);
           setImg(data.photo);
+          setEmail(data.email);
         } else {
           throw new Error('Failed to fetch user data');
         }
@@ -104,11 +117,11 @@ const Home = () => {
   const renderComponent = () => {
     switch (activeComponent) {
       case "Map": return <CoMap nightMode={isNightMode} userid={userid} />;
-      case "Setting": return <CoProfile nightMode={isNightMode} useremail={email} />;
+      case "Setting": return <CoProfile nightMode={isNightMode} userid={userid} />;
       case "List": return <CoList fullname={first_name + " " + last_name} nightMode={isNightMode} />;
-      case "Grid": return <CoGrid nightMode={isNightMode} />;
-      case "Month": return <CoMonth nightMode={isNightMode} />;
-      case "Day": return <CoDay nightMode={isNightMode} />;
+      case "Grid": return <CoGrid nightMode={isNightMode} userid={userid} />;
+      case "Month": return <CoMonth nightMode={isNightMode} userid={userid} />;
+      case "Day": return <CoDay nightMode={isNightMode} userid={userid} />;
       default: return null;
     }
   };
@@ -219,20 +232,44 @@ const Home = () => {
 
 
           {/* Footer */}
+
+
+
+          <footer className="mt-8 p-4 text-center bg-gray-100 text-gray-800 rounded-t-md shadow-md">
+        <div className="text-sm">&copy; {new Date().getFullYear()} RSU Booking</div>
+        <div className="mt-2 text-xs flex justify-center space-x-4">
+          <button
+            onClick={() => openModal("Privacy Policy")}
+            className="text-blue-500 hover:underline"
+          >
+            Privacy Policy
+          </button>
+          <span className="text-gray-400">|</span>
+          <button
+            onClick={() => openModal("Terms of Service")}
+            className="text-blue-500 hover:underline"
+          >
+            Terms of Service
+          </button>
+        </div>
+      </footer>
+
+
           <div className="mt-auto space-y-4 pb-4">
             <button
               onClick={() => setIsNightMode(!isNightMode)}
               className={`
-      w-full p-3 rounded-lg flex items-center justify-center transition-all duration-300 ease-in-out
-      ${isNightMode
+                  w-full p-3 rounded-lg flex items-center justify-center transition-all duration-300 ease-in-out
+                  ${isNightMode
                   ? 'bg-gray-700 text-yellow-400 shadow-lg hover:scale-105'
                   : 'bg-gray-100 text-gray-800 shadow-md hover:scale-105'}
-    `}
+              `}
             >
               {isNightMode ? <HiSun className="mr-2 text-xl" /> : <HiMoon className="mr-2 text-xl" />}
               <span className="font-medium">{isNightMode ? 'Light Mode' : 'Dark Mode'}</span>
             </button>
           </div>
+
 
         </div>
       </div>
@@ -255,7 +292,13 @@ const Home = () => {
           <div className="h-full w-full overflow-auto">
             {renderComponent()}
           </div>
+
+
         </CSSTransition>
+        {/* Footer */}
+
+
+
       </div>
 
       {/* Backdrop for Mobile Menu */}
@@ -264,6 +307,44 @@ const Home = () => {
           className="fixed inset-0 bg-black/50 z-30 md:hidden"
           onClick={() => setIsMenuOpen(false)}
         />
+      )}
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={closeModal}
+        >
+          <div
+            className={`bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative
+                        transform transition-transform duration-300 ease-out
+                        ${isModalOpen ? "scale-100 translate-y-0" : "scale-95 -translate-y-10"}
+                      `}
+            onClick={(e) => e.stopPropagation()} // Prevent closing on inner click
+          >
+            <h2 className="text-lg font-bold mb-4">{modalContent}</h2>
+            <div className="text-sm text-gray-600">
+              {modalContent === "Privacy Policy" ? (
+                <p>
+                  This is the Privacy Policy content. You can add detailed
+                  information about how user data is collected, used, and
+                  protected here.
+                </p>
+              ) : (
+                <p>
+                  This is the Terms of Service content. Provide the terms and
+                  conditions for using your service here.
+                </p>
+              )}
+            </div>
+            <button
+              onClick={closeModal}
+              className="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Close
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,18 +1,16 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { json, useNavigate } from 'react-router-dom'; // ใช้ useNavigate เพื่อเปลี่ยนหน้า
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom'; // ใช้ useNavigate เพื่อเปลี่ยนหน้า
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import ErrorDisplay from './ErrorDisplay';
-import { TbPencilCancel } from "react-icons/tb";
 import Skeleton from 'react-loading-skeleton'; // นำเข้า Skeleton
 import CoTableSetting from "../Component/TableSetting";
 import CoAdmin from "../Component/AdminSetting";
-
-import { FaEdit } from "react-icons/fa";
+import ProfileDetailsSection from './PersonalDetails';
 import { RiImageEditFill } from "react-icons/ri";
-import { Save } from 'lucide-react';
 import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้\
-import { CheckCircle, XCircle } from 'lucide-react';
-function ProfilePage({ nightMode, useremail }) {
+import { CheckCircle } from 'lucide-react';
+import { FaSignOutAlt, FaTimes } from 'react-icons/fa';
+function ProfilePage({ nightMode, userid }) {
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -102,10 +100,11 @@ function ProfilePage({ nightMode, useremail }) {
   const fetchUserData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await API.get(`/users/email/${useremail}`);
-
+      const response = await API.get(`/users?id=${userid}`);
+      console.log('User data:', response.data);
       if (response.status === 200) {
-        const userData = response.data;
+        const userData = response.data.data;
+
         setUserData(userData);
         setFormData(userData);
         setProfileImage(userData.photo || "/api/placeholder/80/80");
@@ -119,7 +118,7 @@ function ProfilePage({ nightMode, useremail }) {
     } finally {
       setLoading(false);
     }
-  }, [useremail]);
+  }, [userid]);
 
 
   const editUserData = async () => {
@@ -190,7 +189,7 @@ function ProfilePage({ nightMode, useremail }) {
         } rounded-lg shadow-md`}
     >
       {/* Profile Section */}
-      <CSSTransition key="profile-section" timeout={500} classNames="fade">
+      <CSSTransition key="profile-section" timeout={500} classNames="fade" onExited={() => console.log('Exited')}>
         <div
           className={`w-full md:w-1/3 p-10 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}
                     transition-all duration-500 shadow-lg rounded-lg flex flex-col`}
@@ -302,7 +301,7 @@ function ProfilePage({ nightMode, useremail }) {
 
           {/* Logout Button - Centered on desktop */}
           <button
-            onClick= {() => document.getElementById('confirmModal1').showModal()}
+            onClick={() => document.getElementById('confirmModal1').showModal()}
             className="hidden lg:flex mt-auto w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors max-w-xs mx-auto justify-center"
           >
             Logout
@@ -351,143 +350,21 @@ function ProfilePage({ nightMode, useremail }) {
         </div>
       )}
 
-
-
-
-
       {/* Details Section */}
       <CSSTransition key="details-section" timeout={500} classNames="fade">
         <div
           className={`flex-1 p-8 sm:p-12 ${nightMode ? 'bg-gray-900 text-gray-200' : 'bg-white text-gray-800'} transition-all duration-500 shadow-xl rounded-xl ${showDetails ? '' : 'hidden'}`}
         >
-          <form className="space-y-8">
-            {/* ปุ่ม Edit */}
-            <div className="flex justify-end mb-6 mt-4">
-              <label className="swap swap-rotate">
-                <input
-                  type="checkbox"
-                  checked={isEditing}
-                  onChange={() => {
-                    if (isEditing) {
-                      handleCanselEdit();
-                    }
-                    setIsEditing(!isEditing);
-                  }}
-                />
-                <div className="swap-on text-3xl text-red-500 rounded-full h-12 w-12 flex justify-center items-center transition-all">
-                  {isEditing ? <TbPencilCancel /> : <FaEdit />}
-                </div>
-                <div className="swap-off text-2xl text-yellow-500 rounded-full h-12 w-12 flex justify-center items-center transition-all">
-                  {isEditing ? <TbPencilCancel /> : <FaEdit />}
-                </div>
-              </label>
-            </div>
-
-            {/* Email Section */}
-            <div className="space-y-4">
-              <h3 className="text-2xl font-semibold text-gray-800">Email Address</h3>
-              <div className="relative">
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email || ''}
-                  onChange={handleInputChange}
-                  className={`w-full p-4 rounded-lg border ${isEditing ? 'border-red-500' : 'border-gray-300'} ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'} focus:ring-2 focus:ring-blue-500 transition-all`}
-                  readOnly
-                />
-                <span className="absolute right-4 top-3 text-sm text-gray-500">Read-Only</span>
-              </div>
-            </div>
-
-            {/* Reset Password Button */}
-            <div className="flex justify-center mt-4 sm:mt-8">
-              <button
-                className="py-2 px-6 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 w-full sm:w-auto"
-                type="button"
-              >
-                Reset Password
-              </button>
-            </div>
-
-            {/* Personal Information Section */}
-            <div className="space-y-4">
-              <h3 className="text-2xl font-semibold text-gray-800">Personal Information</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <input
-                  type="text"
-                  name="first_name"
-                  placeholder="First Name"
-                  value={formData.first_name || ''}
-                  onChange={handleInputChange}
-                  className={`w-full p-4 rounded-lg border ${isEditing ? 'border-red-500' : 'border-gray-300'} ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'} focus:ring-2 focus:ring-blue-500 transition-all`}
-                  readOnly={!isEditing}
-                />
-                <input
-                  type="text"
-                  name="last_name"
-                  placeholder="Last Name"
-                  value={formData.last_name || ''}
-                  onChange={handleInputChange}
-                  className={`w-full p-4 rounded-lg border ${isEditing ? 'border-red-500' : 'border-gray-300'} ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'} focus:ring-2 focus:ring-blue-500 transition-all`}
-                  readOnly={!isEditing}
-                />
-              </div>
-            </div>
-
-            {/* Contact Section */}
-            <div className="space-y-4">
-              <h3 className="text-2xl font-semibold text-gray-800">Contact Information</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <input
-                  type="text"
-                  name="phonenumber"
-                  placeholder="Phone Number"
-                  value={formData.phonenumber || ''}
-                  onChange={handleInputChange}
-                  className={`w-full p-4 rounded-lg border ${isEditing ? 'border-red-500' : 'border-gray-300'} ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'} focus:ring-2 focus:ring-blue-500 transition-all`}
-                  readOnly={!isEditing}
-                />
-              </div>
-            </div>
-
-            {/* Organization Section */}
-            <div className="space-y-4">
-              <h3 className="text-2xl font-semibold text-gray-800">Organization Details</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <input
-                  type="text"
-                  name="student_id"
-                  placeholder="Student ID"
-                  value={formData.student_id || ''}
-                  onChange={handleInputChange}
-                  className={`w-full p-4 rounded-lg border ${isEditing ? 'border-red-500' : 'border-gray-300'} ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'} focus:ring-2 focus:ring-blue-500 transition-all`}
-                  readOnly={!isEditing}
-                />
-                <input
-                  type="text"
-                  name="department"
-                  placeholder="Department"
-                  value={formData.department || ''}
-                  onChange={handleInputChange}
-                  className={`w-full p-4 rounded-lg border ${isEditing ? 'border-red-500' : 'border-gray-300'} ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'} focus:ring-2 focus:ring-blue-500 transition-all`}
-                  readOnly={!isEditing}
-                />
-              </div>
-            </div>
-
-            {/* Save Button */}
-            {isEditing && (
-              <div className="flex justify-center mt-8">
-                <button
-                  className="py-2 px-6 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-all duration-300"
-                  type="button"
-                  onClick={handleSave}
-                >
-                  Save Changes
-                </button>
-              </div>
-            )}
-          </form>
+          <ProfileDetailsSection
+            userData={userData}
+            nightMode={nightMode}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+            formData={formData}
+            handleInputChange={handleInputChange}
+            handleCanselEdit={handleCanselEdit}
+            handleSave={handleSave}
+          />
         </div>
       </CSSTransition>
 
@@ -499,41 +376,42 @@ function ProfilePage({ nightMode, useremail }) {
         >
           <CoAdmin nightMode={nightMode} />
         </div>
-
-
-
       </CSSTransition>
+
 
       {/* TableConfig Section */}
       <CSSTransition key="TableConfig" timeout={500} classNames="fade">
-        <div
-          className={`flex-1 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showTable ? '' : 'hidden'}`}
-        >
+        <div className={`flex-1 ${nightMode ? 'bg-gray-800 text-gray-200' : 'bg-white'} transition-all duration-500 shadow-lg rounded-lg ${showTable ? '' : 'hidden'}`} >
           <CoTableSetting nightMode={nightMode} />
         </div>
       </CSSTransition>
+
       <dialog id="confirmModal1" className="modal">
-        <div className={`${nightMode ? 'bg-gray-800' : 'bg-gradient-to-r from-red-500 to-gray-600'} modal-box rounded-lg w-full sm:w-auto p-6`}>
-          <h3 className="text-lg font-semibold mb-4 text-white flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-400" /> Confirm Role Change
-          </h3>
-          <p className="text-white mb-6">Are you sure you want to log out?</p>
-          <div className="flex justify-end gap-4">
-            <button
-              onClick={ handleLogout }
-              className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700"
-            >
-              Logout
-            </button>
-            <button
-              onClick={() => document.getElementById('confirmModal1').close()}
-              className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </dialog>
+  <div
+    className={`${nightMode ? 'bg-gray-800' : 'bg-gradient-to-r from-red-500 to-gray-600'} modal-box rounded-lg w-full sm:w-auto p-6`}
+  >
+    <h3 className="text-lg font-semibold mb-4 text-white flex items-center gap-2">
+      <FaSignOutAlt className="w-6 h-6 text-red-400" /> Confirm Logout
+    </h3>
+    <p className="text-white mb-6">Are you sure you want to log out?</p>
+    <div className="flex justify-end gap-4">
+      <button
+        onClick={handleLogout}
+        className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-all duration-200"
+      >
+        <FaSignOutAlt className="w-5 h-5 inline-block mr-2" />
+        Logout
+      </button>
+      <button
+        onClick={() => document.getElementById('confirmModal1').close()}
+        className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-all duration-200"
+      >
+        <FaTimes className="w-5 h-5 inline-block mr-2" />
+        Cancel
+      </button>
+    </div>
+  </div>
+</dialog>
     </TransitionGroup>
   );
 }

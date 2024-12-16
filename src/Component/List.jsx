@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, Search, Filter, Users, Info, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
-import { th } from "date-fns/locale";
-import DatePicker, { registerLocale } from "react-datepicker";
+import { Calendar, Search, Filter, Users, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUser } from 'react-icons/fa';
+
+// import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import API from '../api';
 import { motion, AnimatePresence } from "framer-motion";
-
-registerLocale("th", th);
+// registerLocale("th", th);
 
 
 const ConfirmationModal = ({ isOpen, onConfirm, onCancel, nightMode }) => {
@@ -74,30 +74,37 @@ const FeedbackModal = ({ isOpen, type, message, onClose, nightMode }) => {
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0.8 }}
-                className={`w-full max-w-md rounded-lg ${bgClass} p-8 relative shadow-2xl text-center`}
+                className={`w-full max-w-lg rounded-lg ${bgClass} p-8 relative shadow-xl`}
             >
-                {type === 'success' ? (
-                    <CheckCircle className="mx-auto w-16 h-16 text-green-500 mb-4" />
-                ) : (
-                    <XCircle className="mx-auto w-16 h-16 text-red-500 mb-4" />
-                )}
+                <div
+                    className={`flex justify-center items-center p-4 rounded-lg   ${type === 'success' ? 'bg-green-100' : 'bg-red-100'} mb-6`}
+                >
+                    {type === 'success' ? (
+                        <CheckCircle className="w-16 h-16 text-green-500" />
+                    ) : (
+                        <XCircle className="w-16 h-16 text-red-500" />
+                    )}
+                </div>
 
-                <h2 className={`text-2xl font-semibold mb-4 ${type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
-                    {type === 'success' ? 'Cancellation Successful' : 'Cancellation Failed'}
+                <h2 className={`text-3xl font-semibold mb-4 ${type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                    {type === 'success' ? 'Booking Successful' : 'Booking Failed'}
                 </h2>
 
-                <p className="mb-6">{message}</p>
+                <p className="text-lg mb-6">{message}</p>
 
-                <button
-                    onClick={onClose}
-                    className={`py-3 px-8 rounded-full text-lg font-semibold ${buttonBgClass} text-white`}
-                >
-                    Close
-                </button>
+                <div className="flex justify-center mt-4">
+                    <button
+                        onClick={onClose}
+                        className={`py-3 px-10 rounded-full text-lg font-semibold ${buttonBgClass} text-white transition-all duration-200`}
+                    >
+                        Close
+                    </button>
+                </div>
             </motion.div>
         </motion.div>
     );
 };
+
 
 const BookingDetailModal = ({ booking, nightMode, onClose, onDelete , fullname  }) => {
     if (!booking) return null;
@@ -364,8 +371,8 @@ const BookingApp = ({ fullname, nightMode }) => {
 
     const fetchData = async () => {
         try {
-            const response = await API.get("/reservations/all");
-            const transformedData = transformData(response.data, sortOrder);
+            const response = await API.get("/reservations");
+            const transformedData = transformData(response.data.data, sortOrder);
             setData(transformedData);
         } catch (error) {
             console.error("Error fetching data:", error);

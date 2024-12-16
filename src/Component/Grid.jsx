@@ -20,7 +20,7 @@ const CoGrid = ({ nightMode }) => {
 
   const fetchData = async (month) => {
     try {
-      const response = await API.get(`/reservations/${month}`);
+      const response = await API.get(`/reservations?month=${month}`);
 
       if (response.data.status === 200) {
         console.log("Data fetched successfully!", response.data);
@@ -51,7 +51,7 @@ const CoGrid = ({ nightMode }) => {
       date: new Date(item.reservation_date),
     }));
 
-    console.log("Transformed Data:", transformedData);
+    // console.log("Transformed Data:", transformedData);
     setBookings(transformedData);
   };
 

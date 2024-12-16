@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
+import { th } from "date-fns/locale";
+import { registerLocale } from "react-datepicker";
+registerLocale("th", th);
+
 
 
 const CircleButton = ({ cx, cy, tableNumber, onClick, disabled, tableID, showBookingDetails }) => {
@@ -56,22 +60,19 @@ function MapSVG({ time, date, onSelectNumbertable, onSelectNumbertableID }) {
     useEffect(() => {
         const Bookings = async () => {
             const currentDate = date.toISOString().split('T')[0]; // กำหนด currentDate เป็นวันที่ปัจจุบันในรูปแบบ yyyy-mm-dd
-            console.log('Current Date:', currentDate);
-            console.log('Time from props:', time);
-            console.log('Date from props:', date);
             try {
-                const response = await API.get(`/reservations/day/${currentDate}`);
+                const response = await API.get(`/reservations?day=${currentDate}`);
 
                 // ตรวจสอบการตอบกลับจาก API
                 if (response && response.data) {
-                    console.log(response.data); // ตรวจสอบข้อมูลที่ได้รับจาก API
+                    // console.log(response.data); // ตรวจสอบข้อมูลที่ได้รับจาก API
                     if (response.data.status === 404) {
                         console.log("No bookings found for the selected date.");
                         setBooking(new Set());
                     }
                     else {
          
-                        const timeMap = response.data
+                        const timeMap = response.data.data
 
                             .filter(item => new Date(item.reservation_date).toDateString() === new Date(date).toDateString())
 
@@ -83,8 +84,6 @@ function MapSVG({ time, date, onSelectNumbertable, onSelectNumbertableID }) {
 
                         const bookingTableSet = new Set(timeMap.filter(item => item.disabled).map(item => item.table));
                         setBooking(bookingTableSet);
-                        console.log(bookingTableSet, date, time);
-
 
                     }
 
@@ -191,5 +190,3 @@ function MapSVG({ time, date, onSelectNumbertable, onSelectNumbertableID }) {
 }
 
 export default MapSVG;
-
-
