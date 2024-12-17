@@ -146,6 +146,7 @@ function ProfileDetailsSection({
         {showPasswordModal && (
           <button
             className="py-2 px-6 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 flex items-center justify-center space-x-2"
+            type="button"
           >
             <FaLock className="h-5 w-5" />
             <span>Set Password</span>

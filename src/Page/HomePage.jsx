@@ -235,24 +235,31 @@ const Home = () => {
 
 
 
-          <footer className="mt-8 p-4 text-center bg-gray-100 text-gray-800 rounded-t-md shadow-md">
-        <div className="text-sm">&copy; {new Date().getFullYear()} RSU Booking</div>
-        <div className="mt-2 text-xs flex justify-center space-x-4">
-          <button
-            onClick={() => openModal("Privacy Policy")}
-            className="text-blue-500 hover:underline"
+          <footer
+            className={`mt-8 p-4 text-center rounded-t-md shadow-md ${isNightMode
+                ? "bg-gray-800 text-gray-200"
+                : "bg-gray-100 text-gray-800"
+              }`}
           >
-            Privacy Policy
-          </button>
-          <span className="text-gray-400">|</span>
-          <button
-            onClick={() => openModal("Terms of Service")}
-            className="text-blue-500 hover:underline"
-          >
-            Terms of Service
-          </button>
-        </div>
-      </footer>
+            <div className="text-sm">&copy; {new Date().getFullYear()} RSU Booking</div>
+            <div className="mt-2 text-xs flex justify-center space-x-4">
+              <button
+                onClick={() => openModal("Privacy Policy")}
+                className={`hover:underline ${isNightMode ? "text-blue-400" : "text-blue-500"
+                  }`}
+              >
+                Privacy Policy
+              </button>
+              <span className={`${isNightMode ? "text-gray-600" : "text-gray-400"}`}>|</span>
+              <button
+                onClick={() => openModal("Terms of Service")}
+                className={`hover:underline ${isNightMode ? "text-blue-400" : "text-blue-500"
+                  }`}
+              >
+                Terms of Service
+              </button>
+            </div>
+          </footer>
 
 
           <div className="mt-auto space-y-4 pb-4">
