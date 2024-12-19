@@ -352,7 +352,7 @@ const BookingList = ({
 
 
 
-const BookingApp = ({ fullname, nightMode }) => {
+const BookingApp = ({ fullname, nightMode , userid }) => {
     const [activeTab, setActiveTab] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [sortOrder, setSortOrder] = useState("asc");
@@ -381,10 +381,20 @@ const BookingApp = ({ fullname, nightMode }) => {
 
     const handleDeleteBooking = async (bookingID) => {
         try {
-            const response = await API.put(`/reservations/cancel`, { reservation_id: bookingID });
+            const response = await API.put(`/reservations/cancel`, { 
+                reservation_id: bookingID, 
+                userid: userid 
+            });
             
             if (response.status === 200 || response.status.data === 200) {
-                fetchData();
+                // อัปเดตข้อมูลในสเตทโดยตรง
+                setData(prevData => 
+                    prevData.map(day => ({
+                        ...day,
+                        bookings: day.bookings.filter(booking => booking.id !== bookingID)
+                    })).filter(day => day.bookings.length > 0)
+                );
+                
                 setSelectedBooking(null);
                 setConfirmationModal({ isOpen: false, bookingId: null });
                 setFeedbackModal({

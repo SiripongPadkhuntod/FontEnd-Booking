@@ -119,7 +119,7 @@ const Home = () => {
     switch (activeComponent) {
       case "Map": return <CoMap nightMode={isNightMode} userid={userid} />;
       case "Setting": return <CoProfile nightMode={isNightMode} userid={userid} />;
-      case "List": return <CoList fullname={first_name + " " + last_name} nightMode={isNightMode} />;
+      case "List": return <CoList fullname={first_name + " " + last_name} nightMode={isNightMode} userid={userid} />;
       case "Grid": return <CoGrid nightMode={isNightMode} userid={userid} />;
       case "Month": return <CoMonth nightMode={isNightMode} userid={userid} />;
       case "Day": return <CoDay nightMode={isNightMode} userid={userid} />;
