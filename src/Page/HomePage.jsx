@@ -66,6 +66,7 @@ const Home = () => {
   useEffect(() => {
     const fetchTokenData = async () => {
       const token = localStorage.getItem('authToken');
+      setIsNightMode(localStorage.getItem('darkMode') === 'true');
       if (!token) {
         console.error("Token not found");
         navigate("/");

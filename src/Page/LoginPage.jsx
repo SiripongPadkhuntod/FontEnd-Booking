@@ -75,6 +75,9 @@ function Login() {
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
     setIsDarkMode(savedDarkMode);
+    //Delete authToken from localStorage
+    localStorage.removeItem('authToken');
+    
   }, []);
 
   // Toggle dark mode
@@ -87,7 +90,6 @@ function Login() {
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   // ตรวจสอบว่า email และ password ไม่ว่าง
-  const isFormValid = email && password;
 
   const handleLoginGoogle = async (response) => {
     try {

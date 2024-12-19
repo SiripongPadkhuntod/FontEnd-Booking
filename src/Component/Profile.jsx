@@ -9,7 +9,8 @@ import ProfileDetailsSection from './PersonalDetails';
 import { RiImageEditFill } from "react-icons/ri";
 import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้\
 import { CheckCircle } from 'lucide-react';
-import { FaSignOutAlt, FaTimes } from 'react-icons/fa';
+
+import { FaKey, FaEye, FaSave, FaTimes, FaSignOutAlt, FaExclamationCircle } from 'react-icons/fa';
 function ProfilePage({ nightMode, userid }) {
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -24,6 +25,30 @@ function ProfilePage({ nightMode, userid }) {
   const [imageBG, setImageBG] = useState(userData?.photo || "/api/placeholder/80/80");
   const [formData, setFormData] = useState({});
   const navigate = useNavigate(); // ใช้ useNavigate สำหรับเปลี่ยนเส้นทาง
+
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(''); // เก็บข้อความข้อผิดพลาด
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    console.log('Form submitted'); // Debug log
+    console.log('Password and Confirm Password:', password, confirmPassword); // Debug log
+    if (!password || !confirmPassword) {
+      console.log('Please fill out both fields.'); // Debug log
+      setErrorMessage('Please fill out both fields.');
+      document.getElementById('ErrModal').showModal(); // แสดง modal ข้อผิดพลาด
+    } else if (password !== confirmPassword) {
+      console.log('Passwords do not match!'); // Debug log
+      setErrorMessage('Passwords do not match!');
+      document.getElementById('ErrModal').showModal(); // แสดง modal ข้อผิดพลาด
+    } else {
+      document.getElementById('confirmSaveModal').showModal(); // แสดง modal ยืนยันการบันทึก
+    }
+  };
 
   useEffect(() => {
 
@@ -54,19 +79,51 @@ function ProfilePage({ nightMode, userid }) {
     navigate('/'); // เปลี่ยนเส้นทางไปยังหน้า Login
   };
 
-  // const toggleEdit = () => {
-  //   setIsEditing(!isEditing);
-  // };
-
-  const handleCloseModal = () => {
-    console.log('Close modal clicked'); // Debug log
-    setShowLogoutModal(false);
+  const handleCancelSvae = () => {
+    setPassword('');
+    setConfirmPassword('');
+    document.getElementById('setPasswordModal').close();
+    // document.getElementById('confirmSaveModal').close();
   };
+
+  const handleSavePassword = async () => {
+    const jsonData = {
+      email: userData.email,
+      password: password,
+    };
+    console.log('Edit user data:', jsonData);
+    try {
+      const response = await API.put('/setpassword', jsonData);
+
+      if (response.status === 200) {
+        console.log('Edit user data:', response.data);
+        setFormData(jsonData);
+        document.getElementById('setPasswordModal').close();
+        document.getElementById('confirmSaveModal').close();
+        document.getElementById('successSaveModal').showModal();
+        // fetchUserData();
+      } else {
+        throw new Error('Failed to update user data');
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+
+    console.log('Updated user data:', formData);
+  };
+
+ 
 
   const handleCanselEdit = () => {
     setIsEditing(false);
     setFormData({ ...userData }); // รีเซ็ต userData2 ให้เหมือน userData
     setProfileImage(userData.photo); // รีเซ็ตภาพโปรไฟล์
+  };
+
+
+  const handldShowModalSetpassword = () => {
+    console.log('set password');
+    document.getElementById('setPasswordModal').showModal();
   };
 
 
@@ -101,7 +158,7 @@ function ProfilePage({ nightMode, userid }) {
     try {
       setLoading(true);
       const response = await API.get(`/users?id=${userid}`);
-      console.log('User data:', response.data);
+      // console.log('User data:', response.data);
       if (response.status === 200) {
         const userData = response.data.data;
 
@@ -364,6 +421,7 @@ function ProfilePage({ nightMode, userid }) {
             handleInputChange={handleInputChange}
             handleCanselEdit={handleCanselEdit}
             handleSave={handleSave}
+            handldShowModalSetpassword={handldShowModalSetpassword}
           />
         </div>
       </CSSTransition>
@@ -387,31 +445,209 @@ function ProfilePage({ nightMode, userid }) {
       </CSSTransition>
 
       <dialog id="confirmModal1" className="modal">
-  <div
-    className={`${nightMode ? 'bg-gray-800' : 'bg-gradient-to-r from-red-500 to-gray-600'} modal-box rounded-lg w-full sm:w-auto p-6`}
-  >
-    <h3 className="text-lg font-semibold mb-4 text-white flex items-center gap-2">
-      <FaSignOutAlt className="w-6 h-6 text-red-400" /> Confirm Logout
-    </h3>
-    <p className="text-white mb-6">Are you sure you want to log out?</p>
-    <div className="flex justify-end gap-4">
-      <button
-        onClick={handleLogout}
-        className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-all duration-200"
-      >
-        <FaSignOutAlt className="w-5 h-5 inline-block mr-2" />
-        Logout
-      </button>
-      <button
-        onClick={() => document.getElementById('confirmModal1').close()}
-        className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-all duration-200"
-      >
-        <FaTimes className="w-5 h-5 inline-block mr-2" />
-        Cancel
-      </button>
-    </div>
-  </div>
-</dialog>
+        <div
+          className={`${nightMode ? 'bg-gray-800' : 'bg-gradient-to-r from-red-500 to-gray-600'} modal-box rounded-lg w-full sm:w-auto p-6`}
+        >
+          <h3 className="text-lg font-semibold mb-4 text-white flex items-center gap-2">
+            <FaSignOutAlt className="w-6 h-6 text-red-400" /> Confirm Logout
+          </h3>
+          <p className="text-white mb-6">Are you sure you want to log out?</p>
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-all duration-200"
+            >
+              <FaSignOutAlt className="w-5 h-5 inline-block mr-2" />
+              Logout
+            </button>
+            <button
+              onClick={() => document.getElementById('confirmModal1').close()}
+              className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-all duration-200"
+            >
+              <FaTimes className="w-5 h-5 inline-block mr-2" />
+              Cancel
+            </button>
+          </div>
+        </div>
+      </dialog>
+
+
+
+       {/* Password Set Modal */}
+       <dialog id="setPasswordModal" className="modal">
+        <div className={`modal-box rounded-lg w-full sm:w-[480px] p-8 shadow-lg border border-gray-300 ${nightMode ? 'bg-gray-100' : 'bg-white'}`}>
+          <h3 className="text-2xl font-semibold mb-6 text-gray-800 flex items-center gap-3">
+            <FaKey className="w-6 h-6 text-blue-500" />
+            Set Password
+          </h3>
+          <form id="setPasswordForm" className="space-y-6" >
+            {/* Password Field */}
+            <div>
+              <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={isPasswordVisible ? 'text' : 'password'}
+                  id="password"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-50 text-gray-700 border border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                  className="absolute right-3 top-2.5 text-gray-500 hover:text-blue-400 focus:outline-none focus:ring focus:ring-blue-400 rounded-full transition-all duration-300"
+                >
+                  <FaEye className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Confirm Password Field */}
+            <div>
+              <label htmlFor="confirmPassword" className="block text-gray-700 font-medium mb-2">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <input
+                  type={isConfirmPasswordVisible ? 'text' : 'password'}
+                  id="confirmPassword"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-50 text-gray-700 border border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}
+                  className="absolute right-3 top-2.5 text-gray-500 hover:text-blue-400 focus:outline-none focus:ring focus:ring-blue-400 rounded-full transition-all duration-300"
+                >
+                  <FaEye className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-4">
+              <button
+                type="submit"
+                className="bg-blue-500 text-white font-medium py-3 px-8 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 flex items-center gap-2"
+                onClick={(e) => handleSubmit(e)}
+              >
+                <FaSave className="w-5 h-5" />
+                Save
+              </button>
+              <button
+                type="button"
+                onClick={() => handleCancelSvae()}
+                className="bg-gray-200 text-gray-700 font-medium py-3 px-8 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-300 flex items-center gap-2"
+              >
+                <FaTimes className="w-5 h-5" />
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </dialog>
+
+      {/* Error Modal */}
+      <dialog id="ErrModal" className="modal">
+        <div className="modal-box rounded-lg w-full sm:w-[480px] p-8 shadow-lg border border-red-300 bg-red-50">
+          <h3 className="text-2xl font-semibold mb-6 text-red-800 flex items-center gap-3">
+            <FaExclamationCircle className="w-6 h-6 text-red-500" />
+            Error
+          </h3>
+          <p className="text-red-700 mb-6">{errorMessage}</p>
+          <div className="flex justify-end gap-4">
+            <button type="button" onClick={() => document.getElementById('ErrModal').close()} className="bg-red-200 text-red-700 font-medium py-3 px-8 rounded-lg hover:bg-red-300 focus:outline-none focus:ring-4 focus:ring-red-300 transition-all duration-300 flex items-center gap-2">
+              <FaTimes className="w-5 h-5" />
+              Close
+            </button>
+          </div>
+        </div>
+      </dialog>
+
+      
+
+
+
+      {/* dialog confirm save */}
+      <dialog id="confirmSaveModal" className="modal">
+        <div
+          className="
+      bg-white modal-box rounded-lg w-full sm:w-[480px] p-8 shadow-lg border border-gray-300
+    "
+        >
+          <h3 className="text-2xl font-semibold mb-6 text-gray-800 flex items-center gap-3">
+            <FaExclamationCircle className="w-6 h-6 text-red-500" />
+            Confirm Save
+          </h3>
+          <p className="text-gray-700 mb-6">
+            You can only set your password once. If you need to change it, please contact the system administrator.
+          </p>
+          <div className="flex justify-end gap-4">
+            <button
+              type="button"
+              onClick={() => document.getElementById('confirmSaveModal').close()}
+              className="bg-gray-200 text-gray-700 font-medium py-3 px-8 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-300 flex items-center gap-2"
+            >
+              <FaTimes className="w-5 h-5" />
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="bg-blue-500 text-white font-medium py-3 px-8 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 flex items-center gap-2"
+              onClick={() => {
+                // Add save functionality here
+                
+                handleSavePassword();
+              }}
+            >
+              <FaSave className="w-5 h-5" />
+              Confirm
+            </button>
+          </div>
+        </div>
+      </dialog>
+
+
+      {/* dialog success save */}
+      <dialog id="successSaveModal" className="modal">
+        <div
+          className= {`${nightMode ? 'bg-gray-800' : 'bg-gradient-to-r from-green-500 to-gray-600'} modal-box rounded-lg w-full sm:w-[480px] p-8 shadow-lg border border-gray-300`} 
+        >
+
+          <h3 className="text-2xl font-semibold mb-6 text-white flex items-center gap-3">
+            <CheckCircle className="w-6 h-6 text-green-500" />
+            Success
+          </h3>
+          <p className="text-white mb-6">Your password has been set successfully.</p>
+          <div className="flex justify-end gap-4">
+            <button
+              type="button"
+              onClick={() => {
+                document.getElementById('successSaveModal').close();
+                setPassword('');
+                setConfirmPassword('');
+                fetchUserData();
+              }}
+              className="bg-gray-200 text-gray-700 font-medium py-3 px-8 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-300 flex items-center gap-2"
+            >
+              <FaTimes className="w-5 h-5" />
+              Close
+            </button>
+          </div>
+        </div>
+      </dialog>
+
+
+
+
+
     </TransitionGroup>
   );
 }

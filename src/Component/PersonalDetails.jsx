@@ -11,7 +11,8 @@ function ProfileDetailsSection({
   formData,
   handleInputChange,
   handleCanselEdit,
-  handleSave
+  handleSave,
+  handldShowModalSetpassword
 }) {
 
   const [initialFormData, setInitialFormData] = useState(formData);
@@ -147,6 +148,7 @@ function ProfileDetailsSection({
           <button
             className="py-2 px-6 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 flex items-center justify-center space-x-2"
             type="button"
+            onClick={handldShowModalSetpassword}
           >
             <FaLock className="h-5 w-5" />
             <span>Set Password</span>
@@ -250,10 +252,9 @@ function ProfileDetailsSection({
           <button
             className={`py-2 px-6 rounded-lg ${isFormValid() ? 'bg-green-500' : 'bg-gray-400 cursor-not-allowed'} text-white hover:bg-green-600 transition-all duration-300`}
             type="button"
-            onClick={handleSaveChanges}
+            onClick={handldShowModalSetpassword}
             disabled={!isFormValid()}
           >
-            <FaSave className="h-5 w-5 mr-2" />
             Save Changes
           </button>
         </div>
