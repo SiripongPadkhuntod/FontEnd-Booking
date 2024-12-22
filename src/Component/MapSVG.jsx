@@ -54,7 +54,7 @@ function isBetweenTimes(time, startTime, endTime) {
 
 
 
-function MapSVG({ time, date, onSelectNumbertable, onSelectNumbertableID }) {
+function MapSVG({ time, date, onSelectNumbertable, onSelectNumbertableID, onSelectRoom }) {
 
     const [booking, setBooking] = useState(new Set());
     useEffect(() => {
@@ -104,6 +104,7 @@ function MapSVG({ time, date, onSelectNumbertable, onSelectNumbertableID }) {
     const setNumbertable = (tableNumber, tableID) => {
         onSelectNumbertable(tableNumber);  // ตั้งค่าหมายเลขโต๊ะใน Map.jsx
         onSelectNumbertableID(tableID);
+        onSelectRoom(1);
         console.log('Selected table:', tableNumber, tableID);
     };
     

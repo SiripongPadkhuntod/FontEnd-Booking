@@ -8,9 +8,20 @@ const CoDay = ({ nightMode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentRoom, setCurrentRoom] = useState("Room1"); // State สำหรับห้อง
+  // const desks = rooms[currentRoom]; // โต๊ะของห้องปัจจุบัน
 
-  const desks = ["A01", "A02", "A03", "A04", "A05", "A06", "B01", "B02", "C01", "C02"];
+  const rooms = {
+    Room1: ["A01", "A02", "A03", "A04", "A05", "A06", "B01", "B02", "C01", "C02"],
+    Room2: ["A01", "A02", "A03", "A04", "A05", "A06", "A07", "A08", "A09", "A10", "A11", "A12", "B01", "B02", "B03", "B04", "B05"]
+  };
+
+  const desks = rooms[currentRoom]; // โต๊ะของห้องปัจจุบัน
   const hours = Array.from({ length: 15 }, (_, i) => 8 + i);
+
+  const handleRoomChange = (room) => {
+    setCurrentRoom(room);
+  };
 
   const formatTime = (time) => {
     const hours = Math.floor(time); // ชั่วโมง
@@ -87,8 +98,8 @@ const CoDay = ({ nightMode }) => {
       const formattedDate = currentDate.toISOString().split('T')[0];
       // console.log(formattedDate);
       const response = await API.get(`/reservations?day=${formattedDate}`);
-    
-      if (response.data.status == 200 ) {
+
+      if (response.data.status == 200) {
         // console.log(response.data.data);
         // Check if response.data is an array
         if (Array.isArray(response.data.data)) {
@@ -127,7 +138,7 @@ const CoDay = ({ nightMode }) => {
         setBookings([]);
       }
     } catch (error) {
-      
+
       if (error.response && error.response.status === 404) {
         // setBookings([]);
         console.log("Error fetching bookings:", error);
@@ -173,72 +184,100 @@ const CoDay = ({ nightMode }) => {
     );
   }
 
+  const formattedDate = currentDate.toLocaleDateString('th-TH', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return (
-    <div className={`p-4 sm:p-10 min-h-screen ${nightMode
-      ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
-      : 'bg-gradient-to-b from-blue-100 to-blue-200'
-      }`}>
+    <div className={`p-4 sm:p-10 min-h-screen ${nightMode ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100' : 'bg-gradient-to-b from-blue-100 to-blue-200'}`}>
       <div className="container mx-auto">
+        {/* ส่วนหัว */}
         <div className={`flex sm:flex-row flex-col justify-between items-center mb-6`}>
           <h1 className={`text-2xl sm:text-4xl font-bold flex items-center ${nightMode ? 'text-gray-100' : 'text-gray-800'}`}>
             <Grid className={`mr-3 ${nightMode ? 'text-blue-400' : 'text-blue-600'}`} size={36} />
-            Desk Booking Schedule
+            Desk Booking Schedule ({currentRoom})
           </h1>
-          <div className="flex items-center space-x-4 mt-4 sm:mt-0">
-            {/* ปุ่มเปลี่ยนวันที่ */}
-            {/* <button
-              onClick={() => handleDateChange(-1)}
-              className={`btn p-3 sm:p-2 rounded-full ${nightMode
-                ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                : 'bg-red-800 text-white hover:bg-red-800'} transition-colors duration-300`}
-            >
-              ←
-            </button> */}
+          <div className="flex flex-col sm:flex-row items-center space-x-4 mt-4 sm:mt-0">
+            {/* แสดงวันที่ */}
+            <div className="text-sm sm:text-lg font-semibold text-gray-700">
+              {formattedDate}
+            </div>
 
-            <button
-              onClick={() => handleDateChange(-1)}
-              className={`p-2 border rounded-full transition duration-200 shadow-md ${nightMode
-                ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 border-gray-600'
-                : 'bg-red-700 text-white hover:bg-red-600 border-red-700'
-                }`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-
-
-            {/* วันที่ */}
-            <span className={`font-semibold flex items-center ${nightMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              <Clock className={`mr-2 ${nightMode ? 'text-blue-400' : 'text-blue-600'}`} size={20} />
-              {currentDate.toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </span>
-            <button
-              onClick={() => handleDateChange(1)}
-              className={`p-2 border rounded-full transition duration-200 shadow-md ${nightMode
-                ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 border-gray-600'
-                : 'bg-red-700 text-white hover:bg-red-600 border-red-700'
-                }`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+            {/* ปุ่มเปลี่ยนห้อง */}
+            {Object.keys(rooms).map((room) => (
+              <button
+                key={room}
+                onClick={() => handleRoomChange(room)}
+                className={`px-4 py-2 rounded-md shadow-md font-semibold transition duration-200 ${currentRoom === room
+                    ? nightMode
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-blue-400 text-white'
+                    : nightMode
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                  }`}
+              >
+                {room}
+              </button>
+            ))}
           </div>
         </div>
 
+        <div className="flex items-center justify-between mb-6">
+  <div className="flex items-center space-x-6">
+    <button
+      onClick={() => handleDateChange(-1)}
+      className={`px-4 py-2 rounded-md shadow-md font-semibold transition duration-200 ${nightMode
+        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+        } flex items-center`}
+    >
+      <Clock className="mr-2" size={16} />
+      Previous Day
+    </button>
+    <button
+      onClick={() => handleDateChange(1)}
+      className={`px-4 py-2 rounded-md shadow-md font-semibold transition duration-200 ${nightMode
+        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+        } flex items-center`}
+    >
+      Next Day
+      <Clock className="ml-2" size={16} />
+    </button>
+  </div>
+  <div className="flex items-center space-x-4">
+    <button
+      onClick={() => handleDateChange(0)}
+      className={`px-4 py-2 rounded-md shadow-md font-semibold transition duration-200 ${nightMode
+        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+        } flex items-center`}
+    >
+      Today
+    </button>
+    <button
+      onClick={() => handleDateChange(7)}
+      className={`px-4 py-2 rounded-md shadow-md font-semibold transition duration-200 ${nightMode
+        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+        } flex items-center`}
+    >
+      Next 7 Days
+    </button>
+  </div>
+</div>
 
 
-
+        {/* ตารางการจองโต๊ะ */}
         <div className={`rounded-2xl shadow-lg overflow-hidden border ${nightMode
           ? 'bg-gray-800 border-gray-700'
           : 'bg-white border-gray-200'
           }`}>
+          {/* ตารางส่วนหัว */}
           <div className={`flex ${nightMode
             ? 'bg-gray-900 border-b border-gray-700'
             : 'bg-gray-50 border-b'
@@ -258,6 +297,7 @@ const CoDay = ({ nightMode }) => {
               </div>
             ))}
           </div>
+          {/* ตารางการจอง */}
           <div className={`relative ${nightMode ? 'bg-gray-800' : 'bg-white'}`}>
             {desks.map((desk, idx) => {
               const deskBookings = bookings
@@ -333,13 +373,9 @@ const CoDay = ({ nightMode }) => {
                           <span className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
                             {booking.name}
                           </span>
-
-
                         </div>
-
                       );
                     })}
-
                   </div>
                 </div>
               );

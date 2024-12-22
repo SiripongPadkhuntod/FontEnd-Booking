@@ -5,6 +5,7 @@ import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'; // import ไอ�
 import { GrCaretPrevious, GrCaretNext } from 'react-icons/gr'; // import ไอคอน
 import { FaChair, FaRegWindowClose, FaArrowLeft, FaCalendarCheck, FaCheck, FaTimes } from "react-icons/fa";
 import MapSVG from './MapSVG';
+import MapSVG2 from './MapSVG2';
 import API from '../api'; // ถ้าใช้ axios แบบที่เราสร้างไว้
 
 
@@ -33,6 +34,7 @@ const CoMap = ({ nightMode, userid }) => {
   const [scale, setScale] = useState(1);
   const [numbertable, setNumbertable] = useState(0);
   const [TableID, setTableID] = useState(0);
+  const [Room, setRoom] = useState(0);
   const [selectedTime, setSelectedTime] = useState(0);
   const [displayTime, setDisplayTime] = useState("08:00");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -164,7 +166,7 @@ const CoMap = ({ nightMode, userid }) => {
       starttime: timeModal,
       endtime: timeModalTo,
       note : bookingNote,
-      roomid: 1,
+      roomid: Room
     };
 
     console.log('Booking data:', jsonData);
@@ -209,6 +211,14 @@ const CoMap = ({ nightMode, userid }) => {
       }
     }
   };
+
+  const handleMapChange = (map) => {
+    setMap(map); // เปลี่ยน Map ที่เลือก
+  };
+
+  const [map, setMap] = useState('map1');
+
+  
 
   const closeSuccessModal = () => {
     setBookingSuccess(false);
@@ -304,22 +314,62 @@ const CoMap = ({ nightMode, userid }) => {
           touchAction: 'none',
         }}
       >
-        <MapSVG
-          time={time}
-          bookingTime={bookingTime}
-          date={date}
-          numbertable={numbertable}
-          onSelectNumbertable={setNumbertable}
-          onSelectNumbertableID={setTableID}    // ส่ง setTableID
-          nightMode={nightMode}
-          setBookingTime={setBookingTime}
-          setDisplayTime={setDisplayTime}
-          setSelectedTime={setSelectedTime}
-          handleTimeChange={handleTimeChange}
-          showMore={showMore}
-          setShowMore={setShowMore}
-          getSliderValueFromTime={getSliderValueFromTime}
-        />
+       
+        {map === 'map1' ? (
+          <MapSVG
+            time={time}
+            bookingTime={bookingTime}
+            date={date}
+            numbertable={numbertable}
+            onSelectNumbertable={setNumbertable}
+            onSelectNumbertableID={setTableID}    // ส่ง setTableID
+            onSelectRoom={setRoom}
+            nightMode={nightMode}
+            setBookingTime={setBookingTime}
+            setDisplayTime={setDisplayTime}
+            setSelectedTime={setSelectedTime}
+            handleTimeChange={handleTimeChange}
+            showMore={showMore}
+            setShowMore={setShowMore}
+            getSliderValueFromTime={getSliderValueFromTime}
+          />
+        ) : map === 'map2' ? (
+          <MapSVG2
+            time={time}
+            bookingTime={bookingTime}
+            date={date}
+            numbertable={numbertable}
+            onSelectNumbertable={setNumbertable}
+            onSelectNumbertableID={setTableID}    // ส่ง setTableID
+            onSelectRoom={setRoom}
+            nightMode={nightMode}
+            setBookingTime={setBookingTime}
+            setDisplayTime={setDisplayTime}
+            setSelectedTime={setSelectedTime}
+            handleTimeChange={handleTimeChange}
+            showMore={showMore}
+            setShowMore={setShowMore}
+            getSliderValueFromTime={getSliderValueFromTime}
+          />
+        ) : (
+          // <MapSVG
+          //   time={time}
+          //   bookingTime={bookingTime}
+          //   date={date}
+          //   numbertable={numbertable}
+          //   onSelectNumbertable={setNumbertable}
+          //   onSelectNumbertableID={setTableID}    // ส่ง setTableID
+          //   nightMode={nightMode}
+          //   setBookingTime={setBookingTime}
+          //   setDisplayTime={setDisplayTime}
+          //   setSelectedTime={setSelectedTime}
+          //   handleTimeChange={handleTimeChange}
+          //   showMore={showMore}
+          //   setShowMore={setShowMore}
+          //   getSliderValueFromTime={getSliderValueFromTime}
+          // />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">Map 3 is coming soon</div>
+        )}
       </div>
 
       {/* Responsive controls for mobile */}
@@ -370,61 +420,74 @@ const CoMap = ({ nightMode, userid }) => {
 
 
       {/* Desktop controls */}
-      <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 ${isMobile ? 'hidden' : 'flex'} flex-col md:flex-row items-center p-6 space-x-6 rounded-lg shadow-lg ${nightMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-100 text-black'} shadow-md rounded-lg p-4 mb-6  `}>
-        {/* Time Selector */}
-        <div className="flex items-center ">
-          <label className="font-semibold mr-2">Time:</label>
-          <input
-            type="range"
-            min="0"
-            max="28"
-            step="1"
-            value={selectedTime}
-            onChange={handleTimeChange}
-            className="w-64"
-          />
-          <span className="ml-2 font-semibold">{displayTime}</span>
-        </div>
+      <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 ${isMobile ? 'hidden' : 'flex'} flex-col md:flex-row items-center p-6 space-x-6 rounded-lg shadow-lg ${nightMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-100 text-black'} shadow-md rounded-lg p-4 mb-6`}>
+  {/* Time Selector */}
+  <div className="flex items-center ">
+    <label className="font-semibold mr-2">Time:</label>
+    <input
+      type="range"
+      min="0"
+      max="28"
+      step="1"
+      value={selectedTime}
+      onChange={handleTimeChange}
+      className="w-64"
+    />
+    <span className="ml-2 font-semibold">{displayTime}</span>
+  </div>
 
-        {/* Date Selector */}
-        <div className="flex items-center space-x-4">
+  {/* Date Selector */}
+  <div className="flex items-center space-x-4">
+    <button
+      onClick={() => setDate(new Date(date.setDate(date.getDate() - 1)))}
+      className={`p-2 border rounded-full transition duration-200 shadow-md ${nightMode
+        ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 border-gray-600'
+        : 'bg-red-700 text-white hover:bg-red-600 border-red-700'
+        }`}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
 
+    <input
+      type="date"
+      value={date.toISOString().slice(0, 10)}
+      onChange={handleDateChange}
+      className="p-2 rounded-md border bg-gray-700 text-white"
+    />
 
-          <button
-            onClick={() => setDate(new Date(date.setDate(date.getDate() - 1)))}
-            className={`p-2 border rounded-full transition duration-200 shadow-md ${nightMode
-              ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 border-gray-600'
-              : 'bg-red-700 text-white hover:bg-red-600 border-red-700'
-              }`}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
+    <button
+      onClick={() => setDate(new Date(date.setDate(date.getDate() + 1)))}
+      className={`p-2 border rounded-full transition duration-200 shadow-md ${nightMode
+        ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 border-gray-600'
+        : 'bg-red-700 text-white hover:bg-red-600 border-red-700'
+        }`}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+  </div>
 
-          <input
-            type="date"
-            value={date.toISOString().slice(0, 10)}
+  {/* Map Selector */}
+  <div className="flex items-center space-x-4">
+    <label className="font-semibold">Map:</label>
+    <select
+      value={map}
+      onChange={(e) => handleMapChange(e.target.value)}
+      className={`p-2 rounded-md border transition duration-200 ${nightMode
+        ? 'bg-gray-700 text-gray-200 border-gray-600'
+        : 'bg-white text-black border-gray-300'
+        }`}
+    >
+      <option value="map1">CS LAB</option>
+      <option value="map2">CS Meeting</option>
+      <option value="map3">is coming soon</option>
+    </select>
+  </div>
+</div>
 
-            onChange={handleDateChange}
-            className="p-2 rounded-md border bg-gray-700 text-white"
-          />
-
-
-          <button
-            onClick={() => setDate(new Date(date.setDate(date.getDate() + 1)))}
-            className={`p-2 border rounded-full transition duration-200 shadow-md ${nightMode
-              ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 border-gray-600'
-              : 'bg-red-700 text-white hover:bg-red-600 border-red-700'
-              }`}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-
-        </div>
-      </div>
 
 
 
